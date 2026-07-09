@@ -1,0 +1,1021 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Turtle Lab - Learn Python by Drawing</title>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+<style>
+    :root {
+        --bg: #f5f7ff;
+        --card: #fff;
+        --ink: #14213d;
+        --muted: #596579;
+        --brand: #1da780;
+        --brand2: #08775b;
+        --accent: #ffb703;
+        --violet: #6c63ff;
+        --danger: #ef476f;
+        --line: #d9e1f2;
+        --shadow: 0 14px 35px #14213d22;
+        --r: 20px;
+        --mono: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+        --sans: Inter,system-ui,-apple-system,Segoe UI,sans-serif
+    }
+
+    * {
+        box-sizing: border-box
+    }
+
+    body {
+        margin: 0;
+        font-family: var(--sans);
+        color: var(--ink);
+        background: radial-gradient(circle at 10% 0,#ffb70333,transparent 28rem),radial-gradient(circle at 90% 5%,#6c63ff2b,transparent 28rem),var(--bg)
+    }
+
+        body.hc {
+            --bg: #050505;
+            --card: #111;
+            --ink: #fff;
+            --muted: #ddd;
+            --brand: #00e5a8;
+            --brand2: #00c990;
+            --accent: #ffe100;
+            --line: #555;
+            background: #050505
+        }
+
+    .shell {
+        max-width: 1580px;
+        margin: auto;
+        padding: 18px
+    }
+
+    header, .card, .learn {
+        background: #ffffffe6;
+        border: 1px solid #ffffffbf;
+        border-radius: var(--r);
+        box-shadow: var(--shadow)
+    }
+
+    body.hc header, body.hc .card, body.hc .learn {
+        background: #111;
+        border-color: #555
+    }
+
+    header {
+        position: sticky;
+        top: 10px;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 17px 19px
+    }
+
+    .brand {
+        display: flex;
+        gap: 13px;
+        align-items: center
+    }
+
+    .logo {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        font-size: 32px;
+        background: linear-gradient(135deg,var(--brand),#8eea9f)
+    }
+
+    h1 {
+        margin: 0;
+        font-size: clamp(1.8rem,3vw,3rem);
+        letter-spacing: -.04em
+    }
+
+    .sub {
+        margin: 2px 0;
+        color: var(--muted)
+    }
+
+    .bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-end
+    }
+
+    button, select, input, textarea {
+        font: inherit
+    }
+
+    button {
+        border: 0;
+        border-radius: 999px;
+        background: var(--card);
+        color: var(--ink);
+        padding: 10px 14px;
+        font-weight: 800;
+        box-shadow: 0 6px 14px #14213d20;
+        cursor: pointer;
+        min-height: 40px
+    }
+
+        button:hover {
+            transform: translateY(-1px)
+        }
+
+        button.primary {
+            background: linear-gradient(135deg,var(--brand),#34d399);
+            color: white
+        }
+
+        button.danger {
+            background: var(--danger);
+            color: white
+        }
+
+        button.warn {
+            background: var(--accent);
+            color: #3b2a00
+        }
+
+    .small {
+        padding: 8px 11px;
+        min-height: 34px;
+        font-size: .88rem
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 285px minmax(0,1.05fr) minmax(420px,.95fr);
+        gap: 16px;
+        margin-top: 16px
+    }
+
+    .card {
+        overflow: hidden
+    }
+
+    .side {
+        min-height: 760px;
+        display: flex;
+        flex-direction: column
+    }
+
+    .head {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line)
+    }
+
+        .head h2 {
+            margin: 0;
+            font-size: 1.05rem
+        }
+
+    .progress {
+        height: 12px;
+        background: #e9eefb;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 7px
+    }
+
+    .fill {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg,var(--brand),var(--accent))
+    }
+
+    .mini {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: .86rem;
+        font-weight: 800;
+        margin-top: 9px
+    }
+
+    .controls {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        gap: 8px
+    }
+
+    select, input {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--card);
+        color: var(--ink);
+        padding: 10px
+    }
+
+    .lessons {
+        padding: 10px;
+        overflow: auto
+    }
+
+    .level {
+        margin: 14px 8px 6px;
+        color: var(--muted);
+        font-size: .78rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .08em
+    }
+
+    .lesson {
+        width: 100%;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        text-align: left;
+        align-items: center;
+        box-shadow: none;
+        background: transparent;
+        margin: 2px 0;
+        border-radius: 15px
+    }
+
+        .lesson.active {
+            background: linear-gradient(135deg,#e4fff6,#fff6d8);
+            color: var(--brand2)
+        }
+
+    body.hc .lesson.active {
+        background: #222
+    }
+
+    .num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: #eef4ff;
+        color: var(--muted);
+        margin-right: 8px
+    }
+
+    .editor {
+        display: grid;
+        grid-template-rows: auto auto 1fr auto;
+        min-height: 620px
+    }
+
+    .meta {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        margin-top: 8px
+    }
+
+    .pill {
+        background: #eef4ff;
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 5px 9px;
+        font-size: .78rem;
+        font-weight: 800
+    }
+
+    .actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--line)
+    }
+
+    .editwrap {
+        position: relative;
+        background: #101827
+    }
+
+    .rail {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 42px;
+        padding: 15px 9px 0 0;
+        background: #0b1220;
+        color: #8793a8;
+        font: 14px/1.55 var(--mono);
+        text-align: right;
+        overflow: hidden
+    }
+
+    textarea {
+        width: 100%;
+        height: 100%;
+        min-height: 450px;
+        resize: none;
+        border: 0;
+        outline: 0;
+        padding: 15px 16px 15px 56px;
+        background: #101827;
+        color: #eaf2ff;
+        font: 16px/1.55 var(--mono);
+        tab-size: 4;
+        white-space: pre
+    }
+
+    .status {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 14px;
+        color: var(--muted);
+        font-size: .86rem;
+        border-top: 1px solid var(--line)
+    }
+
+    .canvas {
+        min-height: 620px;
+        display: flex;
+        flex-direction: column
+    }
+
+    .stagewrap {
+        flex: 1;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        background: linear-gradient(#f7fbff,#eef9ff)
+    }
+
+    body.hc .stagewrap {
+        background: #080808
+    }
+
+    #stage {
+        width: 100%;
+        height: min(68vh,620px);
+        min-height: 470px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 20px;
+        border: 3px solid #dce6f7;
+        background-color: #fff;
+        background-image: linear-gradient(#1da7801f 1px,transparent 1px),linear-gradient(90deg,#1da7801f 1px,transparent 1px),linear-gradient(#6c63ff14 1px,transparent 1px),linear-gradient(90deg,#6c63ff14 1px,transparent 1px);
+        background-size: 40px 40px,40px 40px,10px 10px,10px 10px;
+        box-shadow: inset 0 0 0 1px #fff,0 16px 28px #14213d20
+    }
+
+    #target, #holder, .holder {
+        width: 100%;
+        height: 100%
+    }
+
+        #target canvas {
+            width: 100% !important;
+            height: 100% !important;
+            background: transparent !important
+        }
+
+    .center {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 12px;
+        height: 12px;
+        transform: translate(-50%,-50%);
+        border-radius: 50%;
+        border: 2px solid #ef476f66;
+        pointer-events: none
+    }
+
+    .learn {
+        grid-column: 2/4
+    }
+
+    .ltop {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 13px 16px 0
+    }
+
+    .tabs {
+        display: flex;
+        gap: 8px;
+        overflow: auto;
+        padding: 10px 14px 0;
+        border-bottom: 1px solid var(--line)
+    }
+
+    .tab {
+        box-shadow: none;
+        background: transparent;
+        color: var(--muted);
+        border-radius: 14px 14px 0 0
+    }
+
+        .tab.active {
+            background: var(--card);
+            color: var(--brand2);
+            border: 1px solid var(--line);
+            border-bottom: 0
+        }
+
+    .content {
+        display: none;
+        padding: 16px;
+        max-height: 430px;
+        overflow: auto
+    }
+
+        .content.active {
+            display: block
+        }
+
+    .twocol {
+        display: grid;
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        gap: 14px
+    }
+
+    .box, .doc, .badge {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px;
+        background: var(--card)
+    }
+
+    .challenge {
+        background: linear-gradient(135deg,#fff9df,#fff)
+    }
+
+    body.hc .challenge {
+        background: #161616
+    }
+
+    .box h3, .doc h3, .badge h3 {
+        margin: 0 0 8px
+    }
+
+    .box p, .doc p, .badge p {
+        color: var(--muted);
+        line-height: 1.5
+    }
+
+    .docs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+        gap: 12px;
+        margin-top: 12px
+    }
+
+    .cat {
+        display: inline-flex;
+        background: #eef4ff;
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: .78rem;
+        font-weight: 900
+    }
+
+    pre, code {
+        font-family: var(--mono)
+    }
+
+    pre {
+        background: #101827;
+        color: #eaf2ff;
+        border-radius: 16px;
+        padding: 12px;
+        overflow: auto;
+        white-space: pre-wrap;
+        line-height: 1.45
+    }
+
+    .out, .err {
+        min-height: 160px;
+        border-radius: 18px;
+        background: #101827;
+        color: #eaf2ff;
+        padding: 14px;
+        white-space: pre-wrap;
+        overflow: auto;
+        font-family: var(--mono)
+    }
+
+    .err {
+        background: #ffe7ee;
+        color: var(--ink);
+        font-family: var(--sans)
+    }
+
+    body.hc .err {
+        background: #35151b;
+        color: #fff
+    }
+
+    .badges {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+        gap: 12px
+    }
+
+    .badge.earned {
+        border-color: #06d6a0;
+        background: linear-gradient(135deg,#ecfff9,#fff)
+    }
+
+    body.hc .badge.earned {
+        background: #12342b
+    }
+
+    .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%);
+        background: #101827;
+        color: #fff;
+        padding: 12px 16px;
+        border-radius: 999px;
+        box-shadow: var(--shadow);
+        opacity: 0;
+        pointer-events: none;
+        transition: .2s;
+        font-weight: 800
+    }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px)
+        }
+
+    .print {
+        display: none
+    }
+
+    @media(max-width:1180px) {
+        .grid {
+            grid-template-columns: minmax(240px,300px) 1fr
+        }
+
+        .canvas {
+            grid-column: 2
+        }
+
+        .learn {
+            grid-column: 1/3
+        }
+    }
+
+    @media(max-width:860px) {
+        .shell {
+            padding: 10px
+        }
+
+        header {
+            position: static;
+            display: grid
+        }
+
+        .bar {
+            justify-content: flex-start
+        }
+
+        .grid {
+            grid-template-columns: 1fr
+        }
+
+        .canvas, .learn {
+            grid-column: 1
+        }
+
+        .side {
+            min-height: 320px
+        }
+
+        .lessons {
+            max-height: 280px
+        }
+
+        .twocol {
+            grid-template-columns: 1fr
+        }
+
+        #stage {
+            height: 430px;
+            min-height: 380px
+        }
+    }
+
+    @media print {
+        header, .grid, .tabs, .runTabs, .ltop {
+            display: none
+        }
+
+        .print {
+            display: block
+        }
+
+        .docs {
+            grid-template-columns: 1fr 1fr
+        }
+
+        .doc {
+            break-inside: avoid
+        }
+    }
+
+    /* Requested layout and UX refinements */
+    .shell {
+        width: 100%;
+        max-width: none;
+        padding: clamp(10px,1.4vw,18px)
+    }
+
+    header {
+        top: 8px
+    }
+
+    .brand h1 {
+        font-weight: 700
+    }
+
+    .sub {
+        font-weight: 400
+    }
+
+    .bar {
+        align-items: center
+    }
+
+    button {
+        font-weight: 650
+    }
+
+    .mini, .pill, .level, .toast {
+        font-weight: 650
+    }
+
+    h2, h3 {
+        font-weight: 650
+    }
+
+    .controls label {
+        font-weight: 500
+    }
+
+    .srOnly {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0,0,0,0);
+        white-space: nowrap;
+        border: 0
+    }
+
+    .headerSelect {
+        min-height: 40px;
+        border-radius: 999px;
+        padding: 9px 13px;
+        background: var(--card);
+        box-shadow: 0 6px 14px #14213d20
+    }
+
+    .grid {
+        grid-template-columns: minmax(230px,18rem) minmax(360px,1fr) minmax(380px,1fr);
+        align-items: start;
+        gap: clamp(10px,1.2vw,16px)
+    }
+
+    .side, .editor, .canvas {
+        min-height: 0
+    }
+
+    .side {
+        height: calc(100dvh - 128px);
+        max-height: 860px
+    }
+
+        .side .head {
+            display: grid;
+            gap: 8px
+        }
+
+    .sideTitle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px
+    }
+
+    .side .lessons {
+        flex: 1;
+        min-height: 0
+    }
+
+    .collapseBtn {
+        border: 1px solid var(--line);
+        box-shadow: none;
+        padding: 7px 10px;
+        min-height: 32px;
+        border-radius: 12px;
+        background: var(--card)
+    }
+
+    body.lessons-collapsed .grid {
+        grid-template-columns: 68px minmax(360px,1fr) minmax(380px,1fr)
+    }
+
+    body.lessons-collapsed .side {
+        height: auto;
+        min-height: 0;
+        position: sticky;
+        top: 96px
+    }
+
+        body.lessons-collapsed .side .controls, body.lessons-collapsed .side .lessons, body.lessons-collapsed .side .mini, body.lessons-collapsed .side .progress, body.lessons-collapsed .sideTitle h2 {
+            display: none
+        }
+
+        body.lessons-collapsed .side .head {
+            padding: 12px;
+            place-items: center
+        }
+
+    body.lessons-collapsed .collapseBtn {
+        width: 42px;
+        height: 42px;
+        padding: 0
+    }
+
+    .editor {
+        grid-template-rows: auto auto auto auto
+    }
+
+    .editwrap {
+        height: 402px;
+        min-height: 402px;
+        overflow: hidden;
+        background: #101827
+    }
+
+    textarea {
+        height: 100%;
+        min-height: 0;
+        overflow: auto;
+        resize: none;
+        white-space: pre;
+        overflow-wrap: normal;
+        word-break: normal
+    }
+
+    .rail {
+        height: 100%;
+        overflow: hidden
+    }
+
+    .canvas {
+        height: auto
+    }
+
+    #stage {
+        height: clamp(420px,58dvh,640px);
+        min-height: 420px
+    }
+
+    .learn {
+        grid-column: 2/4
+    }
+
+    .ltop {
+        padding-bottom: 6px
+    }
+
+    .box p, .doc p, .badge p {
+        font-weight: 400
+    }
+
+    .note-label {
+        font-weight: 600;
+        color: var(--ink)
+    }
+
+    html[dir=rtl] body {
+        direction: rtl
+    }
+
+    html[dir=rtl] .grid {
+        direction: rtl
+    }
+
+    html[dir=rtl] .lesson {
+        text-align: right
+    }
+
+    html[dir=rtl] .editwrap, html[dir=rtl] textarea, html[dir=rtl] pre, html[dir=rtl] code {
+        direction: ltr;
+        text-align: left
+    }
+
+    html[dir=rtl] .rail {
+        left: auto;
+        right: 0;
+        text-align: left;
+        padding: 15px 0 0 9px
+    }
+
+    html[dir=rtl] textarea {
+        padding: 15px 56px 15px 16px
+    }
+
+    .drawPane {
+        border-top: 1px solid var(--line);
+        background: var(--card)
+    }
+
+    .runContent {
+        display: none;
+        padding: 12px 14px 14px
+    }
+
+        .runContent.active {
+            display: block
+        }
+
+    .canvas .out, .canvas .err {
+        min-height: 112px;
+        max-height: 220px
+    }
+
+    .doc h3 code {
+        white-space: pre-wrap;
+        display: block;
+        line-height: 1.35;
+        font-weight: 500
+    }
+
+    .runTabs {
+        padding-top: 8px
+    }
+
+        .runTabs .tab {
+            font-weight: 600
+        }
+
+    @media(max-width:1180px) {
+        .grid {
+            grid-template-columns: minmax(220px,280px) minmax(0,1fr)
+        }
+
+        body.lessons-collapsed .grid {
+            grid-template-columns: 68px minmax(0,1fr)
+        }
+
+        .canvas {
+            grid-column: 2
+        }
+
+        .learn {
+            grid-column: 1/3
+        }
+    }
+
+    @media(max-width:860px) {
+        .grid, body.lessons-collapsed .grid {
+            grid-template-columns: 1fr
+        }
+
+        .side {
+            height: auto;
+            max-height: none;
+            position: static
+        }
+
+        .lessons {
+            max-height: 260px
+        }
+
+        body.lessons-collapsed .side .head {
+            place-items: stretch
+        }
+
+        body.lessons-collapsed .side .controls, body.lessons-collapsed .side .lessons, body.lessons-collapsed .side .mini, body.lessons-collapsed .side .progress, body.lessons-collapsed .sideTitle h2 {
+            display: none
+        }
+
+        .canvas, .learn {
+            grid-column: 1
+        }
+
+        #stage {
+            height: 430px;
+            min-height: 380px
+        }
+    }
+
+
+    /* Final review polish */
+    #code, .rail, pre, code, .out {
+        direction: ltr;
+        text-align: left;
+        unicode-bidi: embed
+    }
+
+    html[dir=rtl] .lesson {
+        text-align: right
+    }
+
+    html[dir=rtl] .rail {
+        left: auto;
+        right: 0;
+        padding: 15px 0 0 9px;
+        text-align: left
+    }
+
+    html[dir=rtl] textarea {
+        padding: 15px 56px 15px 16px
+    }
+
+    .canvas .head {
+        gap: 10px
+    }
+
+    .canvas .bar {
+        align-items: center
+    }
+</style>
+</head>
+<body>
+<div class="shell">
+<header><div class="brand"><div class="logo">🐢</div><div><h1>Turtle Lab</h1><p class="sub">Learn Python by drawing with a turtle</p></div></div><div class="bar"><button class="primary" id="runTop">▶ Run</button><button class="danger" id="stopTop">🛑 Stop</button><button id="clearTop">🧹 Clear Drawing</button><button id="resetTop">🔄 Reset Code</button><button id="hc">🌓 High contrast</button><label class="srOnly" for="langSelect">Language</label><select id="langSelect" class="headerSelect" aria-label="Language"><option value="en">English</option><option value="ar">العربية</option></select></div></header>
+<main class="grid">
+<aside class="card side"><div class="head"><div class="sideTitle"><h2>🐢 Python Turtle Adventure</h2><button class="collapseBtn" id="toggleLessons" aria-expanded="true" title="Collapse lessons">◀</button></div><div class="mini"><span id="progressText"></span><span id="starText"></span></div><div class="progress"><div class="fill" id="fill"></div></div></div><div class="controls"><label id="chooseLessonLabel">Choose a lesson</label><select id="lessonSelect"></select><button class="small" id="resetProgress">Reset progress</button></div><div class="lessons" id="lessonList"></div></aside>
+<section class="card editor"><div class="head"><h2 id="lessonTitle"></h2><div class="meta"><span class="pill" id="lessonLevel"></span><span class="pill" id="lessonConcept"></span><span class="pill">⌨ Ctrl/⌘ + Enter runs code</span></div></div><div class="actions"><div><button class="primary" id="runBtn">▶ Run</button><button id="resetBtn">🔄 Reset lesson code</button><button id="copyBtn">📋 Copy code</button><button id="pyBtn">⬇ Export .py</button></div><select id="examples"></select></div><div class="editwrap"><div class="rail" id="rail">1</div><textarea id="code" spellcheck="false" wrap="off" aria-label="Python code editor"></textarea></div><div class="status"><span id="saveStatus">Auto-save is on</span><span id="cursor">Line 1, Column 1</span></div></section>
+<section class="card canvas"><div class="head"><h2>🎨 Turtle Drawing</h2><div class="bar"><span class="pill">The turtle starts in the center</span><button class="small" id="clearBtn">🧹 Clear</button><button class="small" id="pngBtn">🖼 Save PNG</button></div></div><div class="stagewrap"><div id="stage"><div id="target"></div><div class="center"></div></div></div><div class="drawPane"><nav class="tabs runTabs" aria-label="Run results"><button class="tab active" data-run-tab="output">Output</button><button class="tab" data-run-tab="errors">Errors</button></nav><section class="runContent active" id="output"><div class="out" id="out">Output from print() will appear here.</div></section><section class="runContent" id="errors"><div class="err" id="err">No errors yet. Run your code and see what happens!</div></section></div></section>
+<section class="learn"><div class="ltop"><h2>📚 Learning Area</h2></div><nav class="tabs"><button class="tab active" data-tab="lesson">Lesson</button><button class="tab" data-tab="syntax">Syntax Help</button><button class="tab" data-tab="challenge">Challenges</button><button class="tab" data-tab="teacher">Teacher & Parent</button><button class="tab" data-tab="badges">Badges</button></nav><section class="content active" id="lesson"></section><section class="content" id="syntax"><input id="docSearch" placeholder="Search syntax help: color, loop, circle..."><div class="docs" id="docGrid"></div></section><section class="content" id="challenge"></section><section class="content" id="teacher"></section><section class="content" id="badges"><div class="badges" id="badgeGrid"></div></section></section>
+</main>
+<section class="print"><h1>Turtle Lab Syntax Cheat Sheet</h1><div class="docs" id="printDocs"></div></section>
+</div><div class="toast" id="toast"></div>
+<script>
+const DEFAULT_CODE="import turtle\n\nt = turtle.Turtle()\nt.color(\"blue\")\nt.pensize(3)\n\nfor i in range(4):\n    t.forward(100)\n    t.right(90)\n\nturtle.done()";
+const lessons=[{"level": "Level 1: Meet the Turtle", "title": "Your First Line", "concept": "Moving forward", "goal": "Draw one straight line.", "explanation": "The turtle moves forward and draws as it moves.", "starterCode": "import turtle\n\nt = turtle.Turtle()\nt.forward(100)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Try changing 100 to a bigger number.", "challenge": "Can you draw a longer line?", "tryThis": "Try t.forward(50), t.forward(150), and t.forward(250).", "teacherNote": "Lesson 1 focuses on moving forward through immediate visual feedback."}, {"level": "Level 1: Meet the Turtle", "title": "Turn the Turtle", "concept": "right(), left(), angles", "goal": "Draw a corner.", "explanation": "The turtle can turn before moving again. 90 degrees makes a square corner.", "starterCode": "import turtle\n\nt = turtle.Turtle()\nt.forward(100)\nt.right(90)\nt.forward(100)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Angles are measured in degrees.", "challenge": "Try right(45) and see what happens.", "tryThis": "Try right(120), right(60), and left(90).", "teacherNote": "Lesson 2 focuses on right(), left(), angles through immediate visual feedback."}, {"level": "Level 1: Meet the Turtle", "title": "Draw a Square", "concept": "Repeating movement manually", "goal": "Draw a square.", "explanation": "A square has 4 equal sides and 4 square corners.", "starterCode": "import turtle\n\nt = turtle.Turtle()\n\nt.forward(100)\nt.right(90)\nt.forward(100)\nt.right(90)\nt.forward(100)\nt.right(90)\nt.forward(100)\nt.right(90)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Every side needs one forward command and one turn.", "challenge": "Make the square bigger.", "tryThis": "Change only one side and notice how the shape changes.", "teacherNote": "Lesson 3 focuses on repeating movement manually through immediate visual feedback."}, {"level": "Level 2: Loops Make Magic", "title": "A Better Square with Loops", "concept": "for loops, range(), indentation", "goal": "Draw a square using fewer lines.", "explanation": "A loop repeats the indented commands. range(4) repeats four times.", "starterCode": "import turtle\n\nt = turtle.Turtle()\n\nfor i in range(4):\n    t.forward(100)\n    t.right(90)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Indented lines belong inside the loop.", "challenge": "Change range(4) to range(3) and the angle to draw a triangle.", "tryThis": "Try range(6) with right(60).", "teacherNote": "Lesson 4 focuses on for loops, range(), indentation through immediate visual feedback."}, {"level": "Level 2: Loops Make Magic", "title": "Triangle", "concept": "3 sides and 120-degree turns", "goal": "Draw a triangle.", "explanation": "A triangle has 3 sides. Turning 120 degrees after each side closes it.", "starterCode": "import turtle\n\nt = turtle.Turtle()\n\nfor i in range(3):\n    t.forward(120)\n    t.right(120)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Use t.color(\"red\") before the loop.", "challenge": "Make the triangle red.", "tryThis": "Try t.color(\"orange\") or t.pensize(6).", "teacherNote": "Lesson 5 focuses on 3 sides and 120-degree turns through immediate visual feedback."}, {"level": "Level 2: Loops Make Magic", "title": "Pentagon and Hexagon", "concept": "Shapes, sides, and angles", "goal": "Draw a pentagon.", "explanation": "The turn angle is 360 divided by the number of sides.", "starterCode": "import turtle\n\nt = turtle.Turtle()\n\nsides = 5\nangle = 360 / sides\n\nfor i in range(sides):\n    t.forward(100)\n    t.right(angle)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "The angle is calculated automatically.", "challenge": "Change sides to 6, 7, or 8.", "tryThis": "Make a variable called size and use it in forward(size).", "teacherNote": "Lesson 6 focuses on shapes, sides, and angles through immediate visual feedback."}, {"level": "Level 3: Colors and Style", "title": "Colorful Lines", "concept": "color() and color names", "goal": "Draw lines with different colors.", "explanation": "The color command changes the turtle pen.", "starterCode": "import turtle\n\nt = turtle.Turtle()\n\nt.color(\"red\")\nt.forward(100)\n\nt.color(\"blue\")\nt.right(90)\nt.forward(100)\n\nt.color(\"green\")\nt.right(90)\nt.forward(100)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Color names go inside quotation marks.", "challenge": "Use your three favorite colors.", "tryThis": "Try purple, orange, pink, black, or gold.", "teacherNote": "Lesson 7 focuses on color() and color names through immediate visual feedback."}, {"level": "Level 3: Colors and Style", "title": "Thick Lines", "concept": "pensize()", "goal": "Draw a thick purple square.", "explanation": "pensize changes how thick the turtle line is.", "starterCode": "import turtle\n\nt = turtle.Turtle()\nt.color(\"purple\")\nt.pensize(8)\n\nfor i in range(4):\n    t.forward(100)\n    t.right(90)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Use a number inside pensize().", "challenge": "Try different pen sizes.", "tryThis": "Can you make a very thin blue square?", "teacherNote": "Lesson 8 focuses on pensize() through immediate visual feedback."}, {"level": "Level 3: Colors and Style", "title": "Fill a Shape", "concept": "begin_fill(), end_fill(), fillcolor()", "goal": "Draw a filled square.", "explanation": "begin_fill starts remembering the shape. end_fill fills it.", "starterCode": "import turtle\n\nt = turtle.Turtle()\n\nt.color(\"red\")\nt.fillcolor(\"yellow\")\n\nt.begin_fill()\nfor i in range(4):\n    t.forward(100)\n    t.right(90)\nt.end_fill()\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "A filled shape should be closed before end_fill().", "challenge": "Make a filled triangle.", "tryThis": "Use range(3) and right(120).", "teacherNote": "Lesson 9 focuses on begin_fill(), end_fill(), fillcolor() through immediate visual feedback."}, {"level": "Level 4: Positions and Coordinates", "title": "Move Without Drawing", "concept": "penup() and pendown()", "goal": "Draw two separate lines.", "explanation": "penup lifts the pen. pendown starts drawing again.", "starterCode": "import turtle\n\nt = turtle.Turtle()\n\nt.forward(80)\n\nt.penup()\nt.forward(50)\n\nt.pendown()\nt.forward(80)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "The turtle only draws when the pen is down.", "challenge": "Draw three separate lines.", "tryThis": "Try turning between separate lines.", "teacherNote": "Lesson 10 focuses on penup() and pendown() through immediate visual feedback."}, {"level": "Level 4: Positions and Coordinates", "title": "Go to a Position", "concept": "goto(x, y), coordinates", "goal": "Draw a square using coordinates.", "explanation": "x moves left and right. y moves up and down. The center is (0, 0).", "starterCode": "import turtle\n\nt = turtle.Turtle()\n\nt.goto(100, 100)\nt.goto(-100, 100)\nt.goto(-100, -100)\nt.goto(100, -100)\nt.goto(100, 100)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Positive x goes right. Positive y goes up.", "challenge": "Move the square to a different place.", "tryThis": "Try changing every 100 to 150.", "teacherNote": "Lesson 11 focuses on goto(x, y), coordinates through immediate visual feedback."}, {"level": "Level 4: Positions and Coordinates", "title": "Draw a Simple House", "concept": "Combining shapes", "goal": "Draw a simple house.", "explanation": "Big drawings are built from smaller shapes.", "starterCode": "import turtle\n\nt = turtle.Turtle()\nt.pensize(3)\n\n# square body\nfor i in range(4):\n    t.forward(120)\n    t.right(90)\n\n# roof\nt.left(60)\nt.forward(120)\nt.right(120)\nt.forward(120)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Use penup, goto, and pendown to move to the door position.", "challenge": "Add a door and window.", "tryThis": "Use a filled rectangle for the door.", "teacherNote": "Lesson 12 focuses on combining shapes through immediate visual feedback."}, {"level": "Level 5: Patterns and Art", "title": "Star", "concept": "Angles and repetition", "goal": "Draw a star.", "explanation": "A five-point star uses a 144 degree turn.", "starterCode": "import turtle\n\nt = turtle.Turtle()\nt.color(\"gold\")\nt.pensize(3)\n\nfor i in range(5):\n    t.forward(150)\n    t.right(144)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "The turn angle 144 makes the points.", "challenge": "Change the color and size.", "tryThis": "Try right(72) and compare the drawing.", "teacherNote": "Lesson 13 focuses on angles and repetition through immediate visual feedback."}, {"level": "Level 5: Patterns and Art", "title": "Spiral", "concept": "Increasing values in loops", "goal": "Draw a spiral.", "explanation": "The loop variable i changes every repeat. Here the turtle moves farther each time.", "starterCode": "import turtle\n\nt = turtle.Turtle()\nt.color(\"purple\")\nt.speed(0)\n\nfor i in range(80):\n    t.forward(i * 2)\n    t.right(91)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "A smaller range number makes a shorter spiral.", "challenge": "Change 91 to another number.", "tryThis": "Try 89, 92, 120, or 144.", "teacherNote": "Lesson 14 focuses on increasing values in loops through immediate visual feedback."}, {"level": "Level 5: Patterns and Art", "title": "Flower", "concept": "Circles and repeated rotation", "goal": "Draw a flower.", "explanation": "Draw a circle, turn a little, then repeat to make petals.", "starterCode": "import turtle\n\nt = turtle.Turtle()\nt.color(\"hotpink\")\nt.speed(0)\n\nfor i in range(36):\n    t.circle(60)\n    t.right(10)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "36 turns of 10 degrees makes 360 degrees.", "challenge": "Change the circle size and rotation angle.", "tryThis": "Try range(24) and right(15).", "teacherNote": "Lesson 15 focuses on circles and repeated rotation through immediate visual feedback."}, {"level": "Level 6: Variables", "title": "Change Size with Variables", "concept": "Variables and reusable values", "goal": "Use a variable to control square size.", "explanation": "A variable stores a value. Change it once to change the drawing.", "starterCode": "import turtle\n\nt = turtle.Turtle()\n\nsize = 120\n\nfor i in range(4):\n    t.forward(size)\n    t.right(90)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Use t.forward(size), not t.forward(\"size\").", "challenge": "Create variables for color and pen size.", "tryThis": "color = \"blue\" then t.color(color).", "teacherNote": "Lesson 16 focuses on variables and reusable values through immediate visual feedback."}, {"level": "Level 6: Variables", "title": "Shape Generator", "concept": "Variables and math", "goal": "Generate different polygons.", "explanation": "By changing sides, you can create many regular shapes.", "starterCode": "import turtle\n\nt = turtle.Turtle()\n\nsides = 6\nsize = 80\nangle = 360 / sides\n\nfor i in range(sides):\n    t.forward(size)\n    t.right(angle)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "More sides usually need a smaller size to fit.", "challenge": "Try 3, 4, 5, 6, 8, and 12 sides.", "tryThis": "Set sides = 36 and size = 20.", "teacherNote": "Lesson 17 focuses on variables and math through immediate visual feedback."}, {"level": "Level 7: Functions", "title": "Create a Square Function", "concept": "def, calls, parameters", "goal": "Create and call a function.", "explanation": "A function stores commands so you can reuse them.", "starterCode": "import turtle\n\nt = turtle.Turtle()\n\ndef square(size):\n    for i in range(4):\n        t.forward(size)\n        t.right(90)\n\nsquare(100)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "The function body must be indented.", "challenge": "Call square(50), square(100), and square(150).", "tryThis": "Move the turtle with penup and goto before each square.", "teacherNote": "Lesson 18 focuses on def, calls, parameters through immediate visual feedback."}, {"level": "Level 7: Functions", "title": "Draw Many Squares", "concept": "Functions, loops, rotation", "goal": "Create a pattern using a function.", "explanation": "Draw a square, turn a little, then draw another square.", "starterCode": "import turtle\n\nt = turtle.Turtle()\nt.speed(0)\n\ndef square(size):\n    for i in range(4):\n        t.forward(size)\n        t.right(90)\n\nfor i in range(12):\n    square(100)\n    t.right(30)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "12 turns of 30 degrees makes 360 degrees.", "challenge": "Change 12 and 30.", "tryThis": "Try range(18) and right(20).", "teacherNote": "Lesson 19 focuses on functions, loops, rotation through immediate visual feedback."}, {"level": "Level 8: Creative Projects", "title": "Draw a Robot Face", "concept": "Combining shapes and coordinates", "goal": "Draw a robot face.", "explanation": "A robot face is built from a head, eyes, and a mouth.", "starterCode": "import turtle\n\nt = turtle.Turtle()\nt.pensize(3)\n\n# head\nfor i in range(4):\n    t.forward(160)\n    t.right(90)\n\n# left eye\nt.penup()\nt.goto(40, -40)\nt.pendown()\nt.circle(10)\n\n# right eye\nt.penup()\nt.goto(120, -40)\nt.pendown()\nt.circle(10)\n\n# mouth\nt.penup()\nt.goto(50, -110)\nt.pendown()\nt.forward(60)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Use comments to label new parts.", "challenge": "Add ears, hair, or antennas.", "tryThis": "Use fillcolor and begin_fill for the robot head.", "teacherNote": "Lesson 20 focuses on combining shapes and coordinates through immediate visual feedback."}, {"level": "Level 8: Creative Projects", "title": "Rainbow Polygon Art", "concept": "Lists, colors, loops", "goal": "Use a list of colors.", "explanation": "A list stores many values. i % len(colors) cycles through the list.", "starterCode": "import turtle\n\nt = turtle.Turtle()\nt.speed(0)\n\ncolors = [\"red\", \"orange\", \"yellow\", \"green\", \"blue\", \"purple\"]\n\nfor i in range(60):\n    t.color(colors[i % len(colors)])\n    t.forward(120)\n    t.right(123)\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Remember commas between color names.", "challenge": "Add more colors.", "tryThis": "Try adding pink, cyan, black, or gold.", "teacherNote": "Lesson 21 focuses on lists, colors, loops through immediate visual feedback."}, {"level": "Level 8: Creative Projects", "title": "Final Project", "concept": "Planning and creativity", "goal": "Create your own turtle drawing.", "explanation": "Use everything you learned to create an artwork.", "starterCode": "import turtle\n\nt = turtle.Turtle()\nt.speed(0)\n\n# Create your masterpiece here!\n\nturtle.done()", "expected": "Run the code and compare the drawing with the goal.", "steps": ["Run the starter code.", "Change one number, color, or command.", "Run again and observe what changed."], "hint": "Start with one shape, then add details.", "challenge": "Give your artwork a title.", "tryThis": "Include 3 colors, 1 loop, 1 function, 1 filled shape, and 1 pattern.", "teacherNote": "Lesson 22 focuses on planning and creativity through immediate visual feedback."}];
+const docs=[{"category": "Getting Started", "command": "import turtle\\nt = turtle.Turtle()", "explanation": "Creates a turtle named t.", "example": "import turtle\n\nt = turtle.Turtle()\nt.forward(100)\n\nturtle.done()"}, {"category": "Movement", "command": "t.forward(100)\\nt.backward(50)", "explanation": "Moves the turtle forward or backward. Distance is usually pixels.", "example": "import turtle\n\nt = turtle.Turtle()\nt.forward(100)\nt.backward(50)\n\nturtle.done()"}, {"category": "Turning", "command": "t.right(90)\\nt.left(90)", "explanation": "Turns clockwise or counterclockwise. 90 makes a square corner.", "example": "import turtle\n\nt = turtle.Turtle()\nt.forward(100)\nt.right(90)\nt.forward(100)\n\nturtle.done()"}, {"category": "Pen Control", "command": "t.penup()\\nt.pendown()", "explanation": "Move without drawing, then draw again.", "example": "import turtle\n\nt = turtle.Turtle()\n\nt.forward(80)\n\nt.penup()\nt.forward(50)\n\nt.pendown()\nt.forward(80)\n\nturtle.done()"}, {"category": "Colors", "command": "t.color(\"red\")\\nt.pencolor(\"blue\")\\nt.fillcolor(\"yellow\")", "explanation": "Changes pen and fill colors. Try red, blue, green, yellow, purple, orange, pink, black.", "example": "import turtle\n\nt = turtle.Turtle()\n\nt.color(\"red\")\nt.forward(100)\n\nt.color(\"blue\")\nt.right(90)\nt.forward(100)\n\nt.color(\"green\")\nt.right(90)\nt.forward(100)\n\nturtle.done()"}, {"category": "Thickness", "command": "t.pensize(5)", "explanation": "Changes line thickness.", "example": "import turtle\n\nt = turtle.Turtle()\nt.color(\"purple\")\nt.pensize(8)\n\nfor i in range(4):\n    t.forward(100)\n    t.right(90)\n\nturtle.done()"}, {"category": "Speed", "command": "t.speed(1)\\nt.speed(5)\\nt.speed(10)\\nt.speed(0)", "explanation": "1 is slow, 5 medium, 10 fast, 0 fastest.", "example": "import turtle\n\nt = turtle.Turtle()\nt.color(\"purple\")\nt.speed(0)\n\nfor i in range(80):\n    t.forward(i * 2)\n    t.right(91)\n\nturtle.done()"}, {"category": "Position", "command": "t.goto(50, 100)\\nt.home()\\nt.setheading(90)", "explanation": "goto moves to a position. 0 right, 90 up, 180 left, 270 down.", "example": "import turtle\n\nt = turtle.Turtle()\n\nt.goto(100, 100)\nt.goto(-100, 100)\nt.goto(-100, -100)\nt.goto(100, -100)\nt.goto(100, 100)\n\nturtle.done()"}, {"category": "Circles", "command": "t.circle(50)", "explanation": "Draws a circle with radius 50.", "example": "import turtle\n\nt = turtle.Turtle()\nt.color(\"green\")\nt.circle(60)\n\nturtle.done()"}, {"category": "Filling", "command": "t.begin_fill()\\nt.end_fill()", "explanation": "Fill a closed shape.", "example": "import turtle\n\nt = turtle.Turtle()\n\nt.color(\"red\")\nt.fillcolor(\"yellow\")\n\nt.begin_fill()\nfor i in range(4):\n    t.forward(100)\n    t.right(90)\nt.end_fill()\n\nturtle.done()"}, {"category": "Clearing", "command": "t.clear()\\nt.reset()", "explanation": "clear removes drawings. reset also resets turtle settings.", "example": "import turtle\n\nt = turtle.Turtle()\nt.forward(100)\nt.clear()\nt.color(\"blue\")\nt.forward(80)\n\nturtle.done()"}, {"category": "Hide and Show", "command": "t.hideturtle()\\nt.showturtle()", "explanation": "Hide or show the turtle icon.", "example": "import turtle\n\nt = turtle.Turtle()\nt.hideturtle()\nfor i in range(4):\n    t.forward(100)\n    t.right(90)\n\nturtle.done()"}, {"category": "Loops", "command": "for i in range(4):\\n    t.forward(100)", "explanation": "Repeats indented code. Loops usually need a colon.", "example": "import turtle\n\nt = turtle.Turtle()\n\nfor i in range(4):\n    t.forward(100)\n    t.right(90)\n\nturtle.done()"}, {"category": "Variables", "command": "size = 100\\nt.forward(size)", "explanation": "Stores a value that can be reused.", "example": "import turtle\n\nt = turtle.Turtle()\n\nsize = 120\n\nfor i in range(4):\n    t.forward(size)\n    t.right(90)\n\nturtle.done()"}, {"category": "Functions", "command": "def square(size):\\n    ...\\nsquare(100)", "explanation": "Stores commands so you can reuse them.", "example": "import turtle\n\nt = turtle.Turtle()\n\ndef square(size):\n    for i in range(4):\n        t.forward(size)\n        t.right(90)\n\nsquare(100)\n\nturtle.done()"}, {"category": "Multiple Turtles", "command": "a = turtle.Turtle()\\nb = turtle.Turtle()", "explanation": "Use more than one turtle for different drawing parts.", "example": "import turtle\n\na = turtle.Turtle()\nb = turtle.Turtle()\n\na.color(\"red\")\nb.color(\"blue\")\n\na.forward(100)\nb.left(90)\nb.forward(100)\n\nturtle.done()"}];
+const extraDocs=[{"category": "Print and Comments", "command": "print(\"Hello turtle!\")\\n# This is a comment", "explanation": "print() sends words or numbers to the Output tab. Comments start with # and help explain your code.", "example": "import turtle\n\nt = turtle.Turtle()\nprint(\"Hello turtle!\")\n\n# Draw one line\nt.forward(100)\n\nturtle.done()"}, {"category": "Math Operators", "command": "+  -  *  /  %", "explanation": "Python can add, subtract, multiply, divide, and use remainder. Math helps create patterns and sizes.", "example": "import turtle\n\nt = turtle.Turtle()\n\nsize = 50 + 50\nturn = 360 / 4\n\nfor i in range(4):\n    t.forward(size)\n    t.right(turn)\n\nturtle.done()"}, {"category": "If Statements", "command": "if size > 100:\\n    t.color(\"red\")\\nelse:\\n    t.color(\"blue\")", "explanation": "An if statement lets your program choose what to do. Use elif for another choice and else for everything else.", "example": "import turtle\n\nt = turtle.Turtle()\n\nsize = 120\n\nif size > 100:\n    t.color(\"red\")\nelif size == 100:\n    t.color(\"green\")\nelse:\n    t.color(\"blue\")\n\nt.forward(size)\n\nturtle.done()"}, {"category": "Comparisons", "command": "==  !=  >  <  >=  <=", "explanation": "Comparisons ask questions such as equal to, not equal to, greater than, or less than. They are often used with if.", "example": "import turtle\n\nt = turtle.Turtle()\n\nsides = 3\n\nif sides == 3:\n    t.color(\"orange\")\nelse:\n    t.color(\"purple\")\n\nfor i in range(sides):\n    t.forward(120)\n    t.right(360 / sides)\n\nturtle.done()"}, {"category": "Boolean Logic", "command": "and  or  not", "explanation": "Boolean logic combines choices. and means both must be true, or means one can be true, and not flips true/false.", "example": "import turtle\n\nt = turtle.Turtle()\n\nsize = 120\nuse_red = True\n\nif size > 100 and use_red:\n    t.color(\"red\")\nelse:\n    t.color(\"blue\")\n\nt.forward(size)\n\nturtle.done()"}, {"category": "While Loops", "command": "while count < 4:\\n    t.forward(100)\\n    count = count + 1", "explanation": "A while loop repeats while a condition is true. Always change the condition inside the loop so it can stop.", "example": "import turtle\n\nt = turtle.Turtle()\n\ncount = 0\nwhile count < 4:\n    t.forward(100)\n    t.right(90)\n    count = count + 1\n\nturtle.done()"}, {"category": "Lists", "command": "colors = [\"red\", \"blue\", \"green\"]", "explanation": "A list stores many values in one variable. Lists are useful for rainbow colors and repeated patterns.", "example": "import turtle\n\nt = turtle.Turtle()\n\ncolors = [\"red\", \"orange\", \"yellow\", \"green\", \"blue\", \"purple\"]\n\nfor i in range(24):\n    t.color(colors[i % len(colors)])\n    t.forward(120)\n    t.right(135)\n\nturtle.done()"}, {"category": "List Indexes", "command": "colors[0]\\ncolors[i % len(colors)]", "explanation": "Indexes pick an item from a list. Python starts counting at 0. The % operator helps cycle through a list.", "example": "import turtle\n\nt = turtle.Turtle()\n\ncolors = [\"red\", \"blue\", \"green\"]\n\nfor i in range(9):\n    t.color(colors[i % len(colors)])\n    t.forward(80)\n    t.right(120)\n\nturtle.done()"}, {"category": "Strings", "command": "name = \"Turtle Artist\"", "explanation": "A string is text inside quotation marks. Color names and printed messages are strings.", "example": "import turtle\n\nt = turtle.Turtle()\n\nartist = \"Turtle Artist\"\ncolor = \"purple\"\n\nprint(artist)\nt.color(color)\nt.forward(120)\n\nturtle.done()"}];
+docs.push(...extraDocs);
+
+const examples=[{"name": "First Line", "code": "import turtle\n\nt = turtle.Turtle()\nt.forward(100)\n\nturtle.done()"}, {"name": "Square", "code": "import turtle\n\nt = turtle.Turtle()\n\nfor i in range(4):\n    t.forward(100)\n    t.right(90)\n\nturtle.done()"}, {"name": "Triangle", "code": "import turtle\n\nt = turtle.Turtle()\n\nfor i in range(3):\n    t.forward(120)\n    t.right(120)\n\nturtle.done()"}, {"name": "Pentagon", "code": "import turtle\n\nt = turtle.Turtle()\n\nsides = 5\nangle = 360 / sides\n\nfor i in range(sides):\n    t.forward(100)\n    t.right(angle)\n\nturtle.done()"}, {"name": "Colorful Square", "code": "import turtle\n\nt = turtle.Turtle()\nt.pensize(5)\ncolors = [\"red\", \"blue\", \"green\", \"orange\"]\n\nfor i in range(4):\n    t.color(colors[i])\n    t.forward(120)\n    t.right(90)\n\nturtle.done()"}, {"name": "Filled Shape", "code": "import turtle\n\nt = turtle.Turtle()\n\nt.color(\"red\")\nt.fillcolor(\"yellow\")\n\nt.begin_fill()\nfor i in range(4):\n    t.forward(100)\n    t.right(90)\nt.end_fill()\n\nturtle.done()"}, {"name": "Star", "code": "import turtle\n\nt = turtle.Turtle()\nt.color(\"gold\")\nt.pensize(3)\n\nfor i in range(5):\n    t.forward(150)\n    t.right(144)\n\nturtle.done()"}, {"name": "Spiral", "code": "import turtle\n\nt = turtle.Turtle()\nt.color(\"purple\")\nt.speed(0)\n\nfor i in range(80):\n    t.forward(i * 2)\n    t.right(91)\n\nturtle.done()"}, {"name": "Flower", "code": "import turtle\n\nt = turtle.Turtle()\nt.color(\"hotpink\")\nt.speed(0)\n\nfor i in range(36):\n    t.circle(60)\n    t.right(10)\n\nturtle.done()"}, {"name": "House", "code": "import turtle\n\nt = turtle.Turtle()\nt.pensize(3)\n\n# square body\nfor i in range(4):\n    t.forward(120)\n    t.right(90)\n\n# roof\nt.left(60)\nt.forward(120)\nt.right(120)\nt.forward(120)\n\nturtle.done()"}, {"name": "Robot Face", "code": "import turtle\n\nt = turtle.Turtle()\nt.pensize(3)\n\n# head\nfor i in range(4):\n    t.forward(160)\n    t.right(90)\n\n# left eye\nt.penup()\nt.goto(40, -40)\nt.pendown()\nt.circle(10)\n\n# right eye\nt.penup()\nt.goto(120, -40)\nt.pendown()\nt.circle(10)\n\n# mouth\nt.penup()\nt.goto(50, -110)\nt.pendown()\nt.forward(60)\n\nturtle.done()"}, {"name": "Rainbow Art", "code": "import turtle\n\nt = turtle.Turtle()\nt.speed(0)\n\ncolors = [\"red\", \"orange\", \"yellow\", \"green\", \"blue\", \"purple\"]\n\nfor i in range(60):\n    t.color(colors[i % len(colors)])\n    t.forward(120)\n    t.right(123)\n\nturtle.done()"}, {"name": "Final Project Template", "code": "import turtle\n\nt = turtle.Turtle()\nt.speed(0)\n\n# Create your masterpiece here!\n\nturtle.done()"}];
+const K={code:"tl.code.v1",lesson:"tl.lesson.v1",progress:"tl.progress.v1",hc:"tl.hc.v1",lang:"tl.lang.v1",side:"tl.side.v1"};
+const I18N={
+ en:{title:"Turtle Lab",subtitle:"Learn Python by drawing with a turtle",run:"▶ Run",stop:"🛑 Stop",clearDrawing:"🧹 Clear Drawing",resetCode:"🔄 Reset Code",saveCode:"💾 Save Code",loadExample:"⭐ Load Example",contrast:"🌓 High contrast",course:"🐢 Python Turtle Adventure",hideLessons:"◀",showLessons:"▶",chooseLesson:"Choose a lesson",resetProgress:"Reset progress",keyboard:"⌨ Ctrl/⌘ + Enter runs code",lessonTab:"Lesson",syntaxTab:"Syntax Help",challengeTab:"Challenges",outputTab:"Output",errorsTab:"Errors",teacherTab:"Teacher & Parent",badgesTab:"Badges",learningArea:"📚 Learning Area",drawingTitle:"🎨 Turtle Drawing",center:"The turtle starts in the center",clear:"🧹 Clear",savePng:"🖼 Save PNG",copy:"📋 Copy code",exportPy:"⬇ Export .py",resetLesson:"🔄 Reset lesson code",examplePlaceholder:"⭐ Load Example...",docSearch:"Search syntax help: color, loop, circle...",tryIt:"Try it",noDocs:"No syntax items found.",lessonPrefix:"Lesson",goal:"🎯 Goal",concept:"🧠 Concept",expected:"✅ Expected result",steps:"👣 Step-by-step",hint:"💡 Hint",tryChanging:"🔁 Try changing this",challenge:"🏆 Challenge",didIt:"I did it!",creative:"🌟 Creative idea",badgeTip:"Badge tip:",badgeTipText:"Complete lessons to unlock stars.",aboutLesson:"👩‍🏫 About this lesson",printSheet:"🧾 Print cheat sheet",printSheetText:"Print the syntax help for class.",printButton:"Print syntax sheet",resetBox:"🧼 Reset progress",resetBoxText:"Clear completed lessons and badges from this browser.",addLessons:"🛠 Add new lessons",addLessonsText:"Edit the lessons array in this HTML file. Add level, title, goal, explanation, starterCode, hint, challenge, and teacherNote.",progress:(c,t)=>`${c} of ${t} lessons complete`,stars:c=>`${c} ⭐`,outputPlaceholder:"Output from print() will appear here.",noErrors:"No errors yet. Run your code and see what happens!",saved:"Auto-save is on",loadedSyntax:"Loaded syntax example.",lessonRestored:"Lesson code restored.",codeSaved:"Code saved in this browser.",codeCopied:"Code copied.",pyExported:"Python file exported.",pngFirst:"Run a drawing first.",pngSaved:"Drawing saved as PNG.",clearToast:"Drawing area cleared.",success:"Great job! Your code ran successfully.",successErr:"No errors. The turtle understood your code!",stopped:"Stopped. If the drawing area is still busy, click Clear Drawing and try a smaller loop.",stopToast:"Stop requested.",resetConfirm:"Reset all lesson progress and badges?",progressReset:"Progress reset.",complete:"Great job! Lesson complete. ⭐",hcOn:"High contrast on.",hcOff:"High contrast off.",lessonsHidden:"Lessons collapsed.",lessonsShown:"Lessons expanded.",unlocked:"Unlocked!",locked:"Complete more lessons to unlock this.",badges:["First Line Badge","Shape Builder Badge","Loop Hero Badge","Color Artist Badge","Function Master Badge","Turtle Creator Badge"],friendlyTitle:"Almost there!",friendlyDefault:"The turtle got confused. Check your code and try again.",friendlySyntax:"Python expected a colon `:` or found syntax it could not read. Loops and functions usually need a colon.",friendlyIndent:"Some code needs to be indented. Lines inside a loop or function should move to the right.",friendlyAttr:"The turtle does not know this command yet. Check the spelling.",friendlyName:"Python found a name it does not know. Check spelling, variables, and quotation marks around colors.",friendlyTime:"Your turtle has been drawing for a long time. Try using a smaller loop number.",checkLine:n=>` Check line ${n}.`,technical:"Technical details"},
+ ar:{title:"مختبر السلحفاة",subtitle:"تعلّم بايثون بالرسم مع السلحفاة",run:"▶ تشغيل",stop:"🛑 إيقاف",clearDrawing:"🧹 مسح الرسم",resetCode:"🔄 إعادة الكود",saveCode:"💾 حفظ الكود",loadExample:"⭐ تحميل مثال",contrast:"🌓 تباين عالٍ",course:"🐢 مغامرة سلحفاة بايثون",hideLessons:"◀",showLessons:"▶",chooseLesson:"اختر درساً",resetProgress:"إعادة التقدم",keyboard:"⌨ Ctrl/⌘ + Enter لتشغيل الكود",lessonTab:"الدرس",syntaxTab:"مساعدة الأوامر",challengeTab:"التحديات",outputTab:"المخرجات",errorsTab:"الأخطاء",teacherTab:"المعلم والوالد",badgesTab:"الشارات",learningArea:"📚 منطقة التعلّم",drawingTitle:"🎨 رسم السلحفاة",center:"تبدأ السلحفاة من المركز",clear:"🧹 مسح",savePng:"🖼 حفظ PNG",copy:"📋 نسخ الكود",exportPy:"⬇ تصدير .py",resetLesson:"🔄 إعادة كود الدرس",examplePlaceholder:"⭐ تحميل مثال...",docSearch:"ابحث في أوامر السلحفاة: لون، حلقة، دائرة...",tryIt:"جرّب",noDocs:"لا توجد أوامر مطابقة.",lessonPrefix:"درس",goal:"🎯 الهدف",concept:"🧠 الفكرة",expected:"✅ النتيجة المتوقعة",steps:"👣 الخطوات",hint:"💡 تلميح",tryChanging:"🔁 جرّب تغيير هذا",challenge:"🏆 التحدي",didIt:"أنجزته!",creative:"🌟 فكرة إبداعية",badgeTip:"نصيحة الشارات:",badgeTipText:"أكمل الدروس لفتح النجوم.",aboutLesson:"👩‍🏫 حول هذا الدرس",printSheet:"🧾 طباعة ورقة الأوامر",printSheetText:"اطبع مساعدة الأوامر للاستخدام في الصف.",printButton:"طباعة ورقة الأوامر",resetBox:"🧼 إعادة التقدم",resetBoxText:"امسح الدروس والشارات المكتملة من هذا المتصفح.",addLessons:"🛠 إضافة دروس جديدة",addLessonsText:"عدّل مصفوفة lessons داخل ملف HTML. أضف المستوى والعنوان والهدف والشرح وكود البداية والتلميح والتحدي وملاحظة المعلم.",progress:(c,t)=>`${c} من ${t} درساً مكتملة`,stars:c=>`${c} ⭐`,outputPlaceholder:"ستظهر مخرجات print() هنا.",noErrors:"لا توجد أخطاء بعد. شغّل الكود وشاهد النتيجة!",saved:"الحفظ التلقائي مفعّل",loadedSyntax:"تم تحميل مثال الأوامر.",lessonRestored:"تمت إعادة كود الدرس.",codeSaved:"تم حفظ الكود في هذا المتصفح.",codeCopied:"تم نسخ الكود.",pyExported:"تم تصدير ملف بايثون.",pngFirst:"شغّل رسمة أولاً.",pngSaved:"تم حفظ الرسم كملف PNG.",clearToast:"تم مسح مساحة الرسم.",success:"رائع! تم تشغيل الكود بنجاح.",successErr:"لا توجد أخطاء. السلحفاة فهمت الكود!",stopped:"تم الإيقاف. إذا بقيت مساحة الرسم مشغولة، اضغط مسح الرسم وجرّب حلقة أصغر.",stopToast:"تم طلب الإيقاف.",resetConfirm:"هل تريد إعادة كل التقدم والشارات؟",progressReset:"تمت إعادة التقدم.",complete:"عمل رائع! اكتمل الدرس. ⭐",hcOn:"تم تشغيل التباين العالي.",hcOff:"تم إيقاف التباين العالي.",lessonsHidden:"تم طي الدروس.",lessonsShown:"تم إظهار الدروس.",unlocked:"تم فتحها!",locked:"أكمل دروساً أكثر لفتح هذه الشارة.",badges:["شارة الخط الأول","شارة صانع الأشكال","شارة بطل الحلقات","شارة فنان الألوان","شارة محترف الدوال","شارة مبدع السلحفاة"],friendlyTitle:"اقتربت من الحل!",friendlyDefault:"ارتبكت السلحفاة قليلاً. راجع الكود وجرّب مرة أخرى.",friendlySyntax:"قد تحتاج بايثون إلى نقطتين `:` أو أن هناك صياغة غير واضحة. الحلقات والدوال غالباً تحتاج إلى نقطتين.",friendlyIndent:"بعض الأسطر تحتاج إلى مسافة بادئة. الأسطر داخل الحلقة أو الدالة يجب أن تتحرك لليمين.",friendlyAttr:"السلحفاة لا تعرف هذا الأمر. تحقق من الإملاء.",friendlyName:"وجدت بايثون اسماً غير معروف. تحقق من المتغيرات والإملاء وضع أسماء الألوان بين علامات اقتباس.",friendlyTime:"السلحفاة ترسم منذ مدة طويلة. جرّب رقماً أصغر في الحلقة.",checkLine:n=>` تحقق من السطر ${n}.`,technical:"التفاصيل التقنية"}
+};
+const $=id=>document.getElementById(id), E={code:$("code"),rail:$("rail"),lessonSelect:$("lessonSelect"),lessonList:$("lessonList"),lessonTitle:$("lessonTitle"),lessonLevel:$("lessonLevel"),lessonConcept:$("lessonConcept"),lesson:$("lesson"),challenge:$("challenge"),out:$("out"),err:$("err"),docGrid:$("docGrid"),printDocs:$("printDocs"),badgeGrid:$("badgeGrid"),teacher:$("teacher"),target:$("target"),stage:$("stage"),toast:$("toast")};
+function safeParse(v,fallback=[]){try{let parsed=JSON.parse(v||JSON.stringify(fallback));return Array.isArray(parsed)?parsed:fallback}catch(e){return fallback}}
+let current=Number(localStorage.getItem(K.lesson)||0),progress=new Set(safeParse(localStorage.getItem(K.progress))),runToken=0,stopRequested=false,activeRun=null,holderSerial=0,holderId="holder0",uiLang=localStorage.getItem(K.lang)||"en";if(!I18N[uiLang])uiLang="en";
+if(!Number.isFinite(current)||current<0||current>=lessons.length)current=0;
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
+function toast(s){E.toast.textContent=s;E.toast.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>E.toast.classList.remove("show"),2200)}
+function tab(id){document.querySelectorAll(".learn .tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));document.querySelectorAll(".learn .content").forEach(c=>c.classList.toggle("active",c.id===id))}
+function runTab(id){document.querySelectorAll(".runTabs .tab").forEach(b=>b.classList.toggle("active",b.dataset.runTab===id));document.querySelectorAll(".runContent").forEach(c=>c.classList.toggle("active",c.id===id))}
+function T(k){let v=(I18N[uiLang]&&I18N[uiLang][k])||I18N.en[k]||k;return v}
+function applyLang(rebuild=false){document.documentElement.lang=uiLang;document.documentElement.dir=uiLang==="ar"?"rtl":"ltr";let set=(id,v)=>{let el=$(id);if(el)el.textContent=v};let q=(sel,v)=>{let el=document.querySelector(sel);if(el)el.textContent=v};if($("langSelect"))$("langSelect").value=uiLang;q(".brand h1",T("title"));q(".brand .sub",T("subtitle"));q(".sideTitle h2",T("course"));set("runTop",T("run"));set("stopTop",T("stop"));set("clearTop",T("clearDrawing"));set("resetTop",T("resetCode"));set("saveTop",T("saveCode"));set("focusExamples",T("loadExample"));set("hc",T("contrast"));set("chooseLessonLabel",T("chooseLesson"));set("resetProgress",T("resetProgress"));set("runBtn",T("run"));set("resetBtn",T("resetLesson"));set("copyBtn",T("copy"));set("pyBtn",T("exportPy"));set("clearBtn",T("clear"));set("pngBtn",T("savePng"));q(".canvas .head h2",T("drawingTitle"));let center=document.querySelector(".canvas .pill");if(center)center.textContent=T("center");q(".ltop h2",T("learningArea"));let tabs=["lessonTab","syntaxTab","challengeTab","teacherTab","badgesTab"];document.querySelectorAll(".learn .tab").forEach((b,i)=>b.textContent=T(tabs[i]));let runTabs=["outputTab","errorsTab"];document.querySelectorAll(".runTabs .tab").forEach((b,i)=>b.textContent=T(runTabs[i]));if($("docSearch"))$("docSearch").placeholder=T("docSearch");let collapsed=document.body.classList.contains("lessons-collapsed");if($("toggleLessons")){$("toggleLessons").textContent=collapsed?T("showLessons"):T("hideLessons");$("toggleLessons").setAttribute("aria-expanded",String(!collapsed));$("toggleLessons").title=collapsed?T("lessonsShown"):T("lessonsHidden")}if(rebuild){buildLessons();buildExamples();buildDocs($("docSearch")?$("docSearch").value:"");loadLesson(current,true);progressUI();badges()}}
+function toggleLessons(){let collapsed=document.body.classList.toggle("lessons-collapsed");localStorage.setItem(K.side,collapsed?"1":"0");applyLang(false);toast(collapsed?T("lessonsHidden"):T("lessonsShown"))}
+function buildLessons(){E.lessonSelect.innerHTML=lessons.map((l,i)=>`<option value="${i}">${i+1}. ${esc(l.title)}</option>`).join("");E.lessonList.innerHTML="";let last="";lessons.forEach((l,i)=>{if(l.level!==last){let d=document.createElement("div");d.className="level";d.textContent=l.level;E.lessonList.appendChild(d);last=l.level}let b=document.createElement("button");b.className="lesson";b.dataset.i=i;b.innerHTML=`<span class="num">${i+1}</span><span>${esc(l.title)}</span><span>${progress.has(i)?"✓":""}</span>`;b.onclick=()=>loadLesson(i,false);E.lessonList.appendChild(b)})}
+function buildExamples(){$("examples").innerHTML=`<option value="">${T("examplePlaceholder")}</option>`+examples.map((e,i)=>`<option value="${i}">${esc(e.name)}</option>`).join("")}
+function docCommand(d){return String(d.command).replace(/\\n/g,"\n")}
+function buildDocs(q=""){q=q.toLowerCase().trim();let list=docs.filter(d=>(d.category+docCommand(d)+d.explanation).toLowerCase().includes(q));E.docGrid.innerHTML=list.map(d=>`<article class="doc"><span class="cat">${esc(d.category)}</span><h3><code>${esc(docCommand(d))}</code></h3><p>${esc(d.explanation)}</p><pre>${esc(d.example)}</pre><button class="small try" data-i="${docs.indexOf(d)}">${T("tryIt")}</button></article>`).join("")||`<p>${T("noDocs")}</p>`;E.printDocs.innerHTML=docs.map(d=>`<article class="doc"><span class="cat">${esc(d.category)}</span><h3><code>${esc(docCommand(d))}</code></h3><p>${esc(d.explanation)}</p></article>`).join("");document.querySelectorAll(".try").forEach(b=>b.onclick=()=>{E.code.value=docs[Number(b.dataset.i)].example;save();lines();toast(T("loadedSyntax"))})}
+function loadLesson(i,keep){current=i;localStorage.setItem(K.lesson,i);let l=lessons[i];E.lessonSelect.value=i;E.lessonTitle.textContent=`${T("lessonPrefix")} ${i+1}: ${l.title}`;E.lessonLevel.textContent=l.level;E.lessonConcept.textContent=l.concept;let key=document.querySelector("#lessonConcept + .pill");if(key)key.textContent=T("keyboard");if(!keep){E.code.value=l.starterCode;save()}E.lesson.innerHTML=`<div class="twocol"><article class="box"><h3>${T("goal")}</h3><p>${esc(l.goal)}</p><h3>${T("concept")}</h3><p>${esc(l.explanation)}</p><h3>${T("expected")}</h3><p>${esc(l.expected)}</p></article><article class="box"><h3>${T("steps")}</h3><ol>${l.steps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol><h3>${T("hint")}</h3><p>${esc(l.hint)}</p><h3>${T("tryChanging")}</h3><p>${esc(l.tryThis)}</p></article></div>`;E.challenge.innerHTML=`<div class="twocol"><article class="box challenge"><h3>${T("challenge")}</h3><p>${esc(l.challenge)}</p><button class="primary" id="done">${T("didIt")}</button></article><article class="box"><h3>${T("creative")}</h3><p>${esc(l.tryThis)}</p><p><span class="note-label">${T("badgeTip")}</span> ${T("badgeTipText")}</p></article></div>`;$("done").onclick=()=>complete(i);E.teacher.innerHTML=`<div class="twocol"><article class="box"><h3>${T("aboutLesson")}</h3><p>${esc(l.teacherNote)}</p></article><article class="box"><h3>${T("printSheet")}</h3><p>${T("printSheetText")}</p><button class="small" onclick="window.print()">${T("printButton")}</button></article><article class="box"><h3>${T("resetBox")}</h3><p>${T("resetBoxText")}</p><button class="small danger" id="resetTeacher">${T("resetProgress")}</button></article><article class="box"><h3>${T("addLessons")}</h3><p>${T("addLessonsText")}</p></article></div>`;$("resetTeacher").onclick=resetProgress;document.querySelectorAll(".lesson").forEach(b=>b.classList.toggle("active",Number(b.dataset.i)===i));lines();progressUI();badges()}
+function save(){localStorage.setItem(K.code,E.code.value);$("saveStatus").textContent=(uiLang==="ar"?"تم الحفظ ":"Saved ")+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
+function lines(){let n=Math.max(1,E.code.value.split("\n").length);E.rail.innerHTML=Array.from({length:n},(_,i)=>i+1).join("<br>");cursor()}
+function cursor(){let p=E.code.selectionStart,b=E.code.value.slice(0,p),line=b.split("\n").length,col=b.length-b.lastIndexOf("\n");$("cursor").textContent=`Line ${line}, Column ${col}`}
+function progressUI(){let c=progress.size,t=lessons.length;$("progressText").textContent=T("progress")(c,t);$("starText").textContent=T("stars")(c);$("fill").style.width=(c/t*100)+"%"}
+function complete(i){progress.add(i);localStorage.setItem(K.progress,JSON.stringify([...progress]));buildLessons();loadLesson(i,true);toast(T("complete"))}
+function badges(){let names=T("badges"),data=[["📏",names[0],progress.has(0)],["🔷",names[1],[2,3,4,5].some(i=>progress.has(i))],["🔁",names[2],[3,4,5,13,14].some(i=>progress.has(i))],["🎨",names[3],[6,7,8].some(i=>progress.has(i))],["🧩",names[4],[17,18].some(i=>progress.has(i))],["🏆",names[5],progress.has(21)]];E.badgeGrid.innerHTML=data.map(b=>`<article class="badge ${b[2]?"earned":""}"><h3>${b[0]} ${b[1]} ${b[2]?"✓":""}</h3><p>${b[2]?T("unlocked"):T("locked")}</p></article>`).join("")}
+function resetProgress(){if(!confirm(T("resetConfirm")))return;progress=new Set();localStorage.setItem(K.progress,"[]");buildLessons();loadLesson(current,true);toast(T("progressReset"))}
+function resetCanvas(msg=true){holderId="holder"+(++holderSerial);E.target.innerHTML='<div id="'+holderId+'" class="holder"></div>';if(msg)toast(T("clearToast"))}
+function clearDrawing(){resetCanvas(true);E.err.textContent=T("noErrors")}
+function output(t){E.out.textContent+=t}
+function builtinRead(x){if(Sk.builtinFiles===undefined||Sk.builtinFiles.files[x]===undefined)throw new Error("File not found: "+x);return Sk.builtinFiles.files[x]}
+async function run(){
+if(typeof Sk==="undefined"){E.err.textContent=uiLang==="ar"?"تعذّر تحميل محرك بايثون. تحقق من اتصال الإنترنت أو افتح الملف من خادم محلي بسيط.":"The Python runner could not load. Check the internet connection or open the file from a simple local server.";runTab("errors");return}
+let token=++runToken,code=E.code.value.trim()?E.code.value:DEFAULT_CODE;activeRun=token;stopRequested=false;save();clearDrawing();E.out.textContent="";E.err.textContent="Running...";runTab("output");setRun(true);let r=E.stage.getBoundingClientRect();try{Sk.TurtleGraphics={target:holderId,width:Math.max(320,Math.floor(r.width)),height:Math.max(320,Math.floor(r.height)),animate:true};Sk.configure({output,read:builtinRead,__future__:Sk.python3,execLimit:45000,yieldLimit:100,killableWhile:true,killableFor:true,interruptHandler:function(){if(stopRequested||token!==runToken)throw new Error("Program stopped by user")}});await Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>",false,code,true));if(token!==runToken)return;if(!E.out.textContent.trim())E.out.textContent=T("success");else E.out.textContent+="\n"+T("success");E.err.textContent=T("successErr")}catch(e){if(token!==runToken)return;friendly(e);runTab("errors")}finally{if(activeRun===token)activeRun=null;if(token===runToken)setRun(false)}}
+function friendly(e){let raw=e&&e.toString?e.toString():String(e),l=raw.toLowerCase(),m=T("friendlyDefault");if(l.includes("expected ':'")||l.includes("invalid syntax"))m=T("friendlySyntax");else if(l.includes("indent"))m=T("friendlyIndent");else if(l.includes("attributeerror"))m=T("friendlyAttr");else if(l.includes("nameerror"))m=T("friendlyName");else if(l.includes("time")||l.includes("limit"))m=T("friendlyTime");else if(l.includes("stopped by user"))m=T("stopped");let lm=raw.match(/line\s+(\d+)/i);E.err.innerHTML=`<h3>${T("friendlyTitle")}</h3><p>${esc(m+(lm?T("checkLine")(lm[1]):""))}</p><details><summary>${T("technical")}</summary><pre>${esc(raw)}</pre></details>`}
+function stop(){stopRequested=true;runToken++;activeRun=null;try{if(window.Sk){Sk.execLimit=1;Sk.yieldLimit=1}}catch(e){}setRun(false);resetCanvas(false);E.err.textContent=T("stopped");runTab("errors");toast(T("stopToast"))}
+function setRun(v){["runBtn","runTop"].forEach(id=>$(id).disabled=v);$("stopTop").disabled=!v}
+function copyCode(){navigator.clipboard?.writeText(E.code.value).then(()=>toast(T("codeCopied")),()=>{E.code.select();document.execCommand("copy");toast(T("codeCopied"))})}
+function py(){let a=document.createElement("a"),name=(lessons[current].title||"turtle_lab").toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");a.href=URL.createObjectURL(new Blob([E.code.value],{type:"text/x-python"}));a.download=(name||"turtle_lab")+".py";a.click();URL.revokeObjectURL(a.href);toast(T("pyExported"))}
+function imgFromSvg(svg){return new Promise((resolve,reject)=>{let clone=svg.cloneNode(true),r=svg.getBoundingClientRect();clone.setAttribute("xmlns","http://www.w3.org/2000/svg");if(!clone.getAttribute("width"))clone.setAttribute("width",Math.max(1,Math.round(r.width||svg.clientWidth||640)));if(!clone.getAttribute("height"))clone.setAttribute("height",Math.max(1,Math.round(r.height||svg.clientHeight||480)));let blob=new Blob([new XMLSerializer().serializeToString(clone)],{type:"image/svg+xml;charset=utf-8"}),url=URL.createObjectURL(blob),img=new Image();img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};img.onerror=err=>{URL.revokeObjectURL(url);reject(err)};img.src=url})}
+async function png(){let stage=E.stage,sr=stage.getBoundingClientRect(),dpr=window.devicePixelRatio||1,w=Math.max(1,Math.round(sr.width*dpr)),h=Math.max(1,Math.round(sr.height*dpr));let layers=[...stage.querySelectorAll("canvas,svg")].filter(el=>el.width||el.height||el.getBoundingClientRect().width||el.getBoundingClientRect().height);if(!layers.length){toast(T("pngFirst"));return}let out=document.createElement("canvas"),ctx;out.width=w;out.height=h;ctx=out.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);ctx.save();ctx.strokeStyle="rgba(29,167,128,.12)";ctx.lineWidth=Math.max(1,dpr);for(let x=0;x<=w;x+=40*dpr){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}for(let y=0;y<=h;y+=40*dpr){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}ctx.restore();layers.sort((a,b)=>(parseInt(getComputedStyle(a).zIndex)||0)-(parseInt(getComputedStyle(b).zIndex)||0));for(let el of layers){let cr=el.getBoundingClientRect(),dx=(cr.left-sr.left)/Math.max(1,sr.width)*w,dy=(cr.top-sr.top)/Math.max(1,sr.height)*h,dw=cr.width/Math.max(1,sr.width)*w,dh=cr.height/Math.max(1,sr.height)*h;if(!cr.width||!cr.height){dx=0;dy=0;dw=w;dh=h}try{if(el.tagName.toLowerCase()==="svg"){let img=await imgFromSvg(el);ctx.drawImage(img,dx,dy,dw,dh)}else ctx.drawImage(el,dx,dy,dw,dh)}catch(e){try{ctx.drawImage(el,0,0,w,h)}catch(_){}}}let a=document.createElement("a");a.href=out.toDataURL("image/png");a.download="turtle-lab-drawing.png";a.click();toast(T("pngSaved"))}
+function bind(){let on=(id,fn)=>{let el=$(id);if(el)el.onclick=fn};["runBtn","runTop"].forEach(id=>on(id,run));on("stopTop",stop);on("clearBtn",clearDrawing);on("clearTop",clearDrawing);on("resetBtn",()=>{E.code.value=lessons[current].starterCode;save();lines();toast(T("lessonRestored"))});on("resetTop",$("resetBtn")?$("resetBtn").onclick:null);on("saveTop",()=>{save();toast(T("codeSaved"))});on("focusExamples",()=>$("examples").focus());on("copyBtn",copyCode);on("pyBtn",py);on("pngBtn",png);on("resetProgress",resetProgress);on("toggleLessons",toggleLessons);$("langSelect").onchange=e=>{uiLang=e.target.value;localStorage.setItem(K.lang,uiLang);applyLang(true)};$("hc").onclick=()=>{document.body.classList.toggle("hc");localStorage.setItem(K.hc,document.body.classList.contains("hc"));toast(document.body.classList.contains("hc")?T("hcOn"):T("hcOff"))};E.lessonSelect.onchange=()=>loadLesson(Number(E.lessonSelect.value),false);$("examples").onchange=()=>{if(!$("examples").value)return;let ex=examples[Number($("examples").value)];E.code.value=ex.code;save();lines();toast(uiLang==="ar"?"تم تحميل المثال.":ex.name+" loaded.");$("examples").value=""};$("docSearch").oninput=()=>buildDocs($("docSearch").value);E.code.oninput=()=>{save();lines()};E.code.onscroll=()=>E.rail.scrollTop=E.code.scrollTop;E.code.onkeyup=cursor;E.code.onclick=cursor;E.code.onkeydown=e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();run()}else if(e.key==="Tab"){e.preventDefault();let s=E.code.selectionStart,v=E.code.value;E.code.value=v.slice(0,s)+"    "+v.slice(E.code.selectionEnd);E.code.selectionStart=E.code.selectionEnd=s+4;save();lines()}};document.querySelectorAll(".learn .tab").forEach(b=>b.onclick=()=>tab(b.dataset.tab));document.querySelectorAll(".runTabs .tab").forEach(b=>b.onclick=()=>runTab(b.dataset.runTab));window.onresize=()=>resetCanvas(false)}
+function init(){document.body.classList.toggle("lessons-collapsed",localStorage.getItem(K.side)==="1");buildLessons();buildExamples();buildDocs();bind();document.body.classList.toggle("hc",localStorage.getItem(K.hc)==="true");let saved=localStorage.getItem(K.code);loadLesson(current,Boolean(saved));if(saved)E.code.value=saved;lines();resetCanvas(false);applyLang(true);setRun(false);$("saveStatus").textContent=T("saved");E.out.textContent=T("outputPlaceholder");E.err.textContent=T("noErrors")}
+init();
+</script>
+</body>
+</html>
