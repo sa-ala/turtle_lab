@@ -315,48 +315,16 @@ References:
 
 ---
 
-## 📄 License
-
-Choose a license before publishing publicly.
-
-Suggested options:
-
-* **MIT License** if you want others to freely use, modify, and share the project.
-* **Creative Commons Attribution-NonCommercial** if you want to allow educational sharing but restrict commercial use.
-* **All Rights Reserved** if you do not want others to reuse the code without permission.
-
-Add the selected license in a separate `LICENSE` file.
-
----
-
 ## 🐢 Project Status
 
 Current status:
-
-```text
 Early public version / educational prototype
-```
-
-Planned improvements may include:
-
-* More lessons
-* More examples
-* Save drawing as image
-* Better mobile experience
-* Offline-ready version
-* Teacher mode
-* More Arabic learning content
-* Student challenge badges
 
 ---
 
 ## Start Learning
 
-Open the app:
-
-```text
-index.html
-```
+Open the published app from this url: https://sa-ala.github.io/turtle_lab
 
 Then click:
 
@@ -368,4 +336,5 @@ Happy coding with Turtle Lab! 🐢
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project code is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+For the used third-party libraries like Skulpt, please refer to thier own published licenses.
