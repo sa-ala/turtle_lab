@@ -145,6 +145,13 @@ Suggested files:
 | `assets/`    | CSS, JavaScript, libraries, and other assets |
 | `images/`    | Optional images or screenshots               |
 
+### Implementation Reference
+
+See [SPEC.md](SPEC.md) for the implementation-derived business and technical
+specification of `index.html` and `app.html`, including workflows, curriculum,
+runtime behavior, persistence, known limitations, and test-planning coverage
+for AI agents and contributors.
+
 ---
 
 ## 🚀 Running Locally
