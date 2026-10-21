@@ -1,0 +1,1 @@
+Read and follow `AGENTS.md` at the repository root before making changes. Current behavior is specified in `SPEC.md`; planned work is in `docs/ROADMAP.md`. Run `node tools/check.mjs` before proposing a change.
