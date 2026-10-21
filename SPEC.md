@@ -1,4 +1,5 @@
 # Turtle Lab: Business and Technical Specification
+> How to work in this repo: see [AGENTS.md](AGENTS.md). Planned work: [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## 1. Purpose, authority, and scope
 
