@@ -849,7 +849,7 @@ filing or implementing a fix.
 | GAP-06 | Stop is cooperative; clearing an active suspension's timer leaves its promise unsettled | Verify stop/restart/timer lifecycle; do not assume the old interpreter was terminated |
 | GAP-07 | Stop's delayed target reset is not token-guarded | Starting another run within 150ms can have its drawing target cleared by the previous stop |
 | GAP-08 | Source rewriting is not parser-aware across all Python syntax, notably multiline/triple-quoted strings and decorator relationships | Compare Normal and Step semantics before broadening supported Python constructs |
-| GAP-09 | `lineExplanation()` matches generic function calls before `print()` | Printed lines can receive the function explanation instead of the dedicated output explanation |
+| GAP-09 | **Fixed by F-006.** `lineExplanation()` checks `print(` before the generic function-call rule | Covered by `tests/fixes.spec.js` |
 | GAP-10 | Debug Help says blue is running; current-line CSS is a green/blue gradient | Align explanatory copy and visual semantics if refining debugger UX |
 | GAP-11 | Syntax Try it does not clear previous error/current highlight or debug status | Replaced code can retain stale highlights/status |
 | GAP-12 | Clipboard fallback runs on write rejection, but a missing Clipboard API short-circuits the optional chain | No fallback copy/toast occurs when `navigator.clipboard` itself is absent; fallback result is also unchecked |
