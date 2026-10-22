@@ -192,8 +192,8 @@ completion toast. It does not advance to the next lesson.
 | Tab in editor | Replace selected text with four spaces, move caret after spaces, save, rebuild lines; no outdent or multiline-indent behavior |
 
 Code replacement does not automatically clear the drawing, output, or errors.
-The Syntax Help Try it handler does not explicitly clear highlights or reset
-debug guidance, unlike the example selector.
+The Syntax Help Try it handler clears highlights and resets debug guidance,
+like the example selector (GAP-11, fixed by F-006).
 
 ### 4.4 Run, inspect, and stop
 
@@ -519,11 +519,13 @@ error text. A resolved line receives red editor/gutter styling and focus.
 | Otherwise | Generic check-and-retry guidance |
 
 These are substring heuristics, not structured error-code classification.
-Some errors may therefore receive broad or misleading advice. In particular,
-Skulpt 1.2.0 reports both a missing colon and a missing indent as
-`SyntaxError: bad input on line N`, which matches none of the specific rows,
-so lessons 26 and 27 show the generic guidance plus "Check line N" and the
-red line, not the colon/indentation guidance (GAP-25).
+Some errors may therefore receive broad or misleading advice. Skulpt 1.2.0
+reports both a missing colon and a missing indent as `SyntaxError: bad input
+on line N`. For that error `badInputHint()` inspects the reported line and the
+previous non-blank line: a block header (`for`, `while`, `if`, `elif`, `else`,
+`def`, `class`, `try`, `except`, `finally`, `with`) without a trailing colon
+gives the colon guidance, and a line not indented past a preceding line that
+ends with a colon gives the indentation guidance (GAP-25, fixed by F-006).
 
 ## 8. Drawing, coordinates, and exports
 
@@ -849,22 +851,23 @@ filing or implementing a fix.
 | GAP-06 | Stop is cooperative; clearing an active suspension's timer leaves its promise unsettled | Verify stop/restart/timer lifecycle; do not assume the old interpreter was terminated |
 | GAP-07 | Stop's delayed target reset is not token-guarded | Starting another run within 150ms can have its drawing target cleared by the previous stop |
 | GAP-08 | Source rewriting is not parser-aware across all Python syntax, notably multiline/triple-quoted strings and decorator relationships | Compare Normal and Step semantics before broadening supported Python constructs |
-| GAP-09 | `lineExplanation()` matches generic function calls before `print()` | Printed lines can receive the function explanation instead of the dedicated output explanation |
-| GAP-10 | Debug Help says blue is running; current-line CSS is a green/blue gradient | Align explanatory copy and visual semantics if refining debugger UX |
-| GAP-11 | Syntax Try it does not clear previous error/current highlight or debug status | Replaced code can retain stale highlights/status |
-| GAP-12 | Clipboard fallback runs on write rejection, but a missing Clipboard API short-circuits the optional chain | No fallback copy/toast occurs when `navigator.clipboard` itself is absent; fallback result is also unchecked |
-| GAP-13 | PNG catches per-layer drawing failures and can still report success | A download may be incomplete; define explicit partial/failure behavior |
+| GAP-09 | **Fixed by F-006.** `lineExplanation()` checks `print(` before the generic function-call rule | Covered by `tests/fixes.spec.js` |
+| GAP-10 | **Fixed by F-006.** Debug Help now says green, matching the green current-line highlight, in both languages | Copy-only change; colors unchanged |
+| GAP-11 | **Fixed by F-006.** Syntax Help Try it clears highlights and resets the status, like the example selector | Covered by `tests/fixes.spec.js` |
+| GAP-12 | **Fixed by F-006.** Copy uses the `execCommand` fallback when the Clipboard API is absent or rejects, and the toast reports the real result ("Code copied." or the localized `copyFailed`) | Covered by `tests/fixes.spec.js` |
+| GAP-13 | **Fixed by F-006.** PNG export counts layers that fail to draw: some failed → saves and shows the localized partial-save toast; all failed (or the canvas cannot be exported) → no download and a failure toast | Covered by `tests/fixes.spec.js` |
 | GAP-14 | PNG omits coordinates and uses a different grid; it captures the stage viewport rather than complete artwork | Decide whether export should preserve visual overlays, be clean artwork, or offer both |
 | GAP-15 | Resize redraws the overlay, not existing Skulpt dimensions | Verify coordinate/drawing alignment after orientation or layout changes |
 | GAP-16 | Landing navigation/static labels and app syntax/example content are not fully localized | Define the intended bilingual completeness before expanding translation scope |
-| GAP-17 | Landing English How It Works cards lack `.en` on their containers | Arabic-only view hides their text but can leave empty decorated step cards and affected step numbering |
-| GAP-18 | Landing selector `[data-view="ar"] body` has no matching ancestor because `data-view` is on body/main | Its intended whole-body Arabic font rule does not apply; explicit `.ar` fonts still apply |
+| GAP-17 | **Fixed by F-006.** English How It Works cards carry `.en`, so the Arabic-only view shows exactly the three Arabic cards | Covered by `tests/fixes.spec.js` |
+| GAP-18 | **Fixed by F-006.** The Arabic whole-body font rule targets `body[data-view="ar"]` and now applies | Covered by `tests/fixes.spec.js` |
 | GAP-19 | Many static ARIA labels, cursor wording, and print heading remain English | Include assistive text and print output in localization work |
 | GAP-20 | Completion is unchecked and badge rules use positional indexes | Reordering lessons can change saved progress/badge meaning; stable IDs require a migration |
 | GAP-21 | Some teacher notes use old numbering; several early starters introduce loops before the formal loops level | Review pedagogy separately from fixing runtime behavior |
 | GAP-22 | Class-only tabs, nonsemantic progress, limited live status, and intercepted Tab | Accessibility work needs defined interaction and announcement requirements |
 | GAP-23 | No verified browser matrix or performance budgets. Automated Chromium smoke tests and CI were added by F-001 (`tests/`, `npm test`) | Extend coverage per §14; add other browsers or budgets only with explicit scope |
-| GAP-25 | `friendly()` never shows the missing-colon or indentation guidance: Skulpt 1.2.0 reports both as `SyntaxError: bad input on line N` (found by F-001 tests) | Lessons 26/27 still fail with "Check line N" and a red line, but the teaching message is generic. Pinned by `test.fail()` tests in `tests/app.spec.js` |
+| GAP-25 | **Fixed by F-006.** `badInputHint()` maps Skulpt's `bad input` error to the colon or indentation guidance from the source lines | Lessons 26/27 show their specific guidance; covered by `tests/app.spec.js` |
+| GAP-26 | **Fixed by F-006.** Below 860 px the single-column app grid used `1fr`, which cannot shrink below its content, so the page was wider than phone screens (508 px of content at 420 px in English, 457 px in Arabic) | Grid now uses `minmax(0,1fr)`; covered by `tests/fixes.spec.js` |
 | GAP-24 | **Fixed by F-003.** Skulpt is vendored in `assets/libs/` with an SRI-checked CDN fallback, a loading state and a Retry control | Dependency failure is detected on Run; classroom/offline reliability needs explicit scope |
 
 ## 14. Test-planning reference

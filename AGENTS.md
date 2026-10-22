@@ -65,7 +65,7 @@ npm test
 - the offline bundle running with no external requests
 - Python loading: local files only, CDN fallback with a real SRI check, tampered CDN file rejected, loading state, failure and Retry (`tests/loader.spec.js`)
 
-Known bugs are pinned with `test.fail()` and a `GAP-xx` reference (currently GAP-25). When you fix one, Playwright reports "expected to fail, but passed"; remove the `test.fail()` line.
+Known bugs are pinned with `test.fail()` and a `GAP-xx` reference (none at the moment). Regression tests for fixed gaps live in `tests/fixes.spec.js`, one block per gap. When you fix one, Playwright reports "expected to fail, but passed"; remove the `test.fail()` line.
 
 Still **manual**: run these in a clean browser profile when your change touches them, and report the results in your PR:
 

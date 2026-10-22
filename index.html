@@ -673,7 +673,7 @@
 
     [data-view="en"] .ar { display: none !important; }
     [data-view="ar"] .en { display: none !important; }
-    [data-view="ar"] body { font-family: var(--font-ar); }
+    body[data-view="ar"] { font-family: var(--font-ar); }
     [data-view="ar"] .section-head,
     [data-view="ar"] .card,
     [data-view="ar"] .hero-copy,
@@ -1085,7 +1085,7 @@ for i in range(4):
         </div>
 
         <div class="grid three steps">
-          <article class="card step">
+          <article class="card en step">
             <span class="icon" aria-hidden="true">📚</span>
             <h3 class="en">Choose a lesson or example</h3>
             <p class="en">Start with a guided challenge or open a ready-made drawing.</p>
@@ -1096,7 +1096,7 @@ for i in range(4):
             <p>ابدأ بتحدٍ موجه أو افتح رسمة جاهزة.</p>
           </article>
 
-          <article class="card step">
+          <article class="card en step">
             <span class="icon" aria-hidden="true">💻</span>
             <h3 class="en">Write or edit Python Turtle code</h3>
             <p class="en">Change commands, numbers, colors, loops, and functions.</p>
@@ -1107,7 +1107,7 @@ for i in range(4):
             <p>غيّر الأوامر والأرقام والألوان والحلقات والدوال.</p>
           </article>
 
-          <article class="card step">
+          <article class="card en step">
             <span class="icon" aria-hidden="true">▶️</span>
             <h3 class="en">Click Run and watch the turtle draw</h3>
             <p class="en">See the drawing appear and learn from the result.</p>

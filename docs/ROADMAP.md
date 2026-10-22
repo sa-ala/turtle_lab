@@ -16,7 +16,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-003 | Vendored Skulpt with loading state and fallback | P0 | S | — | 24 | Done |
 | F-004 | Safe storage layer with validation | P0 | S | — | 02, 03 | Done |
 | F-005 | Run lifecycle hardening | P1 | M | F-001 | 04–07 | Proposed |
-| F-006 | Small-fix bundle | P1 | S | — | 09–13, 17, 18 | Proposed |
+| F-006 | Small-fix bundle | P1 | S | — | 09–13, 17, 18 | Done |
 | F-007 | Per-lesson drafts and overwrite protection | P2 | M | F-002, F-004 | 01 | Proposed |
 | F-008 | Deep links: lesson, example, language | P2 | S | F-002 | — | Proposed |
 | F-009 | Editor ergonomics | P2 | M | — | 22 (part) | Proposed |
@@ -140,6 +140,8 @@ These block specific items; agents must not decide them alone.
 ---
 
 ## F-006 Small-fix bundle
+
+**Status: Done.** One commit per gap. Also includes GAP-25 (colon/indentation guidance) and GAP-26 (phone-width overflow), found by the F-001 tests and the F-003 review. Tests in `tests/fixes.spec.js`.
 
 Independent fixes; one PR, one commit per gap.
 
