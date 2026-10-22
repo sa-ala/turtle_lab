@@ -672,6 +672,12 @@
     }
 
     [data-view="en"] .ar { display: none !important; }
+    /* F-014: inline UI labels — English in the en and both views, Arabic in the ar view. */
+    .ui-ar { display: none; }
+    [data-view="ar"] .ui-ar { display: inline; }
+    [data-view="ar"] .ui-en { display: none; }
+    .sep { display: none; }
+    [data-view="both"] .sep { display: inline; }
     [data-view="ar"] .en { display: none !important; }
     body[data-view="ar"] { font-family: var(--font-ar); }
     [data-view="ar"] .section-head,
@@ -796,12 +802,12 @@
 </head>
 
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
+  <a class="skip-link" href="#main"><span class="ui-en">Skip to content</span><span class="ui-ar" dir="rtl">انتقل إلى المحتوى</span></a>
 
   <header>
     <div class="page-shell header-inner">
       <!-- App name -->
-      <a class="brand" href="#top" aria-label="Turtle Lab home">
+      <a class="brand" href="#top" aria-label="Turtle Lab home" data-aria-ar="الصفحة الرئيسية لـ Turtle Lab">
         <span class="brand-mark" aria-hidden="true">🐢</span>
         <span>
           <span class="brand-name">Turtle Lab</span>
@@ -810,18 +816,18 @@
         </span>
       </a>
 
-      <nav aria-label="Main navigation">
-        <a href="#about">About</a>
-        <a href="#background">Background</a>
-        <a href="#technology">Technology</a>
-        <a href="#requirements">Requirements</a>
+      <nav aria-label="Main navigation" data-aria-ar="التنقل الرئيسي">
+        <a href="#about"><span class="ui-en">About</span><span class="ui-ar" dir="rtl">نبذة</span></a>
+        <a href="#background"><span class="ui-en">Background</span><span class="ui-ar" dir="rtl">الخلفية</span></a>
+        <a href="#technology"><span class="ui-en">Technology</span><span class="ui-ar" dir="rtl">التقنيات</span></a>
+        <a href="#requirements"><span class="ui-en">Requirements</span><span class="ui-ar" dir="rtl">المتطلبات</span></a>
         <a href="https://github.com/sa-ala/turtle_lab" target="_blank" rel="noopener noreferrer">GitHub</a>
       </nav>
 
-      <div class="language-tools" aria-label="Language view">
+      <div class="language-tools" aria-label="Language view" data-aria-ar="لغة العرض">
         <button class="lang-btn" type="button" data-set-view="en" aria-pressed="true">English</button>
         <button class="lang-btn" type="button" data-set-view="ar" aria-pressed="false">العربية</button>
-        <button class="lang-btn" type="button" data-set-view="both" aria-pressed="false">Both</button>
+        <button class="lang-btn" type="button" data-set-view="both" aria-pressed="false"><span class="ui-en">Both</span><span class="ui-ar" dir="rtl">كلتا اللغتين</span></button>
       </div>
     </div>
   </header>
@@ -843,12 +849,12 @@
 
           <div class="actions">
             <!-- App link -->
-            <a class="btn primary" href="app.html">Start Coding | ابدأ البرمجة</a>
-            <a class="btn secondary" href="#about">Learn More | اعرف المزيد</a>
+            <a class="btn primary" href="app.html"><span class="en">Start Coding</span><span class="sep" aria-hidden="true"> | </span><span class="ar" dir="rtl">ابدأ البرمجة</span></a>
+            <a class="btn secondary" href="#about"><span class="en">Learn More</span><span class="sep" aria-hidden="true"> | </span><span class="ar" dir="rtl">اعرف المزيد</span></a>
           </div>
         </div>
 
-        <div class="hero-art" aria-label="Illustration of code drawing a turtle shape">
+        <div class="hero-art" aria-label="Illustration of code drawing a turtle shape" data-aria-ar="رسم توضيحي لكود يرسم شكل سلحفاة">
           <div class="drawing-card">
             <div class="fake-window" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
             <pre class="mini-code"><code>import turtle
@@ -877,11 +883,11 @@ for i in range(4):
         <div class="card soft language-pair">
           <p class="en">Turtle Lab is a simple coding playground where children write Python Turtle commands and instantly see their drawings come to life. It is inspired by the classic Logo learning experience, but uses modern Python-style code.</p>
           <p class="ar" dir="rtl">Turtle Lab هو ملعب برمجي بسيط يكتب فيه الأطفال أوامر Python Turtle ثم يشاهدون رسوماتهم تظهر مباشرة. الفكرة مستوحاة من تجربة Logo التعليمية القديمة، ولكن باستخدام أسلوب بايثون الحديث.</p>
-          <ul class="pill-list" aria-label="Turtle Lab highlights">
-            <li>💻 Python</li>
-            <li>🎨 Drawing</li>
-            <li>📚 Lessons</li>
-            <li>🚀 Projects</li>
+          <ul class="pill-list" aria-label="Turtle Lab highlights" data-aria-ar="أبرز مزايا Turtle Lab">
+            <li>💻 <span class="ui-en">Python</span><span class="ui-ar" dir="rtl">بايثون</span></li>
+            <li>🎨 <span class="ui-en">Drawing</span><span class="ui-ar" dir="rtl">الرسم</span></li>
+            <li>📚 <span class="ui-en">Lessons</span><span class="ui-ar" dir="rtl">الدروس</span></li>
+            <li>🚀 <span class="ui-en">Projects</span><span class="ui-ar" dir="rtl">المشاريع</span></li>
           </ul>
         </div>
       </div>
@@ -925,7 +931,7 @@ for i in range(4):
           <p class="ar" dir="rtl">يعلّم Turtle Lab أساسيات لغة Python، وهي من أشهر لغات البرمجة الحديثة. يكتب الأطفال أوامر بأسلوب بايثون الحقيقي مثل الحلقات، والمتغيرات، والدوال، بينما تجعل رسومات السلحفاة النتيجة مرئية وممتعة.</p>
         </div>
 
-        <div class="code-panel" aria-label="Python Turtle code example">
+        <div class="code-panel" aria-label="Python Turtle code example" data-aria-ar="مثال على كود Python Turtle">
           <div class="fake-window" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
           <pre><code>t.forward(100)
 t.right(90)
@@ -1123,7 +1129,7 @@ for i in range(4):
 
     <section id="preview">
       <div class="page-shell split">
-        <div class="code-panel" aria-label="Blue square Python Turtle code">
+        <div class="code-panel" aria-label="Blue square Python Turtle code" data-aria-ar="كود Python Turtle لرسم مربع أزرق">
           <div class="fake-window" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
           <pre><code>import turtle
 
@@ -1145,7 +1151,7 @@ turtle.done()</code></pre>
           <p class="en">This small program draws a blue square. Children can change the color, size, or angle to create their own designs.</p>
           <p class="ar" dir="rtl">هذا البرنامج الصغير يرسم مربعًا أزرق. يمكن للأطفال تغيير اللون أو الحجم أو الزاوية لصنع تصاميمهم الخاصة.</p>
           <div class="actions">
-            <a class="btn primary" id="tryPreview" href="app.html#example=square">Try This in Turtle Lab | جرّب هذا في Turtle Lab</a>
+            <a class="btn primary" id="tryPreview" href="app.html#example=square"><span class="en">Try This in Turtle Lab</span><span class="sep" aria-hidden="true"> | </span><span class="ar" dir="rtl">جرّب هذا في Turtle Lab</span></a>
           </div>
         </div>
       </div>
@@ -1212,7 +1218,7 @@ turtle.done()</code></pre>
             <p class="ar" dir="rtl">لأفضل تجربة، استخدم أحدث إصدار من أحد هذه المتصفحات:</p>
           </div>
 
-          <div class="browser-row" aria-label="Recommended browsers">
+          <div class="browser-row" aria-label="Recommended browsers" data-aria-ar="المتصفحات المقترحة">
             <span class="browser-chip">Google Chrome</span>
             <span class="browser-chip">Microsoft Edge</span>
             <span class="browser-chip">Mozilla Firefox</span>
@@ -1274,7 +1280,7 @@ turtle.done()</code></pre>
           <p class="lead en" style="margin-inline:auto;">Open Turtle Lab and start your first Python Turtle drawing.</p>
           <p class="lead ar" dir="rtl" style="margin-inline:auto;">افتح Turtle Lab وابدأ أول رسمة باستخدام Python Turtle.</p>
           <div class="actions" style="justify-content:center;">
-            <a class="btn primary" href="app.html">Open Turtle Lab | افتح Turtle Lab</a>
+            <a class="btn primary" href="app.html"><span class="en">Open Turtle Lab</span><span class="sep" aria-hidden="true"> | </span><span class="ar" dir="rtl">افتح Turtle Lab</span></a>
           </div>
         </div>
       </div>
@@ -1287,17 +1293,17 @@ turtle.done()</code></pre>
         <h3>Turtle Lab 🐢</h3>
         <p class="en">Learn Python through creative turtle graphics.</p>
         <p class="ar" dir="rtl">تعلّم بايثون من خلال رسومات السلحفاة الإبداعية.</p>
-        <p class="tiny">© <span id="year"></span> Turtle Lab. Educational landing page.</p>
+        <p class="tiny">© <span id="year"></span> Turtle Lab. <span class="ui-en">Educational landing page.</span><span class="ui-ar" dir="rtl">صفحة تعريفية تعليمية.</span></p>
       </div>
 
       <!-- Footer links -->
-      <nav class="footer-links" aria-label="Footer navigation">
-        <a href="app.html">Start App</a>
-        <a href="#about">About</a>
-        <a href="#technology">Technology</a>
-        <a href="#requirements">Requirements</a>
-        <a href="#credits">Credits &amp; References</a>
-        <a href="https://github.com/sa-ala/turtle_lab" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+      <nav class="footer-links" aria-label="Footer navigation" data-aria-ar="روابط التذييل">
+        <a href="app.html"><span class="ui-en">Start App</span><span class="ui-ar" dir="rtl">ابدأ التطبيق</span></a>
+        <a href="#about"><span class="ui-en">About</span><span class="ui-ar" dir="rtl">نبذة</span></a>
+        <a href="#technology"><span class="ui-en">Technology</span><span class="ui-ar" dir="rtl">التقنيات</span></a>
+        <a href="#requirements"><span class="ui-en">Requirements</span><span class="ui-ar" dir="rtl">المتطلبات</span></a>
+        <a href="#credits"><span class="ui-en">Credits &amp; References</span><span class="ui-ar" dir="rtl">الشكر والمراجع</span></a>
+        <a href="https://github.com/sa-ala/turtle_lab" target="_blank" rel="noopener noreferrer"><span class="ui-en">GitHub Repository</span><span class="ui-ar" dir="rtl">مستودع GitHub</span></a>
       </nav>
     </div>
   </footer>
@@ -1324,6 +1330,10 @@ turtle.done()</code></pre>
       root.dir = validView === "ar" ? "rtl" : "ltr";
       const tryPreview = document.getElementById("tryPreview");
       if (tryPreview) tryPreview.href = "app.html#example=square" + (validView === "ar" ? "&lang=ar" : "");
+      document.querySelectorAll("[data-aria-ar]").forEach((el) => {
+        if (!el.dataset.ariaEn) el.dataset.ariaEn = el.getAttribute("aria-label");
+        el.setAttribute("aria-label", validView === "ar" ? el.dataset.ariaAr : el.dataset.ariaEn);
+      });
       try { localStorage.setItem("turtleLabLandingLanguage", validView); } catch (e) {}
 
       buttons.forEach((button) => {

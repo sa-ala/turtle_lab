@@ -67,6 +67,7 @@ npm test
 - Step-mode Pause / Next step / Continue, Stop from every state, keyboard focus, and the Variables panel (`tests/step-debugger.spec.js`)
 - editor keys: Enter auto-indent, Tab / Shift+Tab on lines and selections, Esc then Tab, undo, in Chromium and Firefox (`tests/editor.spec.js`)
 - My Projects: create, open, rename, duplicate, Save here, delete, import/export `.py`, storage failure, Arabic and keyboard (`tests/projects.spec.js`)
+- localization: no English-only UI text in Arabic mode (except "XY" and the "English" option), Arabic syntax help and example names, bilingual search, re-translation on switch, first-visit language sync, and landing labels per view (`tests/localization.spec.js`)
 - accessibility: axe-core (no serious or critical issues) on the landing page and app in both languages and main states, plus ARIA tabs, progressbar, announcements, labels and reduced motion (`tests/a11y.spec.js`). New UI must keep this file green
 - run lifecycle: one run at a time, Stop then Run keeps the new drawing, Step-mode Stop settles the run, and lesson, example, reset, language or Try it changes stop a run first (`tests/run-lifecycle.spec.js`)
 - the offline bundle running with no external requests
@@ -121,7 +122,7 @@ Key symbols: `lessons`, `LESSON_AR`, `LEVEL_AR`, `docs`, `extraDocs`, `examples`
 5. Update `SPEC.md` §5.2 catalog, counts (38 → N) everywhere, and §6 if badges changed.
 
 ### Add an example or a syntax-help entry
-Append to `examples` (`{name, code}`) or `extraDocs` (`{category, command, explanation, example}`) using the edit script above. The example must run in Skulpt. Update counts in `SPEC.md` §5.3/§5.4 and §14.
+Append to `examples` (`{name, code}`) or `extraDocs` (`{category, command, explanation, example}`) using the edit script above, **and** append the Arabic counterpart at the same index: `EXAMPLE_NAMES_AR` (a name) or `DOCS_AR` (`{category, explanation}`). The command and code stay Python (English). `check.mjs` fails if they are misaligned. The example must run in Skulpt. Update counts in `SPEC.md` §5.3/§5.4 and §14.
 
 ### Add a user-facing control
 1. Markup with a stable `id`, a real `<button>`/`<select>`/`<input>`, and an accessible name.

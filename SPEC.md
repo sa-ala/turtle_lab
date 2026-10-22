@@ -71,7 +71,7 @@ roles, teacher accounts, permissions, classroom rosters, or separate dashboards.
 | BR-06 | Each lesson keeps its own saved draft (F-007), and learners can keep any number of named projects in My Projects (F-012). |
 | BR-07 | Switching lessons restores that lesson's draft. Loading an example, Syntax Help Try it, and Reset Code ask before replacing code that differs from the lesson starter (F-007). |
 | BR-08 | Resetting progress requires confirmation and removes completion/badges, but preserves the selected lesson, code, and preferences. |
-| BR-09 | English and Arabic are supported, with different language-selection models on the two pages. Their preferences are independent. |
+| BR-09 | English and Arabic are supported, with different language-selection models on the two pages. On the first app visit (no `tl.lang.v1`), the app adopts the landing choice (`ar` gives Arabic; `en` or Both gives English); after that the two preferences are independent (F-014). |
 | BR-10 | No grading, automatic goal checking, score beyond stars, certificate, collaboration, cloud sync, or project gallery is implemented. Optional, non-grading goal feedback is designed in `docs/specs/F-011-challenge-checks.md` (proposed). |
 | BR-11 | No monetization, subscription, payment, analytics event collection, or account-registration flow appears in the reviewed source. |
 
@@ -316,6 +316,11 @@ to actual newlines.
 `examples` contains **13** objects with string fields `name` and `code`.
 Lessons have stable ids (F-002); examples and syntax entries do not, and there
 is no schema-validation layer beyond `tools/check.mjs`.
+
+`DOCS_AR` (25 `{category, explanation}`, index-aligned with `docs` after
+`extraDocs` is appended) and `EXAMPLE_NAMES_AR` (13 strings, index-aligned
+with `examples`) hold the Arabic syntax-help and example-name text (F-014).
+`tools/check.mjs` checks their alignment.
 
 `V2_LESSON_IDS` is a frozen list of the 38 lesson ids in the pre-F-002
 order. It only decodes progress saved by index (`tl.lesson.v2`,
@@ -761,9 +766,19 @@ English, Arabic, and Both toggle visibility of `.en` and `.ar` blocks.
 choice, and updates button `aria-pressed`. Both displays English and Arabic
 content together and uses English/LTR document defaults.
 
-Not every string is language-tagged: navigation, some labels, code,
-attribution, footer copyright, and bilingual CTA text remain shared or
-English. There is no cross-page language synchronization.
+Since F-014 the navigation, skip link, "Both" button, highlight chips, footer
+links and copyright line use inline `.ui-en` / `.ui-ar` spans: English in the
+English and Both views, Arabic in the Arabic view. The combined CTA buttons use
+`.en`, a `.sep` " | " separator (shown only in Both) and `.ar`, so each
+single-language view shows one language. Elements with `data-aria-ar` get
+their Arabic `aria-label` in the Arabic view. Proper names in the credits
+(Python, Skulpt, GitHub, MDN, browser names) and Python code stay English.
+
+**Cross-page sync:** the first time the app opens with no saved app language
+(`tl.lang.v1`), it adopts the landing choice (`turtleLabLandingLanguage`, read
+through `K.landing`): `ar` gives Arabic; `en` or `both` gives English. That
+choice is then saved, and after that the two preferences are independent. A
+`#lang=` deep link still overrides (F-008).
 
 ### 10.2 App language behavior
 
@@ -773,11 +788,16 @@ badges while preserving the editor draft. `T()` falls back in order:
 selected DEBUG dictionary, English DEBUG dictionary, selected UI dictionary,
 English UI dictionary, then the key itself.
 
-Arabic translates lesson prose and level headings, but Python source,
-example names, syntax categories/explanations, print title, cursor
-`Line N, Column N`, and some static accessibility labels remain English.
-Existing output/error contents are not comprehensively retranslated when
-the language changes. `Running...` is a literal English status.
+Arabic translates lesson prose, level headings and, since F-014, syntax
+categories and explanations (`DOCS_AR`), example names (`EXAMPLE_NAMES_AR`),
+the printed sheet and its title, the cursor position, the "Running..." status,
+the save status and the language label. Commands, starter code and examples
+stay Python (decision D5). Syntax search matches English and Arabic text in
+either UI language. On a language switch, the save status, cursor text and
+the output/error placeholders are re-rendered in the new language; program
+output and error details are not translated. With Arabic selected, the only
+English-only UI text left is "XY" (coordinate axes) and the "English"
+language option. `tests/localization.spec.js` checks this.
 
 Code, output, and preformatted examples remain LTR in Arabic UI. The editor
 gutter moves to the right with matching textarea/highlight padding.
@@ -982,10 +1002,10 @@ filing or implementing a fix.
 | GAP-13 | **Fixed by F-006.** PNG export counts layers that fail to draw: some failed → saves and shows the localized partial-save toast; all failed (or the canvas cannot be exported) → no download and a failure toast | Covered by `tests/fixes.spec.js` |
 | GAP-14 | PNG omits coordinates and uses a different grid; it captures the stage viewport rather than complete artwork | Decide whether export should preserve visual overlays, be clean artwork, or offer both |
 | GAP-15 | Resize redraws the overlay, not existing Skulpt dimensions | Verify coordinate/drawing alignment after orientation or layout changes |
-| GAP-16 | Landing navigation/static labels and app syntax/example content are not fully localized | Define the intended bilingual completeness before expanding translation scope |
+| GAP-16 | **Fixed by F-014.** Landing navigation, chips, footer, CTA buttons and accessible names follow the view; app syntax help and example names are translated (D5: code stays English) | Proper names in credits stay English |
 | GAP-17 | **Fixed by F-006.** English How It Works cards carry `.en`, so the Arabic-only view shows exactly the three Arabic cards | Covered by `tests/fixes.spec.js` |
 | GAP-18 | **Fixed by F-006.** The Arabic whole-body font rule targets `body[data-view="ar"]` and now applies | Covered by `tests/fixes.spec.js` |
-| GAP-19 | Many static ARIA labels, cursor wording, and print heading remain English | Include assistive text and print output in localization work |
+| GAP-19 | **Fixed by F-013 and F-014.** ARIA labels, cursor wording, print heading, status texts and the language label are localized and re-translated on switch | — |
 | GAP-20 | Completion is self-declared (unchecked). **Positional part fixed by F-002:** progress, saved lesson and badges use stable lesson ids, with a migration from v2 indexes | Unchecked completion is by design (D3); see F-011 for optional checks |
 | GAP-21 | Some teacher notes use old numbering; several early starters introduce loops before the formal loops level | Review pedagogy separately from fixing runtime behavior |
 | GAP-22 | **Fixed by F-009 and F-013.** Tab escape, ARIA tabs, progressbar, live announcements, reduced motion, localized labels and contrast fixes; axe-core reports no serious or critical issues | No manual screen-reader audit or WCAG conformance claim yet |
