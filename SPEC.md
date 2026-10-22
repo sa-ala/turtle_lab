@@ -199,12 +199,21 @@ completion toast. It does not advance to the next lesson.
 | Load Example | Ask first if the code differs from the starter; then replace/save code, clear highlights, reset debug guidance, retain selected lesson and learning content. The example selector resets to its placeholder either way |
 | Syntax Help: Try it | Ask first if the code differs from the starter; then replace/save code with the entry's sample and rebuild lines; retain selected lesson |
 | Edit textarea | Save immediately per input event, clear highlights, rebuild line display; reset debug guidance when no run is active |
-| Tab in editor | Replace selected text with four spaces, move caret after spaces, save, rebuild lines; no outdent or multiline-indent behavior |
+| Tab in editor | Insert four spaces; with a multi-line selection, indent every selected line (F-009) |
+| Shift+Tab in editor | Outdent the current or every selected line by up to four spaces (F-009) |
+| Enter in editor | New line keeping the current line's indentation, plus four spaces when the text before the caret ends with `:` (a trailing `# comment` is allowed) (F-009) |
+| Esc, then Tab / Shift+Tab | Leaves the editor with normal focus navigation; explained by the screen-reader help text `#editorHelp` (`aria-describedby`) (F-009) |
 
 "Ask first" (F-007) opens a native modal `<dialog>` (`#replaceDialog`, via
 `okToReplace()` and `askReplace()`) with localized "Replace your code?" text
 and two buttons: **Keep my code** (focused by default; Esc does the same) and
 **Replace**. Code identical to the lesson starter is replaced without asking.
+
+All editor key edits go through `document.execCommand("insertText")` (with a
+`setRangeText` and synthetic `input` fallback), so Ctrl+Z undoes each one, and
+the normal input handler autosaves and refreshes the gutter, highlights and
+cursor. There is no syntax coloring (an optional F-009 overlay was not
+built; it needs a decision).
 
 Code replacement does not automatically clear the drawing, output, or errors.
 The Syntax Help Try it handler clears highlights and resets debug guidance,
@@ -766,8 +775,9 @@ reduced-motion treatment.
 Tabs are class-based buttons, not a full ARIA tablist/tab/tabpanel interaction
 pattern. Progress lacks semantic progress attributes. Toasts are not live
 regions; debug/status changes have limited screen-reader announcement.
-Some select/search labels and focus treatments need review. Step execution
-repeatedly focuses the editor; Tab inserts spaces instead of navigating out.
+Some select/search labels and focus treatments need review. Step execution no
+longer moves focus into the editor (F-010). Tab indents inside the editor, and
+Esc then Tab leaves it, as the editor's help text explains (F-009).
 No formal keyboard-trap assessment or WCAG conformance is established.
 
 ## 11. Visual, responsive, and print requirements
@@ -935,7 +945,7 @@ filing or implementing a fix.
 | GAP-19 | Many static ARIA labels, cursor wording, and print heading remain English | Include assistive text and print output in localization work |
 | GAP-20 | Completion is self-declared (unchecked). **Positional part fixed by F-002:** progress, saved lesson and badges use stable lesson ids, with a migration from v2 indexes | Unchecked completion is by design (D3); see F-011 for optional checks |
 | GAP-21 | Some teacher notes use old numbering; several early starters introduce loops before the formal loops level | Review pedagogy separately from fixing runtime behavior |
-| GAP-22 | Class-only tabs, nonsemantic progress, limited live status, and intercepted Tab | Accessibility work needs defined interaction and announcement requirements |
+| GAP-22 | Class-only tabs, nonsemantic progress, and limited live status. **Tab escape fixed by F-009** (Esc then Tab) | Remaining items are in F-013 |
 | GAP-23 | No verified browser matrix or performance budgets. Automated Chromium smoke tests and CI were added by F-001 (`tests/`, `npm test`) | Extend coverage per §14; add other browsers or budgets only with explicit scope |
 | GAP-25 | **Fixed by F-006.** `badInputHint()` maps Skulpt's `bad input` error to the colon or indentation guidance from the source lines | Lessons 26/27 show their specific guidance; covered by `tests/app.spec.js` |
 | GAP-26 | **Fixed by F-006.** Below 860 px the single-column app grid used `1fr`, which cannot shrink below its content, so the page was wider than phone screens (508 px of content at 420 px in English, 457 px in Arabic) | Grid now uses `minmax(0,1fr)`; covered by `tests/fixes.spec.js` |
