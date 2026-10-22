@@ -2,7 +2,8 @@
 // Turtle Lab invariant checker. No dependencies. Run from repo root:
 //   node tools/check.mjs
 // Exits 1 if any invariant in AGENTS.md section 6 is broken.
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
+import { offlineHtml, sha256, LIBS, OUT_DIR, LIB_DIR } from "./build-offline.mjs";
 
 const app = readFileSync("app.html", "utf8");
 const landing = readFileSync("index.html", "utf8");
@@ -76,6 +77,15 @@ if (!/href="app\.html"/.test(landing)) fail('index.html no longer links to "app.
 
 // External scripts must be pinned to an exact version.
 for (const m of app.matchAll(/<script src="([^"]+)"/g)) if (!/@\d+\.\d+\.\d+\//.test(m[1]) && !/^assets\//.test(m[1])) fail(`unpinned external script: ${m[1]}`);
+
+// Offline bundle (offline/) must be regenerated after every app.html change: node tools/build-offline.mjs
+try {
+  const want = offlineHtml(app);
+  if (!existsSync(`${OUT_DIR}/app.html`)) fail(`${OUT_DIR}/app.html missing; run node tools/build-offline.mjs`);
+  else if (readFileSync(`${OUT_DIR}/app.html`, "utf8").replace(/\r\n/g, "\n") !== want) fail(`${OUT_DIR}/app.html is stale; run node tools/build-offline.mjs`);
+  for (const { file, sha256: h } of LIBS)
+    if (!existsSync(`${LIB_DIR}/${file}`) || sha256(readFileSync(`${LIB_DIR}/${file}`)) !== h) fail(`${LIB_DIR}/${file} missing or modified; run node tools/build-offline.mjs`);
+} catch (e) { fail(`offline bundle: ${e.message}`); }
 
 const summary = lessons && `${lessons.length} lessons, ${(docs||[]).length + (extraDocs||[]).length} docs, ${(examples||[]).length} examples`;
 notes.forEach((n) => console.log("note:", n));

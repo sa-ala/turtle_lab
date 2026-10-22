@@ -13,6 +13,8 @@ Turtle Lab is a bilingual (English/Arabic) web app that teaches kids aged roughl
 | `docs/ROADMAP.md` | **What to build next**: prioritized feature specs `F-xxx` with acceptance criteria | When picking up work |
 | `docs/specs/TEMPLATE.md` | Template for writing a new feature spec | Before starting any feature not already in the roadmap |
 | `tools/check.mjs` | Zero-dependency invariant checker | After every change |
+| `tools/build-offline.mjs` | Regenerates the offline bundle `offline/` from `app.html` | After every change to `app.html` |
+| `offline/` | **Generated** copy of the app plus vendored Skulpt for use without internet. Never edit `offline/app.html` by hand | When shipping or testing offline use |
 | `README.md` | Public-facing project description | When product claims change |
 
 Precedence when documents disagree: **source code > SPEC.md > ROADMAP.md > README.md**. If you find SPEC.md is wrong about current behavior, fix SPEC.md in the same PR and say so.
@@ -36,11 +38,14 @@ Precedence when documents disagree: **source code > SPEC.md > ROADMAP.md > READM
 # Serve (preferred over file:// — clipboard, storage and downloads behave better)
 python -m http.server 8000      # then open http://localhost:8000
 
+# After ANY change to app.html: regenerate the offline bundle (offline/app.html)
+node tools/build-offline.mjs
+
 # Invariant check (no install needed, Node 18+)
 node tools/check.mjs
 ```
 
-`tools/check.mjs` verifies: content arrays parse and have required fields; `LESSON_AR` is aligned with `lessons`; every level has a `LEVEL_AR` translation; `I18N`/`DEBUG_I18N` have identical `en`/`ar` key sets; badge rules reference valid lesson indexes; every `$("id")` lookup has a matching element; storage keys go through `K`; external scripts are version-pinned; the landing page still links to `app.html`. It must print `OK` before you open a PR.
+`tools/check.mjs` verifies: content arrays parse and have required fields; `LESSON_AR` is aligned with `lessons`; every level has a `LEVEL_AR` translation; `I18N`/`DEBUG_I18N` have identical `en`/`ar` key sets; badge rules reference valid lesson indexes; every `$("id")` lookup has a matching element; storage keys go through `K`; external scripts are version-pinned; the landing page still links to `app.html`; `offline/app.html` is up to date with `app.html` and `offline/libs/` matches the pinned SHA-256 hashes in `tools/build-offline.mjs`. It must print `OK` before you open a PR.
 
 There is no automated browser test suite yet (ROADMAP `F-001`). Until there is, run this **manual smoke test** in a clean browser profile (or after clearing site data) and report the results in your PR:
 
@@ -110,6 +115,13 @@ Add the same key to `en` and `ar`; read it through `T(key)`. Values may be funct
 ### Change run / step-debugger behavior
 Read `SPEC.md §7` and gaps `GAP-04…GAP-09` first. Preserve: the `runToken` stale-result guard, `setRun()` control states, Normal/Step parity of program semantics, generated-to-original line mapping, and cleanup of `activeStepTimer` on every exit path. Test stop-then-immediately-run.
 
+### Keep the offline bundle in sync
+`offline/` is a self-contained copy (open `offline/app.html` by double-click, no internet). It is generated, never hand-edited:
+1. After any change to `app.html`, run `node tools/build-offline.mjs` and commit `offline/app.html` together with `app.html`. `check.mjs` (and CI) fails if you forget.
+2. The build rewrites only the pinned CDN `<script>` tags to `libs/…`. If you add or change an external script in `app.html`, the build fails until you add it to `LIBS` in `tools/build-offline.mjs` with its exact URL and SHA-256.
+3. Upgrading Skulpt: change the version in `app.html` and the URLs/hashes in `LIBS`, delete `offline/libs/*.js`, rerun the build (it downloads and verifies), then run the full smoke test online and offline.
+4. Do not modify files in `offline/libs/`; they are verified byte-for-byte.
+
 ### Change the landing page
 Content comes in paired `.en` / `.ar` blocks. Keep both, keep `href="app.html"` relative, and keep claims consistent with README and SPEC.md (technologies, requirements, privacy).
 
@@ -140,6 +152,7 @@ Branches: `feat/F-xxx-short-name`, `fix/GAP-xx-short-name`, `docs/...`. Commits:
 ### Definition of done / PR checklist
 
 - [ ] Linked spec (`F-xxx`) or gap (`GAP-xx`); all acceptance criteria met
+- [ ] `node tools/build-offline.mjs` run if `app.html` changed; `offline/app.html` committed with it
 - [ ] `node tools/check.mjs` prints OK
 - [ ] Manual smoke test done; results summarized (browser + width used)
 - [ ] English **and** Arabic strings added; RTL checked
