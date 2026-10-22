@@ -69,7 +69,7 @@ roles, teacher accounts, permissions, classroom rosters, or separate dashboards.
 | BR-04 | Each distinct completed lesson contributes one star. Repeating completion does not add another star. |
 | BR-05 | Completion and preferences belong to the browser storage context, not a user account. |
 | BR-06 | Each lesson keeps its own saved draft (F-007), and learners can keep any number of named projects in My Projects (F-012). |
-| BR-07 | Switching lessons, loading examples, trying syntax samples, and resetting code replace the draft without a confirmation dialog. |
+| BR-07 | Switching lessons restores that lesson's draft. Loading an example, Syntax Help Try it, and Reset Code ask before replacing code that differs from the lesson starter (F-007). |
 | BR-08 | Resetting progress requires confirmation and removes completion/badges, but preserves the selected lesson, code, and preferences. |
 | BR-09 | English and Arabic are supported, with different language-selection models on the two pages. Their preferences are independent. |
 | BR-10 | No grading, automatic goal checking, score beyond stars, certificate, collaboration, cloud sync, or project gallery is implemented. |
