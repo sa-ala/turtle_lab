@@ -1145,7 +1145,7 @@ turtle.done()</code></pre>
           <p class="en">This small program draws a blue square. Children can change the color, size, or angle to create their own designs.</p>
           <p class="ar" dir="rtl">هذا البرنامج الصغير يرسم مربعًا أزرق. يمكن للأطفال تغيير اللون أو الحجم أو الزاوية لصنع تصاميمهم الخاصة.</p>
           <div class="actions">
-            <a class="btn primary" href="app.html">Try This in Turtle Lab | جرّب هذا في Turtle Lab</a>
+            <a class="btn primary" id="tryPreview" href="app.html#example=square">Try This in Turtle Lab | جرّب هذا في Turtle Lab</a>
           </div>
         </div>
       </div>
@@ -1322,6 +1322,8 @@ turtle.done()</code></pre>
       document.body.dataset.view = validView;
       root.lang = validView === "ar" ? "ar" : "en";
       root.dir = validView === "ar" ? "rtl" : "ltr";
+      const tryPreview = document.getElementById("tryPreview");
+      if (tryPreview) tryPreview.href = "app.html#example=square" + (validView === "ar" ? "&lang=ar" : "");
       try { localStorage.setItem("turtleLabLandingLanguage", validView); } catch (e) {}
 
       buttons.forEach((button) => {

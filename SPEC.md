@@ -89,9 +89,19 @@ JavaScript; there is no router, SPA framework, module bundler, or shared asset
 module.
 
 All landing-page app links navigate to the relative URL `app.html` in the same
-tab. They do not transmit language, a selected example, or code. In particular,
-**Try This in Turtle Lab** opens the app normally rather than preloading the
-displayed blue-square example. The app restores its own stored state.
+tab. **Try This in Turtle Lab** links to `app.html#example=square`, plus
+`&lang=ar` while the landing page is in Arabic-only view. It loads the Square
+example (a plain square; the landing preview also sets a blue color and pen
+size). The other links carry no parameters.
+
+**Deep links (F-008).** On startup, after stored state is restored, the app
+reads the URL hash: `#lesson=<lesson id>`, `#example=<slug of the example name
+or 1-based number>` and `#lang=en|ar`. They can be combined with `&`, and are
+applied in the order lang, lesson, example. Invalid or unknown values are
+ignored silently. The hash is then removed with `history.replaceState`, so a
+reload doesn't reapply it. The same handling runs on `hashchange`. A linked
+example goes through the F-007 overwrite protection. A linked lesson or
+language is saved like a normal choice. Links never carry code (decision D4).
 
 No in-app Home link back to the landing page is present. Learning-area tabs
 and result tabs change CSS classes without changing the URL.
@@ -107,7 +117,7 @@ and result tabs change CSS classes without changing the URL.
 | `#technology` | Python, Turtle, Skulpt, HTML/CSS/JavaScript, Canvas/SVG, client-side execution |
 | `#learn` | Eight learning themes: sequencing, movement/angles, loops, colors/creativity, variables, functions, projects, experimenting |
 | `#how` | Choose lesson/example, edit code, run and observe; English and Arabic step cards |
-| `#preview` | Static blue-square sample and link to the app |
+| `#preview` | Static blue-square sample and a link that opens the app on the Square example (`#tryPreview`) |
 | `#requirements` | Devices, JavaScript, screen space, CDN connectivity, no installed Python |
 | `#browsers` | Chrome, Edge, Firefox, Safari, ChromeOS/Chromebook recommendations |
 | `#parents` | Guided exploration and encouragement to change values and shapes |
@@ -227,7 +237,10 @@ Reset progress is available in the sidebar and Teacher & Parent panel.
 Cancellation makes no changes. Confirmation stores `[]`, updates counts and
 badges, retains the current draft, and shows a toast.
 
-Teacher & Parent includes lesson notes, a Print syntax sheet action,
+Teacher & Parent includes lesson notes, a Print syntax sheet action, a
+**Share this lesson** card whose **Copy link to this lesson** button
+(`#copyLessonLink`) copies `app.html#lesson=<id>` (plus `&lang=ar` in Arabic),
+with a fallback that shows the link in a toast when copying fails,
 progress-reset instructions, source-editing guidance for adding lessons, and
 Debug Help. Printing calls `window.print()`; print CSS hides the interactive
 workspace and shows all syntax cards in two columns without their runnable
@@ -917,7 +930,7 @@ for the limitations above.
 
 | Area / requirement | Minimum observable checks |
 | --- | --- |
-| Landing navigation | Every internal anchor resolves; all app CTAs reach `app.html`; external references use correct URLs/new-tab isolation; preview CTA does not preload code |
+| Landing navigation | Every internal anchor resolves; all app CTAs reach `app.html`; external references use correct URLs/new-tab isolation; preview CTA opens the Square example (covered by `tests/deep-links.spec.js`) |
 | Landing languages | Clean default Both; English/Arabic/Both visibility, root direction/language, pressed states, reload persistence, invalid preference normalization; inspect GAP-17/18 |
 | First app load / resume | Clean defaults, 38 selectable lessons, 10 headings, 13 examples, 25 docs; restore draft/lesson/preferences; drawing/results not persisted |
 | Lesson content | Matching titles/metadata/prose/starter on sidebar and selector changes; no automatic run/advance; complete lesson overlays in both languages |

@@ -63,6 +63,7 @@ npm test
 - "I did it!" progress, stars and badges, and their persistence
 - storage blocked or full, malformed stored values, and an empty draft (`tests/storage.spec.js`)
 - per-lesson drafts, `tl.code.v1` migration, and the Replace / Keep my code dialog (`tests/drafts.spec.js`)
+- deep links `#lesson=`, `#example=`, `#lang=`, Copy link to this lesson, and the landing Try This link (`tests/deep-links.spec.js`)
 - run lifecycle: one run at a time, Stop then Run keeps the new drawing, Step-mode Stop settles the run, and lesson, example, reset, language or Try it changes stop a run first (`tests/run-lifecycle.spec.js`)
 - the offline bundle running with no external requests
 - Python loading: local files only, CDN fallback with a real SRI check, tampered CDN file rejected, loading state, failure and Retry (`tests/loader.spec.js`)
