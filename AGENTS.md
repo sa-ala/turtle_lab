@@ -27,7 +27,7 @@ Precedence when documents disagree: **source code > SPEC.md > ROADMAP.md > READM
 3. **Python source stays English.** Starter code, examples and syntax samples are not translated.
 4. **Safe rendering.** Any text interpolated into `innerHTML` goes through `esc()`. Program output uses `textContent`. Never render learner code or output as HTML.
 5. **Children's privacy.** No analytics, trackers, ads, fingerprinting, accounts, remote logging, or new third-party network requests. Any new external script must be pinned to an exact version and justified in the PR.
-6. **Storage discipline.** All `localStorage` keys live in the `K` map in `app.html` and are versioned (`tl.<name>.vN`). Changing the meaning or shape of a stored value requires a new version suffix plus a migration from the old key. Never silently wipe learner progress or code.
+6. **Storage discipline.** All `localStorage` keys live in the `K` map in `app.html` and are versioned (`tl.<name>.vN`). Read and write only through `store.get(key, fallback, validate)` / `store.set(key, value)`; never call `localStorage` directly (`check.mjs` enforces this). Changing the meaning or shape of a stored value requires a new version suffix plus a migration from the old key. Never silently wipe learner progress or code.
 7. **Lesson order is load-bearing.** Saved lesson selection, completion progress and badge rules all use **zero-based array indexes**. Until stable lesson IDs exist (ROADMAP `F-002`), do not insert, remove or reorder lessons without a progress migration.
 8. **Intentional failures stay failing.** Lessons 26 and 27 (indexes 25 and 26) ship deliberately broken code (missing colon, bad indentation). Do not "fix" them.
 9. **Scope discipline.** Implement exactly the spec you were given. Known gaps in `SPEC.md §13` are not permission to fix unrelated things in the same PR; file or reference them separately.
@@ -60,6 +60,7 @@ npm test
 - Step mode highlighting order, Stop, and Run again
 - Arabic RTL with LTR code, and code/language preserved across reload
 - "I did it!" progress, stars and badges, and their persistence
+- storage blocked or full, malformed stored values, and an empty draft (`tests/storage.spec.js`)
 - the offline bundle running with no external requests
 
 Known bugs are pinned with `test.fail()` and a `GAP-xx` reference (currently GAP-25). When you fix one, Playwright reports "expected to fail, but passed"; remove the `test.fail()` line.
@@ -118,7 +119,7 @@ Append to `examples` (`{name, code}`) or `extraDocs` (`{category, command, expla
 2. Add it to `E` if it is used often; bind it in `bind()`.
 3. Add label strings to both `en` and `ar` in `I18N` (or `DEBUG_I18N`) and set them in `applyLang()`.
 4. Style for normal, `body.hc`, RTL, and both breakpoints.
-5. If it persists state: add a versioned key to `K`, read it in `init()`, validate on read.
+5. If it persists state: add a versioned key to `K`, read it with `store.get(K.x, fallback, validator)` in `init()`, write it with `store.set`, and add a malformed-value case to `tests/storage.spec.js`.
 
 ### Add a translatable string
 Add the same key to `en` and `ar`; read it through `T(key)`. Values may be functions (see `progress`, `stars`) when they need arguments. Never concatenate English fragments into Arabic sentences.
