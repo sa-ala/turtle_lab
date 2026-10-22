@@ -27,8 +27,9 @@ const lessons = json("lessons"), lessonAr = json("LESSON_AR"), levelAr = json("L
 const docs = json("docs"), extraDocs = json("extraDocs"), examples = json("examples");
 const I18N = literal("I18N"), DEBUG = literal("DEBUG_I18N");
 
-const LESSON_FIELDS = ["level","title","concept","goal","explanation","starterCode","expected","steps","hint","challenge","tryThis","teacherNote"];
-const AR_FIELDS = LESSON_FIELDS.filter((f) => f !== "level" && f !== "starterCode");
+const LESSON_FIELDS = ["id","level","title","concept","goal","explanation","starterCode","expected","steps","hint","challenge","tryThis","teacherNote"];
+const AR_FIELDS = LESSON_FIELDS.filter((f) => f !== "id" && f !== "level" && f !== "starterCode");
+const v2Ids = json("V2_LESSON_IDS");
 
 if (lessons) {
   lessons.forEach((l, i) => {
@@ -41,10 +42,24 @@ if (lessons) {
     if (lessonAr.length !== lessons.length) fail(`LESSON_AR has ${lessonAr.length} entries, lessons has ${lessons.length} (must be index-aligned)`);
     lessonAr.forEach((l, i) => { for (const f of AR_FIELDS) if (!(f in l)) fail(`LESSON_AR[${i}] missing "${f}"`); });
   }
-  // Badge rules reference zero-based lesson indexes inside badges().
+  // Stable lesson ids (F-002): present, well-formed, unique. Progress and badges are keyed by id.
+  const ids = lessons.map((l) => l.id);
+  ids.forEach((id, i) => { if (typeof id !== "string" || !/^l\d+-[a-z0-9-]+$/.test(id)) fail(`lessons[${i}].id "${id}" must look like "l12-short-title"`); });
+  for (const id of new Set(ids)) if (ids.filter((x) => x === id).length > 1) fail(`duplicate lesson id "${id}"`);
+  // V2_LESSON_IDS decodes progress saved before F-002 by index: frozen at the 38 baseline lessons.
+  if (v2Ids) {
+    if (v2Ids.length !== 38 || new Set(v2Ids).size !== 38) fail("V2_LESSON_IDS must hold exactly the 38 unique pre-F-002 ids; never edit it");
+    if (v2Ids.some((id, i) => !/^l\d+-/.test(id) || !id.startsWith(`l${i + 1}-`))) fail("V2_LESSON_IDS order changed; it must stay in the pre-F-002 order");
+  }
+  // Badge rules reference lesson ids inside badges(); numeric index rules are no longer allowed.
   const b = app.match(/function badges\(\)\{[^\n]*/);
-  if (b) for (const m of b[0].matchAll(/\[([\d,\s]+)\]\.some/g))
-    for (const n of m[1].split(",").map(Number)) if (n >= lessons.length) fail(`badge rule references lesson index ${n} (only ${lessons.length} lessons)`);
+  if (!b) fail("function badges() not found");
+  else {
+    if (/\[[\d,\s]+\]\.some|progress\.has\(\d/.test(b[0])) fail("badges() uses lesson indexes; use lesson ids");
+    const badgeIds = [...b[0].matchAll(/"(l\d+-[a-z0-9-]+)"/g)].map((m) => m[1]);
+    if (!badgeIds.length) fail("badges() references no lesson ids");
+    for (const id of badgeIds) if (!ids.includes(id)) fail(`badge rule references unknown lesson id "${id}"`);
+  }
 }
 for (const [name, arr, fields] of [["docs/extraDocs", [...(docs||[]), ...(extraDocs||[])], ["category","command","explanation","example"]], ["examples", examples||[], ["name","code"]]])
   arr.forEach((d, i) => { for (const f of fields) if (typeof d[f] !== "string") fail(`${name}[${i}].${f} missing or not a string`); });
