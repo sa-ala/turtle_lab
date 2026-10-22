@@ -79,3 +79,16 @@ test("GAP-18: Arabic-only landing view uses the Arabic font stack on body", asyn
   const norm = (v) => v.replace(/[\s"']/g, ""); // computed font-family may drop quotes
   expect(norm(font)).toBe(norm(arStack));
 });
+
+for (const [lang, collapsed] of [["en", false], ["ar", false], ["en", true]]) {
+  test(`GAP-26: no horizontal page scroll at 420px (${lang}${collapsed ? ", sidebar collapsed" : ""})`, async ({ page }) => {
+    await page.setViewportSize({ width: 420, height: 900 });
+    await openApp(page);
+    if (lang === "ar") await page.selectOption("#langSelect", "ar");
+    if (collapsed) await page.click("#toggleLessons");
+    const { scroll, client } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
+    expect(scroll).toBeLessThanOrEqual(client);
+    await runAndWait(page);
+    await expectRunSucceeded(page);
+  });
+}

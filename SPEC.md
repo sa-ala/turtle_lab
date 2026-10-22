@@ -867,6 +867,7 @@ filing or implementing a fix.
 | GAP-22 | Class-only tabs, nonsemantic progress, limited live status, and intercepted Tab | Accessibility work needs defined interaction and announcement requirements |
 | GAP-23 | No verified browser matrix or performance budgets. Automated Chromium smoke tests and CI were added by F-001 (`tests/`, `npm test`) | Extend coverage per §14; add other browsers or budgets only with explicit scope |
 | GAP-25 | **Fixed by F-006.** `badInputHint()` maps Skulpt's `bad input` error to the colon or indentation guidance from the source lines | Lessons 26/27 show their specific guidance; covered by `tests/app.spec.js` |
+| GAP-26 | **Fixed by F-006.** Below 860 px the single-column app grid used `1fr`, which cannot shrink below its content, so the page was wider than phone screens (508 px of content at 420 px in English, 457 px in Arabic) | Grid now uses `minmax(0,1fr)`; covered by `tests/fixes.spec.js` |
 | GAP-24 | **Fixed by F-003.** Skulpt is vendored in `assets/libs/` with an SRI-checked CDN fallback, a loading state and a Retry control | Dependency failure is detected on Run; classroom/offline reliability needs explicit scope |
 
 ## 14. Test-planning reference

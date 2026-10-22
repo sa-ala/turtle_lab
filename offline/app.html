@@ -1252,6 +1252,16 @@ let skulptLoading=loadSkulpt();skulptLoading.catch(()=>{}); // the UI handles fa
         z-index: 3;
     }
 
+    /* GAP-26: at <= 860px the single column must be able to shrink below its content's min-content width,
+       otherwise the editor/drawing panels push the page wider than phone screens (horizontal scroll). */
+    @media(max-width:860px) {
+        .grid, body.lessons-collapsed .grid {
+            grid-template-columns: minmax(0,1fr)
+        }
+        .grid > * {
+            min-width: 0
+        }
+    }
 </style>
 </head>
 <body>
