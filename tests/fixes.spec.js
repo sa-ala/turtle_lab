@@ -41,3 +41,22 @@ for (const [name, setup, expected] of [
     await expect(page.locator("#toast")).toHaveText(await t(page, expected));
   });
 }
+
+for (const [name, failWhich, expected, downloads] of [["one layer fails", "first", "pngPartial", true], ["every layer fails", "all", "pngFailed", false]]) {
+  test(`GAP-13: PNG export reports a partial or failed save — ${name}`, async ({ page }) => {
+    await openApp(page);
+    await runAndWait(page);
+    const layers = await page.locator("#stage canvas:not(#coordOverlay), #stage svg").count();
+    test.skip(failWhich === "first" && layers < 2, "needs at least two drawing layers");
+    await page.evaluate((which) => {
+      const els = [...document.querySelectorAll("#stage canvas, #stage svg")].filter((el) => el.id !== "coordOverlay");
+      (which === "all" ? els : els.slice(0, 1)).forEach((el) => { el.__bad = true; });
+      const real = CanvasRenderingContext2D.prototype.drawImage;
+      CanvasRenderingContext2D.prototype.drawImage = function (src, ...rest) { if (src && src.__bad) throw new Error("layer failed"); return real.call(this, src, ...rest); };
+    }, failWhich);
+    const download = page.waitForEvent("download", { timeout: 3000 }).then(() => true, () => false);
+    await page.click("#pngBtn");
+    await expect(page.locator("#toast")).toHaveText(await t(page, expected));
+    expect(await download).toBe(downloads);
+  });
+}

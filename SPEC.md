@@ -853,7 +853,7 @@ filing or implementing a fix.
 | GAP-10 | **Fixed by F-006.** Debug Help now says green, matching the green current-line highlight, in both languages | Copy-only change; colors unchanged |
 | GAP-11 | **Fixed by F-006.** Syntax Help Try it clears highlights and resets the status, like the example selector | Covered by `tests/fixes.spec.js` |
 | GAP-12 | **Fixed by F-006.** Copy uses the `execCommand` fallback when the Clipboard API is absent or rejects, and the toast reports the real result ("Code copied." or the localized `copyFailed`) | Covered by `tests/fixes.spec.js` |
-| GAP-13 | PNG catches per-layer drawing failures and can still report success | A download may be incomplete; define explicit partial/failure behavior |
+| GAP-13 | **Fixed by F-006.** PNG export counts layers that fail to draw: some failed → saves and shows the localized partial-save toast; all failed (or the canvas cannot be exported) → no download and a failure toast | Covered by `tests/fixes.spec.js` |
 | GAP-14 | PNG omits coordinates and uses a different grid; it captures the stage viewport rather than complete artwork | Decide whether export should preserve visual overlays, be clean artwork, or offer both |
 | GAP-15 | Resize redraws the overlay, not existing Skulpt dimensions | Verify coordinate/drawing alignment after orientation or layout changes |
 | GAP-16 | Landing navigation/static labels and app syntax/example content are not fully localized | Define the intended bilingual completeness before expanding translation scope |
