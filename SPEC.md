@@ -197,15 +197,24 @@ like the example selector (GAP-11, fixed by F-006).
 
 ### 4.4 Run, inspect, and stop
 
-Both Run buttons and Ctrl+Enter / Command+Enter invoke `run()`. A successful
+Both Run buttons and Ctrl+Enter / Command+Enter invoke `run()`, which returns
+immediately while another run is active (`activeRun`), so only one run exists at
+a time (F-005). A successful
 run appends a localized encouragement message to print output, or uses that
 message as output if nothing was printed. Errors are shown in the Errors tab,
 with a friendly explanation and expandable technical details.
 
 Stop is a cooperative stop request, not worker/process termination. It
-invalidates the run token, requests tight Skulpt limits, clears the step timer,
-resets button states, displays stopped guidance, switches to Errors, and
-schedules drawing-target clearing after 150 ms.
+invalidates the run token, requests tight Skulpt limits, clears the step timer
+and rejects any pending step suspension (so the stopped `run()` call always
+settles), resets button states, displays stopped guidance, switches to Errors,
+and schedules drawing-target clearing after 150 ms. That delayed clear is
+skipped if a newer run has started in the meantime (F-005).
+
+Switching lesson (dropdown or sidebar), loading an example, Reset Code, Syntax
+Help Try it, and changing language call `stopIfRunning()` first, so an active
+run is stopped before the code, lesson or language changes. Editing the code,
+Clear Drawing, and "I did it!" do not stop a run.
 
 ### 4.5 Reset progress and classroom use
 
@@ -497,7 +506,9 @@ string/comment-stripping routine, not a Python parser.
 
 The callback checks cancellation, counts steps, highlights the original editor
 line and gutter, scrolls/focuses the editor, and shows the original line plus
-a heuristic explanation. It suspends execution with a timer when supported.
+a heuristic explanation. It suspends execution with a timer when supported;
+the suspension's `reject` is kept in `activeStepReject` so Stop can settle it
+immediately instead of leaving it pending.
 
 | Speed label | Delay |
 | --- | --- |
@@ -864,10 +875,10 @@ filing or implementing a fix.
 | GAP-01 | One draft slot; replacing code has no confirmation or draft history | Lesson/example changes can overwrite work; choose a draft model and migration before adding projects |
 | GAP-02 | **Fixed by F-004.** Empty drafts are preserved; lesson, progress, mode, speed, zoom and language are validated on read (§9) | Covered by `tests/storage.spec.js` |
 | GAP-03 | **Fixed by F-004.** Storage failures are caught; the app keeps working, warns once, and shows "Not saved" (§9) | No retry or export fallback; see F-016 for progress export |
-| GAP-04 | Run has no active-run guard; keyboard shortcut can invoke it while Run buttons are disabled | Token checks suppress stale completion UI, but concurrent Skulpt globals/output are not isolated |
-| GAP-05 | Editing, lesson switching, reset, clear, and language controls remain usable during execution | Visible code/lesson may diverge from executing code; decide whether to lock, snapshot, or cancel |
-| GAP-06 | Stop is cooperative; clearing an active suspension's timer leaves its promise unsettled | Verify stop/restart/timer lifecycle; do not assume the old interpreter was terminated |
-| GAP-07 | Stop's delayed target reset is not token-guarded | Starting another run within 150ms can have its drawing target cleared by the previous stop |
+| GAP-04 | **Mostly fixed by F-005.** `run()` ignores calls while a run is active (keyboard included). Remaining: Stop is still cooperative (no worker termination) and Skulpt state is global. In testing, a stopped program printed nothing after a new run started, but isolation is not guaranteed | True isolation would need a worker or per-run interpreter |
+| GAP-05 | **Partly fixed by F-005.** Lesson switching, examples, Reset Code, Try it and language changes stop an active run first. Editing and Clear Drawing remain usable during a run by design | Revisit with F-010 if the debugger needs a locked editor |
+| GAP-06 | **Fixed by F-005.** Stop rejects the pending step suspension, so the stopped run settles and no timer or promise is left behind | Covered by `tests/run-lifecycle.spec.js` |
+| GAP-07 | **Fixed by F-005.** Stop's delayed target reset only runs if no newer run has started | Covered by `tests/run-lifecycle.spec.js` |
 | GAP-08 | Source rewriting is not parser-aware across all Python syntax, notably multiline/triple-quoted strings and decorator relationships | Compare Normal and Step semantics before broadening supported Python constructs |
 | GAP-09 | **Fixed by F-006.** `lineExplanation()` checks `print(` before the generic function-call rule | Covered by `tests/fixes.spec.js` |
 | GAP-10 | **Fixed by F-006.** Debug Help now says green, matching the green current-line highlight, in both languages | Copy-only change; colors unchanged |
