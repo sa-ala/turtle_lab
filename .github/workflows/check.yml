@@ -8,24 +8,46 @@ permissions:
 jobs:
   invariants:
     runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.changes.outputs.app }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
       - run: node tools/check.mjs
+      # e2e only runs when something it tests could have changed. A skipped job counts as passed,
+      # so e2e can still be a required status check without blocking docs-only PRs.
+      - id: changes
+        name: Detect app or test changes
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          if [ "$EVENT" != "pull_request" ]; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          files=$(git diff --name-only "origin/$BASE...HEAD")
+          echo "$files"
+          if echo "$files" | grep -qE '^(app\.html|index\.html|offline/|tests/|tools/|package(-lock)?\.json|playwright\.config\.js|\.github/workflows/)'; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "app=false" >> "$GITHUB_OUTPUT"; echo "No app or test changes: e2e will be skipped."
+          fi
 
   e2e:
+    needs: invariants
+    if: needs.invariants.outputs.app == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
+    # Official image with Chromium and its system packages preinstalled (no slow apt install).
+    # Its version must match @playwright/test in package.json; tools/check.mjs enforces this.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --user 1001
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
       - run: npm test
       - if: failure()
         uses: actions/upload-artifact@v4

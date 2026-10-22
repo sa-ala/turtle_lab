@@ -102,6 +102,14 @@ try {
     if (!existsSync(`${dir}/${file}`) || sha256(readFileSync(`${dir}/${file}`)) !== h) fail(`${dir}/${file} missing or modified; run node tools/build-offline.mjs`);
 } catch (e) { fail(`offline bundle: ${e.message}`); }
 
+// The CI e2e container image must match the pinned Playwright version, or browsers will not match.
+try {
+  const pw = JSON.parse(readFileSync("package.json", "utf8")).devDependencies?.["@playwright/test"];
+  const image = readFileSync(".github/workflows/check.yml", "utf8").match(/mcr\.microsoft\.com\/playwright:v([\d.]+)-/);
+  if (!pw || !image) fail("could not find @playwright/test version or the Playwright CI image");
+  else if (pw !== image[1]) fail(`Playwright CI image v${image[1]} does not match @playwright/test ${pw} in package.json`);
+} catch (e) { fail(`Playwright version check: ${e.message}`); }
+
 const summary = lessons && `${lessons.length} lessons, ${(docs||[]).length + (extraDocs||[]).length} docs, ${(examples||[]).length} examples`;
 notes.forEach((n) => console.log("note:", n));
 if (errors.length) { errors.forEach((e) => console.error("FAIL:", e)); console.error(`\n${errors.length} problem(s).`); process.exit(1); }
