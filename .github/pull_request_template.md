@@ -6,6 +6,7 @@ SPEC.md sections affected:
 Storage keys changed (with migration):
 
 ## Verification
+- [ ] `node tools/build-offline.mjs` run if `app.html` changed (offline bundle committed)
 - [ ] `node tools/check.mjs` prints OK
 - [ ] Manual smoke test (AGENTS.md §3) — browser + width:
 - [ ] Feature acceptance criteria checked in English **and** Arabic

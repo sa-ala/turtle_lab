@@ -408,6 +408,10 @@ Both are blocking script tags in the head, before app initialization. The
 landing page loads no external scripts, fonts, or image files. Font names are
 CSS font stacks, not downloaded font dependencies.
 
+The generated offline bundle (`offline/app.html`, see §12.2) loads the same
+Skulpt 1.2.0 files from `offline/libs/` instead of the CDN; it is otherwise
+identical to `app.html`.
+
 Skulpt executes Python in the browser using `Sk.python3`,
 `Sk.importMainWithBody("<stdin>", false, code, true)`, and
 `Sk.misceval.asyncToPromise`. This is not a native Python installation,
@@ -733,6 +737,7 @@ Function/constant names are better long-term search anchors.
 | Drawing/zoom/coordinates | `resetCanvas`, `clampZoom`, `applyZoom`, `drawCoordinateOverlay`, `applyCoordinates`, `clearDrawing`, lines 1323-1332 |
 | Python lifecycle and errors | `output`, `builtinRead`, `nextFrame`, `run`, `friendly`, `stop`, `setRun`, lines 1333-1341 |
 | Export/integration/startup | `copyCode`, `py`, `imgFromSvg`, `png`, `bind`, `init`, lines 1342-1348 |
+| Offline bundle generation | `tools/build-offline.mjs` (`LIBS`, `offlineHtml`); output in `offline/` |
 
 `E` caches key DOM elements. Script-level state holds the current lesson,
 completion set, run token/cancellation state, step timer/map/count,
@@ -744,8 +749,17 @@ reactive store.
 
 The tracked implementation has two HTML pages, README, and MIT license;
 there is no package manifest, test runner, build pipeline, application server,
-API configuration, service worker, or vendored runtime. README's suggested
-`assets/` and `images/` structure is not the current implementation.
+API configuration, or service worker. README's suggested `assets/` and
+`images/` structure is not the current implementation.
+
+The only build-like step is `node tools/build-offline.mjs`, which generates
+`offline/`: `offline/app.html` (a copy of `app.html` whose two Skulpt script
+tags point to `libs/`), `offline/libs/` (vendored Skulpt 1.2.0 files and
+license, SHA-256 verified), and `offline/README.txt`. The folder can be copied
+and opened by double-clicking `offline/app.html` with no network access.
+`tools/check.mjs` fails if `offline/app.html` is stale or a library hash
+differs. Because browser storage is per origin, the offline copy (a `file://`
+origin) does not share progress or drafts with the hosted site.
 
 Open `index.html` directly for a basic entry point, or serve the repository
 using a local static HTTP server such as `python -m http.server 8000`, then
@@ -753,9 +767,9 @@ open `http://localhost:8000`. HTTPS/localhost is preferable for Clipboard API
 behavior. Static hosting must preserve both relative page paths.
 
 JavaScript is required for the coding environment and dynamic language
-controls. CDN access is currently needed to obtain Skulpt; a cached copy is
-not a supported offline strategy. Hosting libraries locally is a README
-recommendation, not an implemented offline feature.
+controls. The root `app.html` still needs CDN access to obtain Skulpt and has no
+local fallback; offline use is supported only through the generated
+`offline/` bundle. There is no service worker or installable PWA.
 
 Modern browser features include async functions, promises, optional chaining,
 `matchAll`, Set, Blob/object URLs, SVG serialization, Canvas 2D, CSS grid,
@@ -770,8 +784,9 @@ the user copies or exports them. Shared-device users therefore share the
 same draft and completion history in the same browser context.
 
 CDN script requests still contact a third party, and those scripts execute
-in the page context. No SRI hashes, CSP configuration, dependency-integrity
-checks, or network-isolation mechanism are declared in these files.
+in the page context. No SRI hashes, CSP configuration, or network-isolation mechanism are
+declared in these files. The vendored copies in `offline/libs/` are checked
+against pinned SHA-256 hashes by the build and `tools/check.mjs`.
 Client-side execution is not a claim of a hardened sandbox or a
 children's-privacy compliance assessment. Evaluate runtime capabilities
 before adding untrusted-code sharing or classroom management.
@@ -816,7 +831,7 @@ filing or implementing a fix.
 | GAP-21 | Some teacher notes use old numbering; several early starters introduce loops before the formal loops level | Review pedagogy separately from fixing runtime behavior |
 | GAP-22 | Class-only tabs, nonsemantic progress, limited live status, and intercepted Tab | Accessibility work needs defined interaction and announcement requirements |
 | GAP-23 | No automated tests, package tooling, verified browser matrix, or performance budgets | Select focused tooling/targets when implementing, rather than assuming a suite exists |
-| GAP-24 | CDN-only runtime, no loading state/retry control or offline bundle | Dependency failure is detected on Run; classroom/offline reliability needs explicit scope |
+| GAP-24 | Root `app.html` is CDN-only with no loading state/retry control or local fallback (a separate generated `offline/` bundle exists) | Dependency failure is detected on Run; classroom/offline reliability needs explicit scope |
 
 ## 14. Test-planning reference
 

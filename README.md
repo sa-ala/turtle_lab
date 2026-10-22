@@ -215,6 +215,12 @@ assets/libs/skulpt-stdlib.js
 
 This can help the app keep working even if a CDN is blocked or unavailable.
 
+### Offline copy
+
+The [`offline/`](offline/) folder is a ready-to-use copy of the app with Skulpt included. Copy the whole folder to any computer or USB stick and double-click `offline/app.html`; no internet connection is needed. Progress saved in the offline copy is separate from the online site.
+
+The folder is generated from `app.html` by `node tools/build-offline.mjs`, and `node tools/check.mjs` fails if it is out of date.
+
 ---
 
 ## 📚 Learning Content
