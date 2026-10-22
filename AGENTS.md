@@ -14,7 +14,8 @@ Turtle Lab is a bilingual (English/Arabic) web app that teaches kids aged roughl
 | `docs/specs/TEMPLATE.md` | Template for writing a new feature spec | Before starting any feature not already in the roadmap |
 | `tools/check.mjs` | Zero-dependency invariant checker | After every change |
 | `tools/build-offline.mjs` | Regenerates the offline bundle `offline/` from `app.html` | After every change to `app.html` |
-| `offline/` | **Generated** copy of the app plus vendored Skulpt for use without internet. Never edit `offline/app.html` by hand | When shipping or testing offline use |
+| `assets/libs/` | Vendored Skulpt 1.2.0 (the app loads it first; pinned CDN with SRI is the fallback). SHA-256 verified; never edit | When upgrading Skulpt |
+| `offline/` | **Generated** copy of `app.html` plus `assets/libs/` for use without internet. Never edit by hand | When shipping or testing offline use |
 | `tests/`, `playwright.config.js`, `package.json` | Dev-only Playwright browser smoke tests (`npm test`). The site never needs `npm install` | After every behavior change; add tests for new behavior |
 | `README.md` | Public-facing project description | When product claims change |
 
@@ -49,7 +50,7 @@ node tools/check.mjs
 npm test
 ```
 
-`tools/check.mjs` verifies: content arrays parse and have required fields; `LESSON_AR` is aligned with `lessons`; every level has a `LEVEL_AR` translation; `I18N`/`DEBUG_I18N` have identical `en`/`ar` key sets; badge rules reference valid lesson indexes; every `$("id")` lookup has a matching element; storage keys go through `K`; external scripts are version-pinned; the landing page still links to `app.html`; `offline/app.html` is up to date with `app.html` and `offline/libs/` matches the pinned SHA-256 hashes in `tools/build-offline.mjs`. It must print `OK` before you open a PR.
+`tools/check.mjs` verifies: content arrays parse and have required fields; `LESSON_AR` is aligned with `lessons`; every level has a `LEVEL_AR` translation; `I18N`/`DEBUG_I18N` have identical `en`/`ar` key sets; badge rules reference valid lesson indexes; every `$("id")` lookup has a matching element; storage keys go through `K`; external scripts are version-pinned; the landing page still links to `app.html`; `offline/` is up to date with `app.html`; `assets/libs/` and `offline/assets/libs/` match the pinned SHA-256 hashes in `tools/build-offline.mjs`; the Skulpt loader CDN URLs are pinned and their SRI hashes match the local files. It must print `OK` before you open a PR.
 
 `npm test` runs the Playwright suite in Chromium. CI runs it as the `e2e` job inside the official Playwright container, on every push to `main` and on every PR that touches `app.html`, `index.html`, `offline/`, `tests/`, `tools/`, package or Playwright config, or workflows. Docs-only PRs skip it, and a skipped job counts as passed. To upgrade Playwright, change `package.json`, `package-lock.json` and the container image tag in `.github/workflows/check.yml` together; `check.mjs` fails if they differ. Each test gets isolated storage. The real Skulpt interpreter runs, loaded from the hash-verified `offline/libs/` copies instead of the CDN. **A test fails if the page makes any other network request, throws an uncaught error, or logs a `console.error`.** It covers:
 
@@ -62,6 +63,7 @@ npm test
 - "I did it!" progress, stars and badges, and their persistence
 - storage blocked or full, malformed stored values, and an empty draft (`tests/storage.spec.js`)
 - the offline bundle running with no external requests
+- Python loading: local files only, CDN fallback with a real SRI check, tampered CDN file rejected, loading state, failure and Retry (`tests/loader.spec.js`)
 
 Known bugs are pinned with `test.fail()` and a `GAP-xx` reference (currently GAP-25). When you fix one, Playwright reports "expected to fail, but passed"; remove the `test.fail()` line.
 
@@ -130,9 +132,9 @@ Read `SPEC.md §7` and gaps `GAP-04…GAP-09` first. Preserve: the `runToken` st
 ### Keep the offline bundle in sync
 `offline/` is a self-contained copy (open `offline/app.html` by double-click, no internet). It is generated, never hand-edited:
 1. After any change to `app.html`, run `node tools/build-offline.mjs` and commit `offline/app.html` together with `app.html`. `check.mjs` (and CI) fails if you forget.
-2. The build rewrites only the pinned CDN `<script>` tags to `libs/…`. If you add or change an external script in `app.html`, the build fails until you add it to `LIBS` in `tools/build-offline.mjs` with its exact URL and SHA-256.
-3. Upgrading Skulpt: change the version in `app.html` and the URLs/hashes in `LIBS`, delete `offline/libs/*.js`, rerun the build (it downloads and verifies), then run the full smoke test online and offline.
-4. Do not modify files in `offline/libs/`; they are verified byte-for-byte.
+2. `offline/app.html` is `app.html` plus a banner; `offline/assets/libs/` is a copy of `assets/libs/`. Hard-coded external `<script src>` tags are rejected: runtime libraries go through the local-first loader (`SKULPT_FILES` in the `<head>` of `app.html`).
+3. Upgrading Skulpt: update `SKULPT_FILES` (CDN URL and `sri`) in `app.html` and `url`/`sha256` in `LIBS` in `tools/build-offline.mjs`, delete `assets/libs/*.js`, and rerun the build, which downloads and verifies the files. Then run `check.mjs`, which verifies the SRI against the local files, and `npm test`.
+4. Do not modify files in `assets/libs/` or `offline/assets/libs/`; they are verified byte-for-byte.
 
 ### Change the landing page
 Content comes in paired `.en` / `.ar` blocks. Keep both, keep `href="app.html"` relative, and keep claims consistent with README and SPEC.md (technologies, requirements, privacy).

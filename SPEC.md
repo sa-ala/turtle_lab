@@ -397,20 +397,33 @@ produces 38 stars and 100%; a run alone produces neither.
 
 ### 7.1 Dependencies and runtime configuration
 
-Only `app.html` loads external executable dependencies:
+Only `app.html` loads executable dependencies: Skulpt 1.2.0, vendored in
+`assets/libs/` (F-003). A small inline loader in the head (`SKULPT_FILES`,
+`loadScriptOnce`, `loadSkulpt`, `skulptLoading`) loads `skulpt.min.js`, then
+`skulpt-stdlib.js`. Each file is tried locally first. If that fails, or the
+file does not define what it should (`Sk.importMainWithBody`, then
+`Sk.builtinFiles.files`), the pinned CDN copy is loaded with `integrity`
+(SHA-384) and `crossorigin="anonymous"`:
 
 ```text
 https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js
 https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js
 ```
 
-Both are blocking script tags in the head, before app initialization. The
+Loading is asynchronous and does not block rendering. `pyState` is
+`loading`, `ready` or `failed`. Until it is `ready`, both Run buttons stay
+disabled (`setRun`), Ctrl/Cmd+Enter shows a toast instead of running, and the
+status banner shows the localized "Getting Python ready…" (`idleInfo`). On
+failure the banner and the Errors tab show the localized runtime-failure
+message with a Try again button (`#pyRetry`), which retries only the files
+not yet loaded. `tools/check.mjs` verifies the CDN URLs are pinned and the
+SRI values match the local files. The
 landing page loads no external scripts, fonts, or image files. Font names are
 CSS font stacks, not downloaded font dependencies.
 
-The generated offline bundle (`offline/app.html`, see §12.2) loads the same
-Skulpt 1.2.0 files from `offline/libs/` instead of the CDN; it is otherwise
-identical to `app.html`.
+The generated offline bundle (`offline/app.html`, see §12.2) is identical to
+`app.html` apart from a banner, and finds the same files in
+`offline/assets/libs/`.
 
 Skulpt executes Python in the browser using `Sk.python3`,
 `Sk.importMainWithBody("<stdin>", false, code, true)`, and
@@ -434,8 +447,9 @@ These are configured limits, not verified wall-clock guarantees.
 
 ### 7.2 Run lifecycle
 
-1. Check `Sk` and standard-library availability. On failure show an explicit
-   internet/refresh message in Errors; do not attempt execution.
+1. If the runtime is not ready (`pyState`), show a toast and stop. Then check
+   `Sk` and standard-library availability. On failure show the localized
+   runtime-failure message in Errors; do not attempt execution.
 2. Increment `runToken`; choose editor code unless it is whitespace-only,
    in which case run `DEFAULT_CODE`, the blue-square sample.
 3. For step mode, instrument code and retain its generated-to-original line map.
@@ -769,9 +783,9 @@ suite in `tests/`, run with `npm test`); the site never requires `npm install`. 
 `images/` structure is not the current implementation.
 
 The only build-like step is `node tools/build-offline.mjs`, which generates
-`offline/`: `offline/app.html` (a copy of `app.html` whose two Skulpt script
-tags point to `libs/`), `offline/libs/` (vendored Skulpt 1.2.0 files and
-license, SHA-256 verified), and `offline/README.txt`. The folder can be copied
+`offline/`: `offline/app.html` (a copy of `app.html` with a banner),
+`offline/assets/libs/` (a copy of the vendored Skulpt 1.2.0 files and license
+from `assets/libs/`, SHA-256 verified), and `offline/README.txt`. The folder can be copied
 and opened by double-clicking `offline/app.html` with no network access.
 `tools/check.mjs` fails if `offline/app.html` is stale or a library hash
 differs. Because browser storage is per origin, the offline copy (a `file://`
@@ -783,9 +797,10 @@ open `http://localhost:8000`. HTTPS/localhost is preferable for Clipboard API
 behavior. Static hosting must preserve both relative page paths.
 
 JavaScript is required for the coding environment and dynamic language
-controls. The root `app.html` still needs CDN access to obtain Skulpt and has no
-local fallback; offline use is supported only through the generated
-`offline/` bundle. There is no service worker or installable PWA.
+controls. The hosted `app.html` needs no CDN access: it loads Skulpt from
+`assets/libs/` and uses the CDN only as a fallback (§7.1). Use without any
+network is supported through the generated `offline/` bundle, or by opening a
+copy of the repository. There is no service worker or installable PWA.
 
 Modern browser features include async functions, promises, optional chaining,
 `matchAll`, Set, Blob/object URLs, SVG serialization, Canvas 2D, CSS grid,
@@ -800,9 +815,11 @@ the user copies or exports them. Shared-device users therefore share the
 same draft and completion history in the same browser context.
 
 CDN script requests still contact a third party, and those scripts execute
-in the page context. No SRI hashes, CSP configuration, or network-isolation mechanism are
-declared in these files. The vendored copies in `offline/libs/` are checked
-against pinned SHA-256 hashes by the build and `tools/check.mjs`.
+in the page context. With the vendored files present, the app makes no third-party requests. The
+CDN fallback uses SRI. The vendored copies in `assets/libs/` and
+`offline/assets/libs/` are checked against pinned SHA-256 hashes by the build
+and `tools/check.mjs`. No CSP configuration or network-isolation mechanism is
+declared.
 Client-side execution is not a claim of a hardened sandbox or a
 children's-privacy compliance assessment. Evaluate runtime capabilities
 before adding untrusted-code sharing or classroom management.
@@ -848,7 +865,7 @@ filing or implementing a fix.
 | GAP-22 | Class-only tabs, nonsemantic progress, limited live status, and intercepted Tab | Accessibility work needs defined interaction and announcement requirements |
 | GAP-23 | No verified browser matrix or performance budgets. Automated Chromium smoke tests and CI were added by F-001 (`tests/`, `npm test`) | Extend coverage per §14; add other browsers or budgets only with explicit scope |
 | GAP-25 | `friendly()` never shows the missing-colon or indentation guidance: Skulpt 1.2.0 reports both as `SyntaxError: bad input on line N` (found by F-001 tests) | Lessons 26/27 still fail with "Check line N" and a red line, but the teaching message is generic. Pinned by `test.fail()` tests in `tests/app.spec.js` |
-| GAP-24 | Root `app.html` is CDN-only with no loading state/retry control or local fallback (a separate generated `offline/` bundle exists) | Dependency failure is detected on Run; classroom/offline reliability needs explicit scope |
+| GAP-24 | **Fixed by F-003.** Skulpt is vendored in `assets/libs/` with an SRI-checked CDN fallback, a loading state and a Retry control | Dependency failure is detected on Run; classroom/offline reliability needs explicit scope |
 
 ## 14. Test-planning reference
 

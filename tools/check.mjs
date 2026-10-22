@@ -3,7 +3,7 @@
 //   node tools/check.mjs
 // Exits 1 if any invariant in AGENTS.md section 6 is broken.
 import { readFileSync, existsSync } from "node:fs";
-import { offlineHtml, sha256, LIBS, OUT_DIR, LIB_DIR } from "./build-offline.mjs";
+import { offlineHtml, sha256, sri384, LIBS, OUT_DIR, LIB_DIR, OUT_LIB_DIR } from "./build-offline.mjs";
 
 const app = readFileSync("app.html", "utf8");
 const landing = readFileSync("index.html", "utf8");
@@ -82,14 +82,24 @@ if (!/href="app\.html"/.test(landing)) fail('index.html no longer links to "app.
 
 // External scripts must be pinned to an exact version.
 for (const m of app.matchAll(/<script src="([^"]+)"/g)) if (!/@\d+\.\d+\.\d+\//.test(m[1]) && !/^assets\//.test(m[1])) fail(`unpinned external script: ${m[1]}`);
+// Skulpt loader (F-003): each entry loads a vendored local file first, then a pinned CDN URL whose SRI matches that file.
+const loader = [...app.matchAll(/\{local:"([^"]+)",cdn:"([^"]+)",sri:"([^"]+)"/g)];
+if (loader.length !== 2) fail(`expected 2 SKULPT_FILES entries in app.html, found ${loader.length}`);
+for (const [, local, cdn, sri] of loader) {
+  const lib = LIBS.find((l) => `${LIB_DIR}/${l.file}` === local);
+  if (!lib) { fail(`loader local path ${local} is not a vendored file in ${LIB_DIR}`); continue; }
+  if (cdn !== lib.url) fail(`loader CDN URL for ${local} (${cdn}) differs from LIBS url ${lib.url}`);
+  if (!/@\d+\.\d+\.\d+\//.test(cdn)) fail(`unpinned CDN URL: ${cdn}`);
+  if (existsSync(local) && sri !== sri384(readFileSync(local))) fail(`SRI for ${cdn} does not match ${local}`);
+}
 
 // Offline bundle (offline/) must be regenerated after every app.html change: node tools/build-offline.mjs
 try {
   const want = offlineHtml(app);
   if (!existsSync(`${OUT_DIR}/app.html`)) fail(`${OUT_DIR}/app.html missing; run node tools/build-offline.mjs`);
   else if (readFileSync(`${OUT_DIR}/app.html`, "utf8").replace(/\r\n/g, "\n") !== want) fail(`${OUT_DIR}/app.html is stale; run node tools/build-offline.mjs`);
-  for (const { file, sha256: h } of LIBS)
-    if (!existsSync(`${LIB_DIR}/${file}`) || sha256(readFileSync(`${LIB_DIR}/${file}`)) !== h) fail(`${LIB_DIR}/${file} missing or modified; run node tools/build-offline.mjs`);
+  for (const { file, sha256: h } of LIBS) for (const dir of [LIB_DIR, OUT_LIB_DIR])
+    if (!existsSync(`${dir}/${file}`) || sha256(readFileSync(`${dir}/${file}`)) !== h) fail(`${dir}/${file} missing or modified; run node tools/build-offline.mjs`);
 } catch (e) { fail(`offline bundle: ${e.message}`); }
 
 // The CI e2e container image must match the pinned Playwright version, or browsers will not match.
