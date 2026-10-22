@@ -23,7 +23,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-010 | Pause / Next-step debugger | P2 | M | F-005 | 08 | Done |
 | F-011 | Challenge checks (opt-in auto-feedback) | P2 | L epic | F-002, F-005 | — | Proposed |
 | F-012 | My Projects (local multi-project save) | P2 | M | F-007 | 01 | Done |
-| F-013 | Accessibility pass | P3 | M | — | 22 | Proposed |
+| F-013 | Accessibility pass | P3 | M | — | 22 | Done |
 | F-014 | Localization completeness and language sync | P3 | M | — | 16, 19 | Proposed |
 | F-015 | Offline / installable (PWA) | P3 | M | F-003 | 24 | Proposed |
 | F-016 | Progress export / import for teachers | P3 | S | F-002, F-004 | — | Proposed |
@@ -250,6 +250,8 @@ Independent fixes; one PR, one commit per gap.
 ---
 
 ## F-013 Accessibility pass
+
+**Status: Done.** axe-core checks in `tests/a11y.spec.js`. Beyond the scope list, axe found and this PR fixed low contrast on danger buttons, unreadable tags in high contrast, and invalid list markup in the F-010 Variables panel.
 
 **Problem.** Tabs, progress and status messages are not exposed correctly to assistive tech (GAP-22).
 

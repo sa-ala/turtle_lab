@@ -792,16 +792,36 @@ the live zoom label.
 
 High contrast toggles a persisted `body.hc` theme for the app; it is not
 available on the landing page. The landing page respects reduced motion for
-smooth scrolling and CTA transitions. The app has no equivalent comprehensive
-reduced-motion treatment.
+smooth scrolling and CTA transitions.
 
-Tabs are class-based buttons, not a full ARIA tablist/tab/tabpanel interaction
-pattern. Progress lacks semantic progress attributes. Toasts are not live
-regions; debug/status changes have limited screen-reader announcement.
-Some select/search labels and focus treatments need review. Step execution no
-longer moves focus into the editor (F-010). Tab indents inside the editor, and
-Esc then Tab leaves it, as the editor's help text explains (F-009).
-No formal keyboard-trap assessment or WCAG conformance is established.
+Since F-013:
+
+- **Tabs** (learning area and run results) follow the ARIA tablist / tab /
+  tabpanel pattern (`setupTabs()`, `syncTabs()`). There are ids,
+  `aria-controls`, `aria-selected` and a roving `tabindex`. ArrowLeft and
+  ArrowRight move between tabs with automatic activation, mirrored in RTL;
+  Home and End jump to the ends. Panels are focusable.
+- **Course progress** is a `progressbar` with `aria-valuemin`, `aria-valuemax`,
+  `aria-valuenow`, `aria-valuetext` and a localized `aria-label`.
+- **Announcements:** the toast is a polite, atomic live region. The `#stepState`
+  status region announces run start ("Running your code…"), success, and the
+  friendly error text with its line. Stop is announced by its toast.
+- **Reduced motion:** `prefers-reduced-motion: reduce` disables CSS
+  transitions and animations, and the turtle draws without animation
+  (`Sk.TurtleGraphics.animate = false`).
+- **Localized accessible names** for the code editor, language picker, example
+  picker, zoom controls, result tabs and learning tabs. The lesson picker is
+  labelled by its visible label.
+- **Contrast:** buttons with the `danger` class use `#c9184a` (white text about
+  5.6:1); in high contrast, tags (`.pill`) are white on black.
+- Step execution doesn't move focus into the editor (F-010). Tab indents inside
+  the editor, and Esc then Tab leaves it (F-009).
+
+`tests/a11y.spec.js` runs **axe-core** (`@axe-core/playwright`, dev-only) on
+the landing page (all three views) and the app in English and Arabic across
+its main states: each tab, high contrast, an error shown, an open dialog, and
+Step mode paused. It requires no serious or critical violations. There is still
+no formal WCAG conformance claim or manual screen-reader audit.
 
 ## 11. Visual, responsive, and print requirements
 
@@ -968,7 +988,7 @@ filing or implementing a fix.
 | GAP-19 | Many static ARIA labels, cursor wording, and print heading remain English | Include assistive text and print output in localization work |
 | GAP-20 | Completion is self-declared (unchecked). **Positional part fixed by F-002:** progress, saved lesson and badges use stable lesson ids, with a migration from v2 indexes | Unchecked completion is by design (D3); see F-011 for optional checks |
 | GAP-21 | Some teacher notes use old numbering; several early starters introduce loops before the formal loops level | Review pedagogy separately from fixing runtime behavior |
-| GAP-22 | Class-only tabs, nonsemantic progress, and limited live status. **Tab escape fixed by F-009** (Esc then Tab) | Remaining items are in F-013 |
+| GAP-22 | **Fixed by F-009 and F-013.** Tab escape, ARIA tabs, progressbar, live announcements, reduced motion, localized labels and contrast fixes; axe-core reports no serious or critical issues | No manual screen-reader audit or WCAG conformance claim yet |
 | GAP-23 | No verified browser matrix or performance budgets. Automated Chromium smoke tests and CI were added by F-001 (`tests/`, `npm test`) | Extend coverage per §14; add other browsers or budgets only with explicit scope |
 | GAP-25 | **Fixed by F-006.** `badInputHint()` maps Skulpt's `bad input` error to the colon or indentation guidance from the source lines | Lessons 26/27 show their specific guidance; covered by `tests/app.spec.js` |
 | GAP-26 | **Fixed by F-006.** Below 860 px the single-column app grid used `1fr`, which cannot shrink below its content, so the page was wider than phone screens (508 px of content at 420 px in English, 457 px in Arabic) | Grid now uses `minmax(0,1fr)`; covered by `tests/fixes.spec.js` |
