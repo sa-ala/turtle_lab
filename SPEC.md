@@ -857,7 +857,7 @@ filing or implementing a fix.
 | GAP-14 | PNG omits coordinates and uses a different grid; it captures the stage viewport rather than complete artwork | Decide whether export should preserve visual overlays, be clean artwork, or offer both |
 | GAP-15 | Resize redraws the overlay, not existing Skulpt dimensions | Verify coordinate/drawing alignment after orientation or layout changes |
 | GAP-16 | Landing navigation/static labels and app syntax/example content are not fully localized | Define the intended bilingual completeness before expanding translation scope |
-| GAP-17 | Landing English How It Works cards lack `.en` on their containers | Arabic-only view hides their text but can leave empty decorated step cards and affected step numbering |
+| GAP-17 | **Fixed by F-006.** English How It Works cards carry `.en`, so the Arabic-only view shows exactly the three Arabic cards | Covered by `tests/fixes.spec.js` |
 | GAP-18 | Landing selector `[data-view="ar"] body` has no matching ancestor because `data-view` is on body/main | Its intended whole-body Arabic font rule does not apply; explicit `.ar` fonts still apply |
 | GAP-19 | Many static ARIA labels, cursor wording, and print heading remain English | Include assistive text and print output in localization work |
 | GAP-20 | Completion is unchecked and badge rules use positional indexes | Reordering lessons can change saved progress/badge meaning; stable IDs require a migration |

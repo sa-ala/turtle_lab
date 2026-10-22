@@ -60,3 +60,13 @@ for (const [name, failWhich, expected, downloads] of [["one layer fails", "first
     expect(await download).toBe(downloads);
   });
 }
+
+test("GAP-17: each landing view shows exactly three How It Works cards", async ({ page }) => {
+  await page.goto("/index.html");
+  for (const view of ["en", "ar"]) {
+    await page.click(`[data-set-view="${view}"]`);
+    await expect(page.locator("#how .step:visible")).toHaveCount(3);
+  }
+  await page.click('[data-set-view="both"]');
+  await expect(page.locator("#how .step:visible")).toHaveCount(6);
+});
