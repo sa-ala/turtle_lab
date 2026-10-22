@@ -18,7 +18,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-005 | Run lifecycle hardening | P1 | M | F-001 | 04–07 | Done |
 | F-006 | Small-fix bundle | P1 | S | — | 09–13, 17, 18 | Done |
 | F-007 | Per-lesson drafts and overwrite protection | P2 | M | F-002, F-004 | 01 | Done |
-| F-008 | Deep links: lesson, example, language | P2 | S | F-002 | — | Proposed |
+| F-008 | Deep links: lesson, example, language | P2 | S | F-002 | — | Done |
 | F-009 | Editor ergonomics | P2 | M | — | 22 (part) | Proposed |
 | F-010 | Pause / Next-step debugger | P2 | M | F-005 | 08 | Proposed |
 | F-011 | Challenge checks (opt-in auto-feedback) | P2 | L epic | F-002, F-005 | — | Proposed |
@@ -183,6 +183,8 @@ Independent fixes; one PR, one commit per gap.
 ---
 
 ## F-008 Deep links: lesson, example, language
+
+**Status: Done.** `applyDeepLink()`, Share card in Teacher & Parent, tests in `tests/deep-links.spec.js`. Example numbers are 1-based.
 
 **Problem.** The landing "Try This in Turtle Lab" button does not preload its example, and teachers cannot link a specific lesson.
 
