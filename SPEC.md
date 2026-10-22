@@ -852,7 +852,7 @@ filing or implementing a fix.
 | GAP-09 | **Fixed by F-006.** `lineExplanation()` checks `print(` before the generic function-call rule | Covered by `tests/fixes.spec.js` |
 | GAP-10 | **Fixed by F-006.** Debug Help now says green, matching the green current-line highlight, in both languages | Copy-only change; colors unchanged |
 | GAP-11 | **Fixed by F-006.** Syntax Help Try it clears highlights and resets the status, like the example selector | Covered by `tests/fixes.spec.js` |
-| GAP-12 | Clipboard fallback runs on write rejection, but a missing Clipboard API short-circuits the optional chain | No fallback copy/toast occurs when `navigator.clipboard` itself is absent; fallback result is also unchecked |
+| GAP-12 | **Fixed by F-006.** Copy uses the `execCommand` fallback when the Clipboard API is absent or rejects, and the toast reports the real result ("Code copied." or the localized `copyFailed`) | Covered by `tests/fixes.spec.js` |
 | GAP-13 | PNG catches per-layer drawing failures and can still report success | A download may be incomplete; define explicit partial/failure behavior |
 | GAP-14 | PNG omits coordinates and uses a different grid; it captures the stage viewport rather than complete artwork | Decide whether export should preserve visual overlays, be clean artwork, or offer both |
 | GAP-15 | Resize redraws the overlay, not existing Skulpt dimensions | Verify coordinate/drawing alignment after orientation or layout changes |

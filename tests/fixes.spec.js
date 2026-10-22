@@ -28,3 +28,16 @@ test("GAP-11: Syntax Help Try it clears the red error line and status", async ({
   await expect(page.locator("#rail .railLine.error")).toHaveCount(0);
   await expect(page.locator("#debugInfo")).toHaveText(await t(page, "debugNormal"));
 });
+
+for (const [name, setup, expected] of [
+  ["Clipboard API missing, fallback works", () => { Object.defineProperty(navigator, "clipboard", { value: undefined, configurable: true }); document.execCommand = () => true; }, "codeCopied"],
+  ["Clipboard API missing, fallback fails", () => { Object.defineProperty(navigator, "clipboard", { value: undefined, configurable: true }); document.execCommand = () => false; }, "copyFailed"],
+  ["Clipboard write rejected, fallback works", () => { Object.defineProperty(navigator, "clipboard", { value: { writeText: () => Promise.reject(new Error("denied")) }, configurable: true }); document.execCommand = () => true; }, "codeCopied"],
+]) {
+  test(`GAP-12: copy reports the real result — ${name}`, async ({ page }) => {
+    await page.addInitScript(setup);
+    await openApp(page);
+    await page.click("#copyBtn");
+    await expect(page.locator("#toast")).toHaveText(await t(page, expected));
+  });
+}
