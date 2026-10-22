@@ -7,3 +7,13 @@ test("GAP-09: step explanation for print() lines is the output explanation", asy
   expect(await page.evaluate(() => [lineExplanation(1), lineExplanation(2), lineExplanation(3)]))
     .toEqual(await page.evaluate(() => [T("linePrint"), T("lineFunction"), T("lineForward")]));
 });
+
+test("GAP-10: Debug Help names the same colour as the current-line highlight", async ({ page }) => {
+  await openApp(page);
+  expect(await page.evaluate(() => I18N.en.debugReady || DEBUG_I18N.en.debugReady)).toContain("Green means running now");
+  expect(await page.evaluate(() => I18N.ar.debugReady || DEBUG_I18N.ar.debugReady)).toContain("الأخضر");
+  const bg = await page.evaluate(() => { const d = document.createElement("div"); d.className = "railLine current"; document.getElementById("rail").appendChild(d); const c = getComputedStyle(d).backgroundColor; d.remove(); return c; });
+  const [r, g, b] = bg.match(/\d+/g).map(Number);
+  expect(g).toBeGreaterThan(r);
+  expect(g).toBeGreaterThan(b);
+});

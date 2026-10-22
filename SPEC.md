@@ -850,7 +850,7 @@ filing or implementing a fix.
 | GAP-07 | Stop's delayed target reset is not token-guarded | Starting another run within 150ms can have its drawing target cleared by the previous stop |
 | GAP-08 | Source rewriting is not parser-aware across all Python syntax, notably multiline/triple-quoted strings and decorator relationships | Compare Normal and Step semantics before broadening supported Python constructs |
 | GAP-09 | **Fixed by F-006.** `lineExplanation()` checks `print(` before the generic function-call rule | Covered by `tests/fixes.spec.js` |
-| GAP-10 | Debug Help says blue is running; current-line CSS is a green/blue gradient | Align explanatory copy and visual semantics if refining debugger UX |
+| GAP-10 | **Fixed by F-006.** Debug Help now says green, matching the green current-line highlight, in both languages | Copy-only change; colors unchanged |
 | GAP-11 | Syntax Try it does not clear previous error/current highlight or debug status | Replaced code can retain stale highlights/status |
 | GAP-12 | Clipboard fallback runs on write rejection, but a missing Clipboard API short-circuits the optional chain | No fallback copy/toast occurs when `navigator.clipboard` itself is absent; fallback result is also unchecked |
 | GAP-13 | PNG catches per-layer drawing failures and can still report success | A download may be incomplete; define explicit partial/failure behavior |
