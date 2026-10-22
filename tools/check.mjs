@@ -61,6 +61,18 @@ if (lessons) {
     for (const id of badgeIds) if (!ids.includes(id)) fail(`badge rule references unknown lesson id "${id}"`);
   }
 }
+// F-014: Arabic syntax help and example names are index-aligned with their English arrays.
+const docsAr = json("DOCS_AR"), exampleNamesAr = json("EXAMPLE_NAMES_AR");
+if (docsAr && docs && extraDocs) {
+  const n = docs.length + extraDocs.length;
+  if (docsAr.length !== n) fail(`DOCS_AR has ${docsAr.length} entries, docs + extraDocs has ${n} (must be index-aligned)`);
+  docsAr.forEach((d, i) => { for (const f of ["category", "explanation"]) if (typeof d[f] !== "string" || !d[f].trim()) fail(`DOCS_AR[${i}].${f} missing or empty`); });
+}
+if (exampleNamesAr && examples) {
+  if (exampleNamesAr.length !== examples.length) fail(`EXAMPLE_NAMES_AR has ${exampleNamesAr.length} entries, examples has ${examples.length} (must be index-aligned)`);
+  exampleNamesAr.forEach((v, i) => { if (typeof v !== "string" || !v.trim()) fail(`EXAMPLE_NAMES_AR[${i}] missing or empty`); });
+}
+
 for (const [name, arr, fields] of [["docs/extraDocs", [...(docs||[]), ...(extraDocs||[])], ["category","command","explanation","example"]], ["examples", examples||[], ["name","code"]]])
   arr.forEach((d, i) => { for (const f of fields) if (typeof d[f] !== "string") fail(`${name}[${i}].${f} missing or not a string`); });
 

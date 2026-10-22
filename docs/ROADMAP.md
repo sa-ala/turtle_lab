@@ -24,7 +24,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-011 | Challenge checks (opt-in auto-feedback) | P2 | L epic | F-002, F-005 | — | Proposed |
 | F-012 | My Projects (local multi-project save) | P2 | M | F-007 | 01 | Done |
 | F-013 | Accessibility pass | P3 | M | — | 22 | Done |
-| F-014 | Localization completeness and language sync | P3 | M | — | 16, 19 | Proposed |
+| F-014 | Localization completeness and language sync | P3 | M | — | 16, 19 | Done |
 | F-015 | Offline / installable (PWA) | P3 | M | F-003 | 24 | Proposed |
 | F-016 | Progress export / import for teachers | P3 | S | F-002, F-004 | — | Proposed |
 | F-017 | Content authoring tool | P3 | S | F-002 | — | Proposed |
@@ -262,6 +262,8 @@ Independent fixes; one PR, one commit per gap.
 ---
 
 ## F-014 Localization completeness and language sync
+
+**Status: Done.** `DOCS_AR`, `EXAMPLE_NAMES_AR`, landing labels per view, first-visit sync, tests in `tests/localization.spec.js`. Intentionally left English: "XY", the "English" language option, and proper names in credits.
 
 **Problem.** Syntax help, example names, cursor text, `Running...`, print heading and several aria labels are English-only, and landing and app languages are independent (GAP-16, GAP-19).
 
