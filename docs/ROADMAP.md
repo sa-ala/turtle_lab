@@ -17,7 +17,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-004 | Safe storage layer with validation | P0 | S | — | 02, 03 | Done |
 | F-005 | Run lifecycle hardening | P1 | M | F-001 | 04–07 | Done |
 | F-006 | Small-fix bundle | P1 | S | — | 09–13, 17, 18 | Done |
-| F-007 | Per-lesson drafts and overwrite protection | P2 | M | F-002, F-004 | 01 | Proposed |
+| F-007 | Per-lesson drafts and overwrite protection | P2 | M | F-002, F-004 | 01 | Done |
 | F-008 | Deep links: lesson, example, language | P2 | S | F-002 | — | Proposed |
 | F-009 | Editor ergonomics | P2 | M | — | 22 (part) | Proposed |
 | F-010 | Pause / Next-step debugger | P2 | M | F-005 | 08 | Proposed |
@@ -164,6 +164,8 @@ Independent fixes; one PR, one commit per gap.
 ---
 
 ## F-007 Per-lesson drafts and overwrite protection
+
+**Status: Done.** `tl.drafts.v1`, native `<dialog>` confirmation, tests in `tests/drafts.spec.js`.
 
 **Problem.** One shared draft is silently overwritten by switching lessons, loading examples, "Try it", or Reset (GAP-01).
 

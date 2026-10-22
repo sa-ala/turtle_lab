@@ -168,8 +168,8 @@ coordinates off, zero completions, and all badges locked.
 
 ### 4.2 Learn, experiment, and complete
 
-Selecting a lesson in either navigation surface sets `current`, saves its
-zero-based index, replaces/saves editor code, updates metadata and all
+Selecting a lesson in either navigation surface sets `current`, saves its id,
+loads that lesson's own draft (or its starter if it has none; F-007), updates metadata and all
 lesson-specific learning panels, refreshes progress/badges, and marks the
 active lesson button. It does not run or clear the existing drawing/results.
 
@@ -185,11 +185,16 @@ completion toast. It does not advance to the next lesson.
 
 | Action | Effect |
 | --- | --- |
-| Reset Code / Reset lesson code | Load the selected lesson's original English starter, save, clear highlights, rebuild gutter/cursor, reset debug guidance |
-| Load Example | Replace/save code, clear highlights, reset debug guidance, retain selected lesson and learning content, reset example selector to placeholder |
-| Syntax Help: Try it | Replace/save code with the entry's sample and rebuild lines; retain selected lesson |
+| Reset Code / Reset lesson code | Ask first if the code differs from the starter; then load the selected lesson's original English starter, save, clear highlights, rebuild gutter/cursor, reset debug guidance |
+| Load Example | Ask first if the code differs from the starter; then replace/save code, clear highlights, reset debug guidance, retain selected lesson and learning content. The example selector resets to its placeholder either way |
+| Syntax Help: Try it | Ask first if the code differs from the starter; then replace/save code with the entry's sample and rebuild lines; retain selected lesson |
 | Edit textarea | Save immediately per input event, clear highlights, rebuild line display; reset debug guidance when no run is active |
 | Tab in editor | Replace selected text with four spaces, move caret after spaces, save, rebuild lines; no outdent or multiline-indent behavior |
+
+"Ask first" (F-007) opens a native modal `<dialog>` (`#replaceDialog`, via
+`okToReplace()` and `askReplace()`) with localized "Replace your code?" text
+and two buttons: **Keep my code** (focused by default; Esc does the same) and
+**Replace**. Code identical to the lesson starter is replaced without asking.
 
 Code replacement does not automatically clear the drawing, output, or errors.
 The Syntax Help Try it handler clears highlights and resets debug guidance,
@@ -638,7 +643,8 @@ browser-dependent.
 | Key | Stored representation | Default / consumer |
 | --- | --- | --- |
 | `turtleLabLandingLanguage` | `en`, `ar`, or `both` | `both`; landing only; invalid values normalize to `both` |
-| `tl.code.v1` | Raw editor source string | Selected starter when the key is absent; any saved string, including an empty draft, is restored as-is |
+| `tl.drafts.v1` | JSON object `{ lessonId: code }` (F-007) | `{}`. A lesson with no entry shows its starter; any saved string, including an empty draft, is restored as-is. A draft equal to the starter is removed rather than stored. Non-string values are ignored |
+| `tl.code.v1` | Legacy single draft (pre-F-007) | Read only to migrate: if `tl.drafts.v1` is absent, a draft that differs from the current lesson's starter becomes that lesson's draft. Never written or deleted |
 | `tl.lesson.v3` | Selected lesson id | First lesson unless the id exists in `lessons` |
 | `tl.progress.v3` | JSON array of completed lesson ids | `[]`; only string ids that exist in `lessons` are kept, de-duplicated; unknown ids are dropped on the next save |
 | `tl.lesson.v2` | Legacy (pre-F-002) zero-based index | Read only to migrate: if `tl.lesson.v3` is absent, a valid index (0–37) is mapped through `V2_LESSON_IDS` and written to v3. Never written or deleted |
@@ -872,7 +878,7 @@ filing or implementing a fix.
 
 | ID | Observation | Impact / decision for future work |
 | --- | --- | --- |
-| GAP-01 | One draft slot; replacing code has no confirmation or draft history | Lesson/example changes can overwrite work; choose a draft model and migration before adding projects |
+| GAP-01 | **Fixed by F-007.** Drafts are kept per lesson, and examples, Try it and Reset Code ask before replacing edited code. There is still no undo history | See F-012 for multiple saved projects |
 | GAP-02 | **Fixed by F-004.** Empty drafts are preserved; lesson, progress, mode, speed, zoom and language are validated on read (§9) | Covered by `tests/storage.spec.js` |
 | GAP-03 | **Fixed by F-004.** Storage failures are caught; the app keeps working, warns once, and shows "Not saved" (§9) | No retry or export fallback; see F-016 for progress export |
 | GAP-04 | **Mostly fixed by F-005.** `run()` ignores calls while a run is active (keyboard included). Remaining: Stop is still cooperative (no worker termination) and Skulpt state is global. In testing, a stopped program printed nothing after a new run started, but isolation is not guaranteed | True isolation would need a worker or per-run interpreter |
