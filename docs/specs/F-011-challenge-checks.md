@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Proposed (design for maintainer review; no code yet) |
+| Status | Postponed (maintainer decision, 2026-10-22). Design kept for later; open questions unanswered; no code |
 | Priority | P2 |
 | Size | L (epic) |
 | Depends on | F-002 (lesson ids), F-005 (run lifecycle) — both done |

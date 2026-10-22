@@ -21,7 +21,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-008 | Deep links: lesson, example, language | P2 | S | F-002 | — | Done |
 | F-009 | Editor ergonomics | P2 | M | — | 22 (part) | Done |
 | F-010 | Pause / Next-step debugger | P2 | M | F-005 | 08 | Done |
-| F-011 | Challenge checks (opt-in auto-feedback) | P2 | L epic | F-002, F-005 | — | Proposed |
+| F-011 | Challenge checks (opt-in auto-feedback) | P2 | L epic | F-002, F-005 | — | Postponed |
 | F-012 | My Projects (local multi-project save) | P2 | M | F-007 | 01 | Done |
 | F-013 | Accessibility pass | P3 | M | — | 22 | Done |
 | F-014 | Localization completeness and language sync | P3 | M | — | 16, 19 | Done |
@@ -228,6 +228,8 @@ Independent fixes; one PR, one commit per gap.
 ---
 
 ## F-011 Challenge checks (epic, design first)
+
+**Status: Postponed** (maintainer decision, 2026-10-22). The design doc `docs/specs/F-011-challenge-checks.md` is kept for when it resumes; its open questions are still unanswered.
 
 **Problem.** Learners get no feedback on whether their drawing meets the goal (`SPEC.md` BR-10).
 
