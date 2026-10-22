@@ -204,20 +204,18 @@ Recommended browsers:
 
 The published website requires internet access for visitors to open it.
 
-The app may also require internet access if it loads libraries from online CDN links.
-
-For better reliability, especially in schools, it is recommended to host important libraries locally inside the project, for example:
+The Python runner (Skulpt 1.2.0) is included in the project:
 
 ```text
 assets/libs/skulpt.min.js
 assets/libs/skulpt-stdlib.js
 ```
 
-This can help the app keep working even if a CDN is blocked or unavailable.
+The app loads these local files first, so it keeps working when a CDN is blocked, as on many school networks. Only if a local file is missing does it fall back to the pinned jsDelivr copy, checked with Subresource Integrity. While Python loads, the app shows "Getting Python ready…" and Run is disabled. If both sources fail, it shows an error with a **Try again** button.
 
 ### Offline copy
 
-The [`offline/`](offline/) folder is a ready-to-use copy of the app with Skulpt included. Copy the whole folder to any computer or USB stick and double-click `offline/app.html`; no internet connection is needed. Progress saved in the offline copy is separate from the online site.
+The [`offline/`](offline/) folder is a ready-to-use copy of the app with its own `assets/libs/`. Copy the whole folder to any computer or USB stick and double-click `offline/app.html`; no internet connection is needed. Progress saved in the offline copy is separate from the online site.
 
 The folder is generated from `app.html` by `node tools/build-offline.mjs`, and `node tools/check.mjs` fails if it is out of date.
 

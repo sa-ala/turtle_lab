@@ -1,6 +1,6 @@
 // Browser smoke tests (ROADMAP F-001). Run: npm test
 // No web server: tests/fixtures.js serves the repo on a fake origin and routes the
-// pinned Skulpt CDN URLs to the hash-verified copies in offline/libs/.
+// pinned Skulpt CDN URLs to the hash-verified copies in assets/libs/.
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
