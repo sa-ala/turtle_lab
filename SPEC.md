@@ -68,7 +68,7 @@ roles, teacher accounts, permissions, classroom rosters, or separate dashboards.
 | BR-03 | Completion is self-reported using **I did it!** in Challenges. Running code, meeting a drawing goal, or passing a test is not required. |
 | BR-04 | Each distinct completed lesson contributes one star. Repeating completion does not add another star. |
 | BR-05 | Completion and preferences belong to the browser storage context, not a user account. |
-| BR-06 | Each lesson keeps its own saved draft (F-007). There is no per-project draft collection (see F-012). |
+| BR-06 | Each lesson keeps its own saved draft (F-007), and learners can keep any number of named projects in My Projects (F-012). |
 | BR-07 | Switching lessons restores that lesson's draft. Loading an example, Syntax Help Try it, and Reset Code ask before replacing code that differs from the lesson starter (F-007). |
 | BR-08 | Resetting progress requires confirmation and removes completion/badges, but preserves the selected lesson, code, and preferences. |
 | BR-09 | English and Arabic are supported, with different language-selection models on the two pages. Their preferences are independent. |
@@ -89,9 +89,19 @@ JavaScript; there is no router, SPA framework, module bundler, or shared asset
 module.
 
 All landing-page app links navigate to the relative URL `app.html` in the same
-tab. They do not transmit language, a selected example, or code. In particular,
-**Try This in Turtle Lab** opens the app normally rather than preloading the
-displayed blue-square example. The app restores its own stored state.
+tab. **Try This in Turtle Lab** links to `app.html#example=square`, plus
+`&lang=ar` while the landing page is in Arabic-only view. It loads the Square
+example (a plain square; the landing preview also sets a blue color and pen
+size). The other links carry no parameters.
+
+**Deep links (F-008).** On startup, after stored state is restored, the app
+reads the URL hash: `#lesson=<lesson id>`, `#example=<slug of the example name
+or 1-based number>` and `#lang=en|ar`. They can be combined with `&`, and are
+applied in the order lang, lesson, example. Invalid or unknown values are
+ignored silently. The hash is then removed with `history.replaceState`, so a
+reload doesn't reapply it. The same handling runs on `hashchange`. A linked
+example goes through the F-007 overwrite protection. A linked lesson or
+language is saved like a normal choice. Links never carry code (decision D4).
 
 No in-app Home link back to the landing page is present. Learning-area tabs
 and result tabs change CSS classes without changing the URL.
@@ -107,7 +117,7 @@ and result tabs change CSS classes without changing the URL.
 | `#technology` | Python, Turtle, Skulpt, HTML/CSS/JavaScript, Canvas/SVG, client-side execution |
 | `#learn` | Eight learning themes: sequencing, movement/angles, loops, colors/creativity, variables, functions, projects, experimenting |
 | `#how` | Choose lesson/example, edit code, run and observe; English and Arabic step cards |
-| `#preview` | Static blue-square sample and link to the app |
+| `#preview` | Static blue-square sample and a link that opens the app on the Square example (`#tryPreview`) |
 | `#requirements` | Devices, JavaScript, screen space, CDN connectivity, no installed Python |
 | `#browsers` | Chrome, Edge, Firefox, Safari, ChromeOS/Chromebook recommendations |
 | `#parents` | Guided exploration and encouragement to change values and shapes |
@@ -132,11 +142,11 @@ they do not execute Python.
 | Course sidebar | Course heading, collapse/expand, completed count, stars, progress bar, lesson selector, Reset progress, level-grouped lesson buttons | `toggleLessons`, `progressText`, `starText`, `fill`, `lessonSelect`, `resetProgress`, `lessonList` |
 | Editor header | Lesson number/title, level, concept, keyboard shortcut reminder | `lessonTitle`, `lessonLevel`, `lessonConcept` |
 | Editor actions | Run, Reset lesson code, Copy code, Export .py, example selector | `runBtn`, `resetBtn`, `copyBtn`, `pyBtn`, `examples` |
-| Execution controls | Explanation/status banner, Normal/Step-by-step selector, conditional step-speed selector | `debugInfo`, `runMode`, `stepSpeedControl`, `stepSpeed` |
+| Execution controls | Explanation/status banner, Normal/Step-by-step selector, conditional step-speed selector; while a Step-mode run is active, Pause / Next step / Continue (F-010); Variables panel while paused; screen-reader step announcements | `debugInfo`, `runMode`, `stepSpeedControl`, `stepSpeed`, `stepControls`, `pauseBtn`, `nextBtn`, `continueBtn`, `varsPanel`, `varsList`, `stepState` |
 | Editor | Plain textarea, line-number gutter, current/error-line overlays, autosave status, cursor location | `code`, `rail`, `codeHighlights`, `highlightInner`, `saveStatus`, `cursor` |
 | Results below editor | Output and Errors tabs with separate content panels | `output`, `errors`, `out`, `err`; `[data-run-tab]` |
 | Drawing | Stage, Skulpt target, coordinate helper, zoom controls, Clear, Save PNG | `stage`, `target`, `coordOverlay`, `coordToggle`, `zoomOut`, `zoomIn`, `zoomReset`, `zoomLabel`, `clearBtn`, `pngBtn` |
-| Learning area | Lesson, Syntax Help, Challenges, Teacher & Parent, Badges | `[data-tab]`; `lesson`, `syntax`, `challenge`, `teacher`, `badges` |
+| Learning area | Lesson, Syntax Help, Challenges, Teacher & Parent, Badges, My Projects (F-012) | `[data-tab]`; `lesson`, `syntax`, `challenge`, `teacher`, `badges`, `projects` |
 | Print-only area | Syntax Cheat Sheet title and all reference commands/explanations | `printDocs` |
 | Notifications | Transient status messages | `toast` |
 
@@ -189,12 +199,43 @@ completion toast. It does not advance to the next lesson.
 | Load Example | Ask first if the code differs from the starter; then replace/save code, clear highlights, reset debug guidance, retain selected lesson and learning content. The example selector resets to its placeholder either way |
 | Syntax Help: Try it | Ask first if the code differs from the starter; then replace/save code with the entry's sample and rebuild lines; retain selected lesson |
 | Edit textarea | Save immediately per input event, clear highlights, rebuild line display; reset debug guidance when no run is active |
-| Tab in editor | Replace selected text with four spaces, move caret after spaces, save, rebuild lines; no outdent or multiline-indent behavior |
+| Tab in editor | Insert four spaces; with a multi-line selection, indent every selected line (F-009) |
+| Shift+Tab in editor | Outdent the current or every selected line by up to four spaces (F-009) |
+| Enter in editor | New line keeping the current line's indentation, plus four spaces when the text before the caret ends with `:` (a trailing `# comment` is allowed) (F-009) |
+| Esc, then Tab / Shift+Tab | Leaves the editor with normal focus navigation; explained by the screen-reader help text `#editorHelp` (`aria-describedby`) (F-009) |
+
+**My Projects** (F-012, learning tab `projects`) stores named copies of code
+in this browser (`tl.projects.v1`):
+
+- **Save code as new project** asks for a name in the accessible `#nameDialog`.
+  Empty names are refused, and Cancel or Esc creates nothing. It stores the
+  editor code with timestamps and, if something was drawn, a 120×90 PNG
+  thumbnail cropped to the drawing (dropped if over about 40 KB).
+- **Import .py** creates a project from a file of up to 200 KB (CRLF
+  normalized; it isn't opened automatically).
+- Per project:
+  - **Open** loads the code into the editor, asking first if the editor holds
+    edited code (F-007).
+  - **Save here** overwrites the project with the editor code, after a
+    confirmation.
+  - **Rename**, **Duplicate** ("name (copy)") and **Export .py**.
+  - **Delete**, after a confirmation ("Keep it" is the default).
+
+Every change is written at once. If the write fails, the change is rolled
+back and a localized toast explains it (F-004). Buttons carry accessible names
+that include the project name, and focus returns to a sensible button after
+each action.
 
 "Ask first" (F-007) opens a native modal `<dialog>` (`#replaceDialog`, via
 `okToReplace()` and `askReplace()`) with localized "Replace your code?" text
 and two buttons: **Keep my code** (focused by default; Esc does the same) and
 **Replace**. Code identical to the lesson starter is replaced without asking.
+
+All editor key edits go through `document.execCommand("insertText")` (with a
+`setRangeText` and synthetic `input` fallback), so Ctrl+Z undoes each one, and
+the normal input handler autosaves and refreshes the gutter, highlights and
+cursor. There is no syntax coloring (an optional F-009 overlay was not
+built; it needs a decision).
 
 Code replacement does not automatically clear the drawing, output, or errors.
 The Syntax Help Try it handler clears highlights and resets debug guidance,
@@ -227,7 +268,10 @@ Reset progress is available in the sidebar and Teacher & Parent panel.
 Cancellation makes no changes. Confirmation stores `[]`, updates counts and
 badges, retains the current draft, and shows a toast.
 
-Teacher & Parent includes lesson notes, a Print syntax sheet action,
+Teacher & Parent includes lesson notes, a Print syntax sheet action, a
+**Share this lesson** card whose **Copy link to this lesson** button
+(`#copyLessonLink`) copies `app.html#lesson=<id>` (plus `&lang=ar` in Arabic),
+with a fallback that shows the link in a toast when copying fails,
 progress-reset instructions, source-editing guidance for adding lessons, and
 Debug Help. Printing calls `window.print()`; print CSS hides the interactive
 workspace and shows all syntax cards in two columns without their runnable
@@ -500,8 +544,30 @@ Successful code execution never automatically completes a lesson.
 
 ### 7.3 Step-by-step implementation
 
-Step mode is automatic delayed execution, not a manual Next/Continue debugger.
-There are no breakpoints, variable inspection, call-stack viewer, or pause/resume.
+Step mode runs with a timed delay per step and, since F-010, can be paused and
+advanced manually. While a Step-mode run is active, **⏸ Pause**, **⏭ Next step**
+and **▶ Continue** appear in the debug bar (`#stepControls`):
+
+- **Pause** sets `stepPaused` and cancels the pending timer, so execution halts
+  before the highlighted line. If pressed while a line is still executing, it
+  halts at the next step.
+- **Next step** (enabled only while paused) releases exactly one step. Pressing
+  it while a line is still executing does nothing.
+- **Continue** clears the pause and resumes timed stepping at once.
+- **Stop** works in every state (§4.4) and clears the pause.
+
+Each suspension waits on a promise that the timer, Next or Continue resolves
+(`activeStepResolve`); Stop rejects it (`activeStepReject`). A polite live
+region (`#stepState`) announces "Paused before line N…" and "Continuing…".
+Focus follows the action: Pause moves it to Next, Continue moves it to Pause,
+and focus goes to Run when the controls hide. While paused, the **Variables**
+panel (`#varsPanel`, LTR) lists simple globals (`int`, `float`, `str`, `bool`,
+`list`) from `Sk.globals`, using Python `repr` truncated to 60 characters.
+Dunder names, modules, functions and turtles are skipped, and Skulpt's
+`_$rw$` suffix for reserved words is removed.
+
+There are no breakpoints, call-stack viewer, or local-variable inspection.
+Normal mode is unchanged: no instrumentation, and the controls never appear.
 
 `instrumentCode()` inserts an indented `__tl_step__(originalLineNumber)`
 before eligible source lines. It skips blanks, comments, `elif`, `else`,
@@ -510,7 +576,8 @@ continuations. It tracks bracket depth using a lightweight
 string/comment-stripping routine, not a Python parser.
 
 The callback checks cancellation, counts steps, highlights the original editor
-line and gutter, scrolls/focuses the editor, and shows the original line plus
+line and gutter, scrolls the editor to it without moving keyboard focus (F-010;
+error highlighting still focuses the editor), and shows the original line plus
 a heuristic explanation. It suspends execution with a timer when supported;
 the suspension's `reject` is kept in `activeStepReject` so Stop can settle it
 immediately instead of leaving it pending.
@@ -644,6 +711,7 @@ browser-dependent.
 | --- | --- | --- |
 | `turtleLabLandingLanguage` | `en`, `ar`, or `both` | `both`; landing only; invalid values normalize to `both` |
 | `tl.drafts.v1` | JSON object `{ lessonId: code }` (F-007) | `{}`. A lesson with no entry shows its starter; any saved string, including an empty draft, is restored as-is. A draft equal to the starter is removed rather than stored. Non-string values are ignored |
+| `tl.projects.v1` | JSON array of `{ id, name, code, created, updated, thumb? }` (F-012) | `[]`. Entries without string `id`/`name`/`code` are ignored; names are cut to 60 characters; `thumb` is kept only if it is a `data:image/png;base64,` URL |
 | `tl.code.v1` | Legacy single draft (pre-F-007) | Read only to migrate: if `tl.drafts.v1` is absent, a draft that differs from the current lesson's starter becomes that lesson's draft. Never written or deleted |
 | `tl.lesson.v3` | Selected lesson id | First lesson unless the id exists in `lessons` |
 | `tl.progress.v3` | JSON array of completed lesson ids | `[]`; only string ids that exist in `lessons` are kept, de-duplicated; unknown ids are dropped on the next save |
@@ -724,15 +792,36 @@ the live zoom label.
 
 High contrast toggles a persisted `body.hc` theme for the app; it is not
 available on the landing page. The landing page respects reduced motion for
-smooth scrolling and CTA transitions. The app has no equivalent comprehensive
-reduced-motion treatment.
+smooth scrolling and CTA transitions.
 
-Tabs are class-based buttons, not a full ARIA tablist/tab/tabpanel interaction
-pattern. Progress lacks semantic progress attributes. Toasts are not live
-regions; debug/status changes have limited screen-reader announcement.
-Some select/search labels and focus treatments need review. Step execution
-repeatedly focuses the editor; Tab inserts spaces instead of navigating out.
-No formal keyboard-trap assessment or WCAG conformance is established.
+Since F-013:
+
+- **Tabs** (learning area and run results) follow the ARIA tablist / tab /
+  tabpanel pattern (`setupTabs()`, `syncTabs()`). There are ids,
+  `aria-controls`, `aria-selected` and a roving `tabindex`. ArrowLeft and
+  ArrowRight move between tabs with automatic activation, mirrored in RTL;
+  Home and End jump to the ends. Panels are focusable.
+- **Course progress** is a `progressbar` with `aria-valuemin`, `aria-valuemax`,
+  `aria-valuenow`, `aria-valuetext` and a localized `aria-label`.
+- **Announcements:** the toast is a polite, atomic live region. The `#stepState`
+  status region announces run start ("Running your code…"), success, and the
+  friendly error text with its line. Stop is announced by its toast.
+- **Reduced motion:** `prefers-reduced-motion: reduce` disables CSS
+  transitions and animations, and the turtle draws without animation
+  (`Sk.TurtleGraphics.animate = false`).
+- **Localized accessible names** for the code editor, language picker, example
+  picker, zoom controls, result tabs and learning tabs. The lesson picker is
+  labelled by its visible label.
+- **Contrast:** buttons with the `danger` class use `#c9184a` (white text about
+  5.6:1); in high contrast, tags (`.pill`) are white on black.
+- Step execution doesn't move focus into the editor (F-010). Tab indents inside
+  the editor, and Esc then Tab leaves it (F-009).
+
+`tests/a11y.spec.js` runs **axe-core** (`@axe-core/playwright`, dev-only) on
+the landing page (all three views) and the app in English and Arabic across
+its main states: each tab, high contrast, an error shown, an open dialog, and
+Step mode paused. It requires no serious or critical violations. There is still
+no formal WCAG conformance claim or manual screen-reader audit.
 
 ## 11. Visual, responsive, and print requirements
 
@@ -878,7 +967,7 @@ filing or implementing a fix.
 
 | ID | Observation | Impact / decision for future work |
 | --- | --- | --- |
-| GAP-01 | **Fixed by F-007.** Drafts are kept per lesson, and examples, Try it and Reset Code ask before replacing edited code. There is still no undo history | See F-012 for multiple saved projects |
+| GAP-01 | **Fixed by F-007 and F-012.** Drafts are kept per lesson; examples, Try it and Reset Code ask before replacing edited code; named projects can be saved | There is still no undo history beyond the editor's own Ctrl+Z |
 | GAP-02 | **Fixed by F-004.** Empty drafts are preserved; lesson, progress, mode, speed, zoom and language are validated on read (§9) | Covered by `tests/storage.spec.js` |
 | GAP-03 | **Fixed by F-004.** Storage failures are caught; the app keeps working, warns once, and shows "Not saved" (§9) | No retry or export fallback; see F-016 for progress export |
 | GAP-04 | **Mostly fixed by F-005.** `run()` ignores calls while a run is active (keyboard included). Remaining: Stop is still cooperative (no worker termination) and Skulpt state is global. In testing, a stopped program printed nothing after a new run started, but isolation is not guaranteed | True isolation would need a worker or per-run interpreter |
@@ -899,7 +988,7 @@ filing or implementing a fix.
 | GAP-19 | Many static ARIA labels, cursor wording, and print heading remain English | Include assistive text and print output in localization work |
 | GAP-20 | Completion is self-declared (unchecked). **Positional part fixed by F-002:** progress, saved lesson and badges use stable lesson ids, with a migration from v2 indexes | Unchecked completion is by design (D3); see F-011 for optional checks |
 | GAP-21 | Some teacher notes use old numbering; several early starters introduce loops before the formal loops level | Review pedagogy separately from fixing runtime behavior |
-| GAP-22 | Class-only tabs, nonsemantic progress, limited live status, and intercepted Tab | Accessibility work needs defined interaction and announcement requirements |
+| GAP-22 | **Fixed by F-009 and F-013.** Tab escape, ARIA tabs, progressbar, live announcements, reduced motion, localized labels and contrast fixes; axe-core reports no serious or critical issues | No manual screen-reader audit or WCAG conformance claim yet |
 | GAP-23 | No verified browser matrix or performance budgets. Automated Chromium smoke tests and CI were added by F-001 (`tests/`, `npm test`) | Extend coverage per §14; add other browsers or budgets only with explicit scope |
 | GAP-25 | **Fixed by F-006.** `badInputHint()` maps Skulpt's `bad input` error to the colon or indentation guidance from the source lines | Lessons 26/27 show their specific guidance; covered by `tests/app.spec.js` |
 | GAP-26 | **Fixed by F-006.** Below 860 px the single-column app grid used `1fr`, which cannot shrink below its content, so the page was wider than phone screens (508 px of content at 420 px in English, 457 px in Arabic) | Grid now uses `minmax(0,1fr)`; covered by `tests/fixes.spec.js` |
@@ -917,7 +1006,7 @@ for the limitations above.
 
 | Area / requirement | Minimum observable checks |
 | --- | --- |
-| Landing navigation | Every internal anchor resolves; all app CTAs reach `app.html`; external references use correct URLs/new-tab isolation; preview CTA does not preload code |
+| Landing navigation | Every internal anchor resolves; all app CTAs reach `app.html`; external references use correct URLs/new-tab isolation; preview CTA opens the Square example (covered by `tests/deep-links.spec.js`) |
 | Landing languages | Clean default Both; English/Arabic/Both visibility, root direction/language, pressed states, reload persistence, invalid preference normalization; inspect GAP-17/18 |
 | First app load / resume | Clean defaults, 38 selectable lessons, 10 headings, 13 examples, 25 docs; restore draft/lesson/preferences; drawing/results not persisted |
 | Lesson content | Matching titles/metadata/prose/starter on sidebar and selector changes; no automatic run/advance; complete lesson overlays in both languages |

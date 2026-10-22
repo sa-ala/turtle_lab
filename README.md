@@ -276,6 +276,8 @@ turtle.done()
 
 ## 👨‍🏫 For Parents and Teachers
 
+**Link straight to a lesson.** In the app, open **Teacher & Parent → Share this lesson → Copy link to this lesson** and send the link to students. You can also build links yourself, for example `app.html#lesson=l12-a-better-square-with-loops`, `app.html#example=spiral` or `app.html#lang=ar`, and combine them with `&`. Links never contain anyone's code.
+
 Turtle Lab is designed to make programming visual, playful, and less intimidating.
 
 It introduces real programming ideas through experimentation. Children are encouraged to change numbers, colors, angles, and commands to discover how code affects the drawing.

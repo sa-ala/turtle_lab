@@ -18,12 +18,12 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-005 | Run lifecycle hardening | P1 | M | F-001 | 04–07 | Done |
 | F-006 | Small-fix bundle | P1 | S | — | 09–13, 17, 18 | Done |
 | F-007 | Per-lesson drafts and overwrite protection | P2 | M | F-002, F-004 | 01 | Done |
-| F-008 | Deep links: lesson, example, language | P2 | S | F-002 | — | Proposed |
-| F-009 | Editor ergonomics | P2 | M | — | 22 (part) | Proposed |
-| F-010 | Pause / Next-step debugger | P2 | M | F-005 | 08 | Proposed |
+| F-008 | Deep links: lesson, example, language | P2 | S | F-002 | — | Done |
+| F-009 | Editor ergonomics | P2 | M | — | 22 (part) | Done |
+| F-010 | Pause / Next-step debugger | P2 | M | F-005 | 08 | Done |
 | F-011 | Challenge checks (opt-in auto-feedback) | P2 | L epic | F-002, F-005 | — | Proposed |
-| F-012 | My Projects (local multi-project save) | P2 | M | F-007 | 01 | Proposed |
-| F-013 | Accessibility pass | P3 | M | — | 22 | Proposed |
+| F-012 | My Projects (local multi-project save) | P2 | M | F-007 | 01 | Done |
+| F-013 | Accessibility pass | P3 | M | — | 22 | Done |
 | F-014 | Localization completeness and language sync | P3 | M | — | 16, 19 | Proposed |
 | F-015 | Offline / installable (PWA) | P3 | M | F-003 | 24 | Proposed |
 | F-016 | Progress export / import for teachers | P3 | S | F-002, F-004 | — | Proposed |
@@ -184,6 +184,8 @@ Independent fixes; one PR, one commit per gap.
 
 ## F-008 Deep links: lesson, example, language
 
+**Status: Done.** `applyDeepLink()`, Share card in Teacher & Parent, tests in `tests/deep-links.spec.js`. Example numbers are 1-based.
+
 **Problem.** The landing "Try This in Turtle Lab" button does not preload its example, and teachers cannot link a specific lesson.
 
 **Scope.** Read the URL hash on load: `app.html#lesson=<id>`, `#example=<index-or-slug>`, `#lang=ar`. Apply after restoring stored state, then clear the hash with `history.replaceState`. Update the landing preview button to link `app.html#example=square`, and its Arabic counterpart with `&lang=ar`. Add "Copy link to this lesson" in Teacher & Parent.
@@ -197,6 +199,8 @@ Independent fixes; one PR, one commit per gap.
 
 ## F-009 Editor ergonomics
 
+**Status: Done** (without the optional syntax-colored overlay, which still needs a decision). Tests in `tests/editor.spec.js`, run in Chromium and Firefox.
+
 **Problem.** The editor is a plain textarea: Tab only inserts spaces, there is no outdent, auto-indent or keyboard escape (part of GAP-22).
 
 **Scope.** Without adding an editor library: Enter keeps the current indent and adds 4 spaces after a line ending in `:`; Shift+Tab outdents the current or selected lines; Tab on a multi-line selection indents all lines; Esc then Tab moves focus out of the editor (announced via the editor's help text). Optional, behind a decision: lightweight syntax-colored overlay using the existing highlight layer.
@@ -209,6 +213,8 @@ Independent fixes; one PR, one commit per gap.
 ---
 
 ## F-010 Pause / Next-step debugger
+
+**Status: Done.** Including the optional Variables panel. Tests in `tests/step-debugger.spec.js`. Also changed: stepping no longer moves keyboard focus into the editor, which made the controls unusable from the keyboard.
 
 **Problem.** Step mode is automatic delayed execution only; learners cannot pause and advance at their own pace.
 
@@ -233,6 +239,8 @@ Independent fixes; one PR, one commit per gap.
 
 ## F-012 My Projects (local multi-project save)
 
+**Status: Done.** Learning tab `projects`, `tl.projects.v1`, tests in `tests/projects.spec.js`. Adds **Save here** (overwrite a project with the editor code), so later edits can be kept.
+
 **Problem.** Creative work in the final-project lessons has nowhere to live beyond one draft.
 
 **Scope.** A "My Projects" panel: create, rename, open, duplicate, delete (with confirmation) named projects stored locally (`tl.projects.v1`), each with code, timestamps and an optional small PNG thumbnail. Import/export a project as `.py`. No cloud, no accounts.
@@ -242,6 +250,8 @@ Independent fixes; one PR, one commit per gap.
 ---
 
 ## F-013 Accessibility pass
+
+**Status: Done.** axe-core checks in `tests/a11y.spec.js`. Beyond the scope list, axe found and this PR fixed low contrast on danger buttons, unreadable tags in high contrast, and invalid list markup in the F-010 Variables panel.
 
 **Problem.** Tabs, progress and status messages are not exposed correctly to assistive tech (GAP-22).
 
