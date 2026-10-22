@@ -13,6 +13,7 @@ Turtle Lab is a bilingual (English/Arabic) web app that teaches kids aged roughl
 | `docs/ROADMAP.md` | **What to build next**: prioritized feature specs `F-xxx` with acceptance criteria | When picking up work |
 | `docs/specs/TEMPLATE.md` | Template for writing a new feature spec | Before starting any feature not already in the roadmap |
 | `tools/check.mjs` | Zero-dependency invariant checker | After every change |
+| `tools/content.mjs` | Extract/check/inject the content arrays (lessons, Arabic, syntax help, examples) as editable JSON | Whenever you change lesson, syntax-help or example content |
 | `tools/build-offline.mjs` | Regenerates the offline bundle `offline/` from `app.html` | After every change to `app.html` |
 | `assets/libs/` | Vendored Skulpt 1.2.0 (the app loads it first; pinned CDN with SRI is the fallback). SHA-256 verified; never edit | When upgrading Skulpt |
 | `offline/` | **Generated** copy of `app.html` plus `assets/libs/` for use without internet. Never edit by hand | When shipping or testing offline use |
@@ -67,6 +68,7 @@ npm test
 - Step-mode Pause / Next step / Continue, Stop from every state, keyboard focus, and the Variables panel (`tests/step-debugger.spec.js`)
 - editor keys: Enter auto-indent, Tab / Shift+Tab on lines and selections, Esc then Tab, undo, in Chromium and Firefox (`tests/editor.spec.js`)
 - My Projects: create, open, rename, duplicate, Save here, delete, import/export `.py`, storage failure, Arabic and keyboard (`tests/projects.spec.js`)
+- content tool: byte-identical round trip, single-line edits, and every validation error (`tests/content-tool.spec.js`)
 - localization: no English-only UI text in Arabic mode (except "XY" and the "English" option), Arabic syntax help and example names, bilingual search, re-translation on switch, first-visit language sync, and landing labels per view (`tests/localization.spec.js`)
 - accessibility: axe-core (no serious or critical issues) on the landing page and app in both languages and main states, plus ARIA tabs, progressbar, announcements, labels and reduced motion (`tests/a11y.spec.js`). New UI must keep this file green
 - run lifecycle: one run at a time, Stop then Run keeps the new drawing, Step-mode Stop settles the run, and lesson, example, reset, language or Try it changes stop a run first (`tests/run-lifecycle.spec.js`)
@@ -92,22 +94,19 @@ Key symbols: `lessons`, `LESSON_AR`, `LEVEL_AR`, `docs`, `extraDocs`, `examples`
 
 **Editing rules:**
 
-- **Content arrays are single-line JSON literals** (`const lessons=[...];` is one ~34 KB line). Do not hand-edit them with string replacement. Edit them programmatically so the JSON stays valid:
+- **Content arrays are single-line JSON literals** (`const lessons=[...];` is one ~34 KB line). Never hand-edit them with string replacement. Use the content tool (F-017):
 
-  ```js
-  // edit-content.mjs — run with: node edit-content.mjs   (delete the script afterwards)
-  import fs from "node:fs";
-  let s = fs.readFileSync("app.html", "utf8");
-  const edit = (name, fn) => {
-    const re = new RegExp(`(\\nconst ${name}=)(.*)(;\\n)`);
-    if (!re.test(s)) throw new Error(`${name} not found`);
-    s = s.replace(re, (_, a, body, c) => a + JSON.stringify(fn(JSON.parse(body))) + c);
-  };
-  edit("examples", (arr) => [...arr, { name: "Hexagon", code: "import turtle\n\nt = turtle.Turtle()\n\nfor i in range(6):\n    t.forward(80)\n    t.right(60)\n\nturtle.done()" }]);
-  fs.writeFileSync("app.html", s);
+  ```bash
+  node tools/content.mjs extract   # app.html -> content/*.json (pretty, git-ignored working copy)
+  # edit content/lessons.json, lessons.ar.json, levels.ar.json, docs.json, docs.extra.json,
+  #      docs.ar.json, examples.json, examples.names.ar.json
+  node tools/content.mjs check     # validate without writing
+  node tools/content.mjs inject    # validate, then write back as single-line literals
+  node tools/build-offline.mjs && node tools/check.mjs && npm test
   ```
 
-  The whole line will show as changed in the diff; that is expected. In `docs`/`extraDocs`, the `command` field uses a **literal backslash-n** (`\\n` in the file) for line breaks, which `docCommand()` converts; `example` and `starterCode` use real newlines (`\n`).
+  `inject` aborts, leaving `app.html` untouched, on invalid JSON, misaligned Arabic arrays (`LESSON_AR`, `DOCS_AR`, `EXAMPLE_NAMES_AR`), missing lesson fields, levels without Arabic, or bad/duplicate lesson ids. It writes the arrays in their existing format and keeps the file's line endings, so an unedited round trip is byte-identical and the diff shows only the edited line. `V2_LESSON_IDS` is not exported (frozen). Delete `content/` when done, or keep it locally; it is git-ignored.
+  In `docs`/`extraDocs`, the `command` field uses a **literal backslash-n** (`\\n` in the file) for line breaks, which `docCommand()` converts; `example` and `starterCode` use real newlines (`\n`).
 - **New JS** should match the surrounding compact style closely enough to read as one codebase, but clarity wins over terseness: a multi-line function is acceptable for anything non-trivial.
 - **New CSS**: read the full cascade first (`SPEC.md §11.2`). Prefer appending a clearly commented block near the end of the `<style>` element over editing early rules that are already overridden. Provide high-contrast (`body.hc`) and RTL (`[dir="rtl"]`) variants where relevant, and respect the 860 px and 1180 px breakpoints.
 - **Do not restructure** (split files, rename symbols, reformat whole sections) unless the spec you are implementing says to.
@@ -116,7 +115,7 @@ Key symbols: `lessons`, `LESSON_AR`, `LEVEL_AR`, `docs`, `extraDocs`, `examples`
 
 ### Add a lesson
 1. Insert the lesson wherever it fits pedagogically. Give it a new, never-used `id`: use `l<next number>-<slug of the title>`, where the number is one more than the highest id number ever used, not its position.
-2. Add the lesson object to `lessons` with all 13 fields (`SPEC.md §5.1`), add the Arabic object to `LESSON_AR` at the **same index**, and add any new level name to `LEVEL_AR`.
+2. Using `tools/content.mjs` (§4), add the lesson object to `lessons` with all 13 fields (`SPEC.md §5.1`), add the Arabic object to `LESSON_AR` at the **same index**, and add any new level name to `LEVEL_AR`.
 3. Run the starter code in both Normal and Step mode. It must succeed (unless it is a deliberate debugging lesson, documented as such).
 4. Decide whether a badge rule in `badges()` should include the new lesson's id. Tests that select lessons by position (for example `tests/app.spec.js` for lessons 12, 26 and 27) may need their position updated.
 5. Update `SPEC.md` §5.2 catalog, counts (38 → N) everywhere, and §6 if badges changed.
