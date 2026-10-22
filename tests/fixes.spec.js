@@ -17,3 +17,14 @@ test("GAP-10: Debug Help names the same colour as the current-line highlight", a
   expect(g).toBeGreaterThan(r);
   expect(g).toBeGreaterThan(b);
 });
+
+test("GAP-11: Syntax Help Try it clears the red error line and status", async ({ page }) => {
+  await openApp(page);
+  await selectLesson(page, 25);
+  await runAndWait(page);
+  await expect(page.locator("#rail .railLine.error")).toHaveCount(1);
+  await page.click('.learn .tab[data-tab="syntax"]');
+  await page.locator("#docGrid .try").first().click();
+  await expect(page.locator("#rail .railLine.error")).toHaveCount(0);
+  await expect(page.locator("#debugInfo")).toHaveText(await t(page, "debugNormal"));
+});

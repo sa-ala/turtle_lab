@@ -192,8 +192,8 @@ completion toast. It does not advance to the next lesson.
 | Tab in editor | Replace selected text with four spaces, move caret after spaces, save, rebuild lines; no outdent or multiline-indent behavior |
 
 Code replacement does not automatically clear the drawing, output, or errors.
-The Syntax Help Try it handler does not explicitly clear highlights or reset
-debug guidance, unlike the example selector.
+The Syntax Help Try it handler clears highlights and resets debug guidance,
+like the example selector (GAP-11, fixed by F-006).
 
 ### 4.4 Run, inspect, and stop
 
@@ -851,7 +851,7 @@ filing or implementing a fix.
 | GAP-08 | Source rewriting is not parser-aware across all Python syntax, notably multiline/triple-quoted strings and decorator relationships | Compare Normal and Step semantics before broadening supported Python constructs |
 | GAP-09 | **Fixed by F-006.** `lineExplanation()` checks `print(` before the generic function-call rule | Covered by `tests/fixes.spec.js` |
 | GAP-10 | **Fixed by F-006.** Debug Help now says green, matching the green current-line highlight, in both languages | Copy-only change; colors unchanged |
-| GAP-11 | Syntax Try it does not clear previous error/current highlight or debug status | Replaced code can retain stale highlights/status |
+| GAP-11 | **Fixed by F-006.** Syntax Help Try it clears highlights and resets the status, like the example selector | Covered by `tests/fixes.spec.js` |
 | GAP-12 | Clipboard fallback runs on write rejection, but a missing Clipboard API short-circuits the optional chain | No fallback copy/toast occurs when `navigator.clipboard` itself is absent; fallback result is also unchecked |
 | GAP-13 | PNG catches per-layer drawing failures and can still report success | A download may be incomplete; define explicit partial/failure behavior |
 | GAP-14 | PNG omits coordinates and uses a different grid; it captures the stage viewport rather than complete artwork | Decide whether export should preserve visual overlays, be clean artwork, or offer both |
