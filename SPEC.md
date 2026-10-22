@@ -68,11 +68,11 @@ roles, teacher accounts, permissions, classroom rosters, or separate dashboards.
 | BR-03 | Completion is self-reported using **I did it!** in Challenges. Running code, meeting a drawing goal, or passing a test is not required. |
 | BR-04 | Each distinct completed lesson contributes one star. Repeating completion does not add another star. |
 | BR-05 | Completion and preferences belong to the browser storage context, not a user account. |
-| BR-06 | Code editing has one shared saved draft, not a per-lesson or per-project draft collection. |
-| BR-07 | Switching lessons, loading examples, trying syntax samples, and resetting code replace the draft without a confirmation dialog. |
+| BR-06 | Each lesson keeps its own saved draft (F-007). There is no per-project draft collection (see F-012). |
+| BR-07 | Switching lessons restores that lesson's draft. Loading an example, Syntax Help Try it, and Reset Code ask before replacing code that differs from the lesson starter (F-007). |
 | BR-08 | Resetting progress requires confirmation and removes completion/badges, but preserves the selected lesson, code, and preferences. |
 | BR-09 | English and Arabic are supported, with different language-selection models on the two pages. Their preferences are independent. |
-| BR-10 | No grading, automatic goal checking, score beyond stars, certificate, collaboration, cloud sync, or project gallery is implemented. |
+| BR-10 | No grading, automatic goal checking, score beyond stars, certificate, collaboration, cloud sync, or project gallery is implemented. Optional, non-grading goal feedback is designed in `docs/specs/F-011-challenge-checks.md` (proposed). |
 | BR-11 | No monetization, subscription, payment, analytics event collection, or account-registration flow appears in the reviewed source. |
 
 No conversion targets, lesson-duration targets, learning-outcome metrics,
