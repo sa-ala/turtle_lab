@@ -70,3 +70,12 @@ test("GAP-17: each landing view shows exactly three How It Works cards", async (
   await page.click('[data-set-view="both"]');
   await expect(page.locator("#how .step:visible")).toHaveCount(6);
 });
+
+test("GAP-18: Arabic-only landing view uses the Arabic font stack on body", async ({ page }) => {
+  await page.goto("/index.html");
+  await page.click('[data-set-view="ar"]');
+  const [font, arStack] = await page.evaluate(() => [getComputedStyle(document.body).fontFamily, getComputedStyle(document.body).getPropertyValue("--font-ar").trim()]);
+  expect(arStack).not.toBe("");
+  const norm = (v) => v.replace(/[\s"']/g, ""); // computed font-family may drop quotes
+  expect(norm(font)).toBe(norm(arStack));
+});

@@ -858,7 +858,7 @@ filing or implementing a fix.
 | GAP-15 | Resize redraws the overlay, not existing Skulpt dimensions | Verify coordinate/drawing alignment after orientation or layout changes |
 | GAP-16 | Landing navigation/static labels and app syntax/example content are not fully localized | Define the intended bilingual completeness before expanding translation scope |
 | GAP-17 | **Fixed by F-006.** English How It Works cards carry `.en`, so the Arabic-only view shows exactly the three Arabic cards | Covered by `tests/fixes.spec.js` |
-| GAP-18 | Landing selector `[data-view="ar"] body` has no matching ancestor because `data-view` is on body/main | Its intended whole-body Arabic font rule does not apply; explicit `.ar` fonts still apply |
+| GAP-18 | **Fixed by F-006.** The Arabic whole-body font rule targets `body[data-view="ar"]` and now applies | Covered by `tests/fixes.spec.js` |
 | GAP-19 | Many static ARIA labels, cursor wording, and print heading remain English | Include assistive text and print output in localization work |
 | GAP-20 | Completion is unchecked and badge rules use positional indexes | Reordering lessons can change saved progress/badge meaning; stable IDs require a migration |
 | GAP-21 | Some teacher notes use old numbering; several early starters introduce loops before the formal loops level | Review pedagogy separately from fixing runtime behavior |
