@@ -505,7 +505,11 @@ error text. A resolved line receives red editor/gutter styling and focus.
 | Otherwise | Generic check-and-retry guidance |
 
 These are substring heuristics, not structured error-code classification.
-Some errors may therefore receive broad or misleading advice.
+Some errors may therefore receive broad or misleading advice. In particular,
+Skulpt 1.2.0 reports both a missing colon and a missing indent as
+`SyntaxError: bad input on line N`, which matches none of the specific rows,
+so lessons 26 and 27 show the generic guidance plus "Check line N" and the
+red line, not the colon/indentation guidance (GAP-25).
 
 ## 8. Drawing, coordinates, and exports
 
@@ -748,8 +752,9 @@ reactive store.
 ### 12.2 Hosting and local operation
 
 The tracked implementation has two HTML pages, README, and MIT license;
-there is no package manifest, test runner, build pipeline, application server,
-API configuration, or service worker. README's suggested `assets/` and
+there is no build pipeline, application server, API configuration, or service
+worker. A `package.json` exists for dev-only tooling (the Playwright test
+suite in `tests/`, run with `npm test`); the site never requires `npm install`. README's suggested `assets/` and
 `images/` structure is not the current implementation.
 
 The only build-like step is `node tools/build-offline.mjs`, which generates
@@ -830,13 +835,17 @@ filing or implementing a fix.
 | GAP-20 | Completion is unchecked and badge rules use positional indexes | Reordering lessons can change saved progress/badge meaning; stable IDs require a migration |
 | GAP-21 | Some teacher notes use old numbering; several early starters introduce loops before the formal loops level | Review pedagogy separately from fixing runtime behavior |
 | GAP-22 | Class-only tabs, nonsemantic progress, limited live status, and intercepted Tab | Accessibility work needs defined interaction and announcement requirements |
-| GAP-23 | No automated tests, package tooling, verified browser matrix, or performance budgets | Select focused tooling/targets when implementing, rather than assuming a suite exists |
+| GAP-23 | No verified browser matrix or performance budgets. Automated Chromium smoke tests and CI were added by F-001 (`tests/`, `npm test`) | Extend coverage per §14; add other browsers or budgets only with explicit scope |
+| GAP-25 | `friendly()` never shows the missing-colon or indentation guidance: Skulpt 1.2.0 reports both as `SyntaxError: bad input on line N` (found by F-001 tests) | Lessons 26/27 still fail with "Check line N" and a red line, but the teaching message is generic. Pinned by `test.fail()` tests in `tests/app.spec.js` |
 | GAP-24 | Root `app.html` is CDN-only with no loading state/retry control or local fallback (a separate generated `offline/` bundle exists) | Dependency failure is detected on Run; classroom/offline reliability needs explicit scope |
 
 ## 14. Test-planning reference
 
-This section is a coverage map for later test plans, not a claim that these
-tests have been executed. Separate existing behavior from proposed fixes
+This section is a coverage map for test plans. The automated suite in
+`tests/` (F-001) currently covers landing languages, first app load, every
+lesson starter and example, teaching errors, step execution and Stop, Arabic
+localization, progress, and the offline bundle; the remaining rows are not
+yet automated. Separate existing behavior from proposed fixes
 for the limitations above.
 
 | Area / requirement | Minimum observable checks |

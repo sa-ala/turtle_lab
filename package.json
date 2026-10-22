@@ -1,0 +1,14 @@
+{
+  "name": "turtle-lab-dev",
+  "private": true,
+  "description": "Dev-only tooling for Turtle Lab. The site itself never needs npm install.",
+  "type": "module",
+  "scripts": {
+    "check": "node tools/check.mjs",
+    "test": "playwright test",
+    "test:install": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}
