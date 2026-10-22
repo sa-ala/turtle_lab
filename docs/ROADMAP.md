@@ -15,7 +15,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-002 | Stable lesson IDs and progress migration | P0 | M | F-001 | 20 | Done |
 | F-003 | Vendored Skulpt with loading state and fallback | P0 | S | — | 24 | Done |
 | F-004 | Safe storage layer with validation | P0 | S | — | 02, 03 | Done |
-| F-005 | Run lifecycle hardening | P1 | M | F-001 | 04–07 | Proposed |
+| F-005 | Run lifecycle hardening | P1 | M | F-001 | 04–07 | Done |
 | F-006 | Small-fix bundle | P1 | S | — | 09–13, 17, 18 | Done |
 | F-007 | Per-lesson drafts and overwrite protection | P2 | M | F-002, F-004 | 01 | Proposed |
 | F-008 | Deep links: lesson, example, language | P2 | S | F-002 | — | Proposed |
@@ -123,6 +123,8 @@ These block specific items; agents must not decide them alone.
 ---
 
 ## F-005 Run lifecycle hardening
+
+**Status: Done.** Tests in `tests/run-lifecycle.spec.js`. Syntax Help Try it also stops a run, matching example loading. Known remainder (GAP-04): Stop is still cooperative and Skulpt state is global; no leakage was observed in testing, but isolation is not guaranteed.
 
 **Problem.** Run can be re-entered by keyboard while running, Stop's delayed reset can clear a new run's drawing, and editing or switching lessons during a run leaves state inconsistent (GAP-04 to GAP-07).
 
