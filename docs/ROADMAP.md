@@ -11,7 +11,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 
 | ID | Title | Pri | Size | Depends on | Gaps | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| F-001 | CI + browser smoke-test harness | P0 | M | — | 23 | Proposed |
+| F-001 | CI + browser smoke-test harness | P0 | M | — | 23 | Done |
 | F-002 | Stable lesson IDs and progress migration | P0 | M | F-001 | 20 | Proposed |
 | F-003 | Vendored Skulpt with loading state and fallback | P0 | S | — | 24 | Proposed |
 | F-004 | Safe storage layer with validation | P0 | S | — | 02, 03 | Proposed |
@@ -37,7 +37,7 @@ These block specific items; agents must not decide them alone.
 
 | # | Decision | Blocks | Recommended default |
 | --- | --- | --- | --- |
-| D1 | May dev-only tooling (Playwright, `package.json` with devDependencies) live in the repo? | F-001 | Yes, under `package.json` devDependencies only; the site never needs `npm install` to run |
+| D1 | May dev-only tooling (Playwright, `package.json` with devDependencies) live in the repo? | F-001 | **Decided: yes** (with F-001), under `package.json` devDependencies only; the site never needs `npm install` to run |
 | D2 | May runtime libraries live in `assets/libs/` (README already recommends it)? | F-003, F-015 | Yes, both pages stay single HTML files otherwise |
 | D3 | Should finishing a lesson ever be automatic, or always learner-declared? | F-011 | Keep "I did it!" as the completion action; checks only give feedback |
 | D4 | Are URL-shared programs acceptable (code visible in the link)? | F-008 | Lesson/example/language links yes; arbitrary code in URL deferred |
@@ -46,6 +46,8 @@ These block specific items; agents must not decide them alone.
 ---
 
 ## F-001 CI + browser smoke-test harness
+
+**Status: Done.** Implemented in `tests/` with `npm test`. Deviation: lessons 26 and 27 fail with a red line on the right line, but not with the specific colon/indentation guidance. That is a real app bug found by these tests (GAP-25), pinned with `test.fail()`.
 
 **Problem.** No automated tests exist (GAP-23); every agent PR relies on manual checks.
 

@@ -15,6 +15,7 @@ Turtle Lab is a bilingual (English/Arabic) web app that teaches kids aged roughl
 | `tools/check.mjs` | Zero-dependency invariant checker | After every change |
 | `tools/build-offline.mjs` | Regenerates the offline bundle `offline/` from `app.html` | After every change to `app.html` |
 | `offline/` | **Generated** copy of the app plus vendored Skulpt for use without internet. Never edit `offline/app.html` by hand | When shipping or testing offline use |
+| `tests/`, `playwright.config.js`, `package.json` | Dev-only Playwright browser smoke tests (`npm test`). The site never needs `npm install` | After every behavior change; add tests for new behavior |
 | `README.md` | Public-facing project description | When product claims change |
 
 Precedence when documents disagree: **source code > SPEC.md > ROADMAP.md > README.md**. If you find SPEC.md is wrong about current behavior, fix SPEC.md in the same PR and say so.
@@ -43,22 +44,32 @@ node tools/build-offline.mjs
 
 # Invariant check (no install needed, Node 18+)
 node tools/check.mjs
+
+# Browser smoke tests (dev-only; first time: npm ci && npm run test:install)
+npm test
 ```
 
 `tools/check.mjs` verifies: content arrays parse and have required fields; `LESSON_AR` is aligned with `lessons`; every level has a `LEVEL_AR` translation; `I18N`/`DEBUG_I18N` have identical `en`/`ar` key sets; badge rules reference valid lesson indexes; every `$("id")` lookup has a matching element; storage keys go through `K`; external scripts are version-pinned; the landing page still links to `app.html`; `offline/app.html` is up to date with `app.html` and `offline/libs/` matches the pinned SHA-256 hashes in `tools/build-offline.mjs`. It must print `OK` before you open a PR.
 
-There is no automated browser test suite yet (ROADMAP `F-001`). Until there is, run this **manual smoke test** in a clean browser profile (or after clearing site data) and report the results in your PR:
+`npm test` runs the Playwright suite in Chromium (CI runs it on every PR). Each test gets isolated storage. The real Skulpt interpreter runs, loaded from the hash-verified `offline/libs/` copies instead of the CDN. **A test fails if the page makes any other network request, throws an uncaught error, or logs a `console.error`.** It covers:
 
-1. Landing: switch English / العربية / Both; reload keeps the choice; "Start Coding" opens `app.html`.
-2. App first load: lesson 1 selected, Run enabled, Stop disabled, no console errors.
-3. Run lesson 1 → a line is drawn, Output shows the success message.
-4. Lesson 12 (loops) in **Step-by-step** at Fast → lines highlight in order; Stop mid-run works; Run again works.
-5. Lesson 26 → friendly "missing colon" error, red line highlight; add the colon → square draws.
-6. Switch to Arabic → layout is RTL, lesson text is Arabic, editor stays LTR, code is preserved.
-7. Mark a lesson "I did it!" → star count and progress bar update; reload keeps it.
-8. Zoom in/out/reset, toggle XY coordinates, Save PNG, Export .py, Copy code.
-9. Resize to < 860 px width → single-column layout still usable.
-10. Whatever your change touched, in both languages and with High contrast on.
+- landing language toggle and persistence, and "Start Coding"
+- clean first-load defaults and content counts
+- every lesson starter and every example runs (except the deliberately broken lessons 26 and 27)
+- lessons 26 and 27 fail with a red line on the right line, and the corrected code runs
+- Step mode highlighting order, Stop, and Run again
+- Arabic RTL with LTR code, and code/language preserved across reload
+- "I did it!" progress, stars and badges, and their persistence
+- the offline bundle running with no external requests
+
+Known bugs are pinned with `test.fail()` and a `GAP-xx` reference (currently GAP-25). When you fix one, Playwright reports "expected to fail, but passed"; remove the `test.fail()` line.
+
+Still **manual**: run these in a clean browser profile when your change touches them, and report the results in your PR:
+
+1. Zoom in/out/reset, toggle XY coordinates, Save PNG, Export .py, Copy code.
+2. Resize to < 860 px width → single-column layout still usable.
+3. High contrast on, in both languages, for any UI you touched.
+4. Printing (Teacher & Parent → Print syntax sheet).
 
 ## 4. How the code is laid out (and how to edit it safely)
 
@@ -129,21 +140,20 @@ Content comes in paired `.en` / `.ar` blocks. Keep both, keep `href="app.html"` 
 
 Automated by `tools/check.mjs`: listed in §3.
 
-Manual (until the browser test suite exists):
+Automated by `npm test` (see §3): no console errors, Run → Stop → Run, persistence across reload, lessons 26/27 fail and all other starters and all examples run, Arabic RTL with LTR code, no unexpected network requests.
 
-- No console errors on load in either language.
-- Run → Stop → Run works repeatedly; Run is never stuck disabled.
-- Progress, code draft, lesson and preferences survive reload; drawing and output do not (by design).
-- Lessons 26 and 27 fail with friendly guidance; all other starters and all examples run.
-- Arabic mode is RTL with LTR code; high-contrast mode is legible; < 860 px layout is usable.
+Manual:
+
+- High-contrast mode is legible; < 860 px layout is usable.
 - Printing (Teacher & Parent → Print syntax sheet) shows all syntax entries.
+- Drawing and output do not survive reload (by design).
 
 ## 7. Workflow for an agent task
 
 1. **Pick or write a spec.** Use an `F-xxx` from `docs/ROADMAP.md`, or create `docs/specs/F-xxx-short-name.md` from the template. Do not start coding a feature with no acceptance criteria.
 2. **Plan in writing** (in the PR description or your first message): which `SPEC.md` sections, rules and gaps are affected; which symbols you will touch; any storage-key or migration change; how you will verify.
 3. **Implement** the smallest change that meets the acceptance criteria.
-4. **Verify:** `node tools/check.mjs`, the manual smoke test (§3), plus the feature's own acceptance criteria in both languages.
+4. **Verify:** `node tools/check.mjs`, `npm test`, the remaining manual checks (§3), plus the feature's own acceptance criteria in both languages. New behavior gets new tests in `tests/`.
 5. **Document:** update `SPEC.md` (behavior, inventories, baseline revision/date), README if claims changed, and tick the roadmap item.
 6. **Open a PR** using the checklist below.
 
@@ -154,7 +164,8 @@ Branches: `feat/F-xxx-short-name`, `fix/GAP-xx-short-name`, `docs/...`. Commits:
 - [ ] Linked spec (`F-xxx`) or gap (`GAP-xx`); all acceptance criteria met
 - [ ] `node tools/build-offline.mjs` run if `app.html` changed; `offline/app.html` committed with it
 - [ ] `node tools/check.mjs` prints OK
-- [ ] Manual smoke test done; results summarized (browser + width used)
+- [ ] `npm test` passes; tests added or updated for changed behavior
+- [ ] Remaining manual checks (§3) done for touched UI; results summarized (browser + width used)
 - [ ] English **and** Arabic strings added; RTL checked
 - [ ] High contrast and < 860 px layout checked for touched UI
 - [ ] No new network requests, trackers, or unpinned scripts
