@@ -928,6 +928,14 @@ worker. A `package.json` exists for dev-only tooling (the Playwright test
 suite in `tests/`, run with `npm test`); the site never requires `npm install`. README's suggested `assets/` and
 `images/` structure is not the current implementation.
 
+Content editing has a dev-only helper, `node tools/content.mjs` (F-017). `extract`
+writes the content arrays to a git-ignored `content/` folder as pretty JSON.
+`check` validates them. `inject` writes them back as single-line literals in the
+exact existing format, so an unedited round trip is byte-identical. Invalid
+JSON, misaligned Arabic arrays, missing lesson fields, levels without Arabic, and
+bad or duplicate ids abort `inject` with `app.html` unchanged. The site never
+needs this tool.
+
 The only build-like step is `node tools/build-offline.mjs`, which generates
 `offline/`: `offline/app.html` (a copy of `app.html` with a banner),
 `offline/assets/libs/` (a copy of the vendored Skulpt 1.2.0 files and license

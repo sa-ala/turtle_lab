@@ -149,6 +149,7 @@ Suggested files:
 - [AGENTS.md](AGENTS.md): rules, recipes, and checklist for working in this repo
 - [SPEC.md](SPEC.md): how the app currently behaves
 - [docs/ROADMAP.md](docs/ROADMAP.md): planned features with acceptance criteria
+- Edit lessons, syntax help and examples with `node tools/content.mjs extract`, then edit `content/*.json`, then run `node tools/content.mjs inject`
 - Run `node tools/check.mjs` and `npm test` before opening a PR (first time: `npm ci && npm run test:install`; this dev tooling is never needed to run the site)
 
 ---

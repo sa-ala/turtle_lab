@@ -2,7 +2,7 @@
 
 Forward-looking specs for agents and contributors. `SPEC.md` describes what exists; this file describes what to build. Each item is sized to be one agent task (one PR) unless marked as an epic. Gap IDs (`GAP-xx`) refer to `SPEC.md §13`.
 
-**Status:** all items are `Proposed` until the maintainer marks them `Approved`. Agents should only implement `Approved` items, or items the maintainer assigns directly.
+**Status:** all items are `Proposed` until the maintainer marks them `Approved`. `Postponed` items are deliberately on hold; agents must not start them until the maintainer resumes them. Agents should only implement `Approved` items, or items the maintainer assigns directly.
 
 **Priority:** P0 foundation (do first, unblocks others), P1 reliability, P2 learner value, P3 classroom and polish.
 **Size:** S ≈ < 150 changed lines, M ≈ 150–500, L ≈ 500+ or needs a design doc first.
@@ -25,9 +25,9 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-012 | My Projects (local multi-project save) | P2 | M | F-007 | 01 | Done |
 | F-013 | Accessibility pass | P3 | M | — | 22 | Done |
 | F-014 | Localization completeness and language sync | P3 | M | — | 16, 19 | Done |
-| F-015 | Offline / installable (PWA) | P3 | M | F-003 | 24 | Proposed |
-| F-016 | Progress export / import for teachers | P3 | S | F-002, F-004 | — | Proposed |
-| F-017 | Content authoring tool | P3 | S | F-002 | — | Proposed |
+| F-015 | Offline / installable (PWA) | P3 | M | F-003 | 24 | Postponed |
+| F-016 | Progress export / import for teachers | P3 | S | F-002, F-004 | — | Postponed |
+| F-017 | Content authoring tool | P3 | S | F-002 | — | Done |
 
 Suggested order: F-003, F-004, F-006 (independent quick wins) → F-001 → F-002 → F-005 → then P2 by maintainer preference.
 
@@ -275,6 +275,8 @@ Independent fixes; one PR, one commit per gap.
 
 ## F-015 Offline / installable (PWA)
 
+**Status: Postponed** (maintainer decision, 2026-10-22). The generated `offline/` bundle covers use without internet in the meantime.
+
 **Depends on** F-003. Add `manifest.webmanifest`, icons, and a service worker caching both pages and `assets/libs` with versioned cache names. Show a small "Works offline" indicator once cached.
 
 **Acceptance criteria.** After one online visit, the app loads and runs code in airplane mode; a new deploy updates the cache on next visit without manual clearing; Lighthouse PWA installability passes.
@@ -283,6 +285,8 @@ Independent fixes; one PR, one commit per gap.
 
 ## F-016 Progress export / import for teachers
 
+**Status: Postponed** (maintainer decision, 2026-10-22).
+
 Teacher & Parent gets "Export progress" (downloads `turtle-lab-progress.json` with lesson ids, completion dates, and app version; no names or personal data) and "Import progress" (validated, previews the change, asks to merge or replace).
 
 **Acceptance criteria.** Round trip between two browsers reproduces stars and badges; malformed or foreign files are rejected with a localized message; nothing personal is collected.
@@ -290,6 +294,8 @@ Teacher & Parent gets "Export progress" (downloads `turtle-lab-progress.json` wi
 ---
 
 ## F-017 Content authoring tool
+
+**Status: Done.** `tools/content.mjs` with `extract`, `check` and `inject`; tests in `tests/content-tool.spec.js`. No normalizing run was needed: every array already used the format `inject` writes, so the first round trip is byte-identical.
 
 Promote the AGENTS.md edit recipe into `tools/content.mjs` with commands `extract` (writes `content/lessons.json`, `content/lessons.ar.json`, etc. for review) and `inject` (writes them back into `app.html` as single-line literals). The runtime stays a single file; `content/` is optional and git-ignored unless the maintainer decides otherwise.
 
