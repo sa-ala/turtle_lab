@@ -12,7 +12,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | ID | Title | Pri | Size | Depends on | Gaps | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | F-001 | CI + browser smoke-test harness | P0 | M | — | 23 | Done |
-| F-002 | Stable lesson IDs and progress migration | P0 | M | F-001 | 20 | Proposed |
+| F-002 | Stable lesson IDs and progress migration | P0 | M | F-001 | 20 | Done |
 | F-003 | Vendored Skulpt with loading state and fallback | P0 | S | — | 24 | Done |
 | F-004 | Safe storage layer with validation | P0 | S | — | 02, 03 | Done |
 | F-005 | Run lifecycle hardening | P1 | M | F-001 | 04–07 | Proposed |
@@ -68,6 +68,8 @@ These block specific items; agents must not decide them alone.
 ---
 
 ## F-002 Stable lesson IDs and progress migration
+
+**Status: Done.** Ids `l<N>-<slug>`, frozen `V2_LESSON_IDS`, `migrateV2()`, tests in `tests/lesson-ids.spec.js`.
 
 **Problem.** Progress, selected lesson and badge rules depend on array position (GAP-20), so lessons cannot be inserted or reordered safely.
 

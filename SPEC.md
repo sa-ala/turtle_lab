@@ -227,6 +227,7 @@ examples or Try it buttons.
 
 | Field | Type | Purpose |
 | --- | --- | --- |
+| `id` | string | Stable, unique, never-reused lesson id (`l<N>-<slug>`, F-002). Progress, saved lesson and badges use it. Never change or reuse an id |
 | `level` | string | Group heading and lesson metadata |
 | `title` | string | Navigation title, editor title, basis for .py filename |
 | `concept` | string | Short metadata summary |
@@ -245,7 +246,7 @@ compare the drawing with the goal." All share three steps: run the starter;
 change one number, color, or command; run again and observe.
 
 `LESSON_AR` contains **38 index-aligned objects**, translating every lesson
-field above except `level` and `starterCode`. `LEVEL_AR` translates the ten
+field above except `id`, `level` and `starterCode`. `LEVEL_AR` translates the ten
 English level names. `lessonData(i)` merges the Arabic fields over the English
 base when Arabic is selected, with the base available as fallback.
 
@@ -255,11 +256,19 @@ Each entry has string fields `category`, `command`, `explanation`, and
 to actual newlines.
 
 `examples` contains **13** objects with string fields `name` and `code`.
-There are no stable content IDs or schema-validation layer.
+Lessons have stable ids (F-002); examples and syntax entries do not, and there
+is no schema-validation layer beyond `tools/check.mjs`.
+
+`V2_LESSON_IDS` is a frozen list of the 38 lesson ids in the pre-F-002
+order. It only decodes progress saved by index (`tl.lesson.v2`,
+`tl.progress.v2`) and must never be edited, reordered or extended.
 
 ### 5.2 Ordered lesson catalog
 
-The "Goal / exercise" column summarizes the implemented content; exact starter
+Each lesson's id is `l<N>-<slug of the English title>`, where N is the lesson
+number in this baseline table (for example lesson 12 is
+`l12-a-better-square-with-loops`). Ids keep their baseline number even if
+lessons are later inserted or reordered. The "Goal / exercise" column summarizes the implemented content; exact starter
 programs, hints, teaching notes, and Arabic copy remain in the arrays above.
 
 | Lesson | Level | Title | Goal / exercise |
@@ -374,13 +383,17 @@ not proof that every desktop Turtle API is supported in this browser runtime.
 
 ## 6. Progress, stars, and badge semantics
 
-`progress` is a `Set` of lesson indexes. Completed count is `progress.size`;
+`progress` is a `Set` of lesson ids (F-002); `lessonId(i)` and `lessonIndex(id)`
+convert at the UI boundary. Completed count is `progress.size`;
 stars equal that count; progress-bar width is `count / lessons.length * 100%`.
 There is no separate badge persistence: badges are derived from progress.
 
 Each badge unlocks when **any one** listed lesson is completed, not all of them.
 
-| Badge | Source zero-based indexes | Displayed lesson numbers |
+Rules in `badges()` list lesson ids. The table shows the baseline positions
+those ids had when they were introduced.
+
+| Badge | Lessons at baseline zero-based positions | Displayed lesson numbers |
 | --- | --- | --- |
 | First Line Badge | `0` | 1 |
 | Shape Builder Badge | `2, 11, 12, 13, 14` | 3, 12, 13, 14, 15 |
@@ -615,8 +628,10 @@ browser-dependent.
 | --- | --- | --- |
 | `turtleLabLandingLanguage` | `en`, `ar`, or `both` | `both`; landing only; invalid values normalize to `both` |
 | `tl.code.v1` | Raw editor source string | Selected starter when the key is absent; any saved string, including an empty draft, is restored as-is |
-| `tl.lesson.v2` | Numeric zero-based index serialized as string | `0` unless the value is an integer from 0 to lessons − 1 |
-| `tl.progress.v2` | JSON array of completed indexes | `[]`; only integer indexes from 0 to lessons − 1 are kept, de-duplicated in a Set |
+| `tl.lesson.v3` | Selected lesson id | First lesson unless the id exists in `lessons` |
+| `tl.progress.v3` | JSON array of completed lesson ids | `[]`; only string ids that exist in `lessons` are kept, de-duplicated; unknown ids are dropped on the next save |
+| `tl.lesson.v2` | Legacy (pre-F-002) zero-based index | Read only to migrate: if `tl.lesson.v3` is absent, a valid index (0–37) is mapped through `V2_LESSON_IDS` and written to v3. Never written or deleted |
+| `tl.progress.v2` | Legacy (pre-F-002) JSON array of indexes | Read only to migrate: if `tl.progress.v3` is absent, valid indexes are mapped through `V2_LESSON_IDS` and written to v3. Never written or deleted |
 | `tl.hc.v1` | `true` / `false` strings | Off unless exactly `true` |
 | `tl.lang.v1` | `en` / `ar` | `en`; unknown language falls back to English |
 | `tl.side.v1` | `1` collapsed / `0` expanded | Expanded unless exactly `1` |
@@ -644,7 +659,10 @@ multi-tab conflict resolution, or storage migration routine.
 
 Invalid stored values are ignored at read time and replaced on the next
 write of that key; they are not proactively rewritten. Stored keys and value
-formats were not changed by F-004, so no migration was needed. Before F-004,
+formats were not changed by F-004, so no migration was needed. F-002 added the
+v3 lesson/progress keys with the one-way, per-key migration from v2 described
+above (`migrateV2()`, run once at startup before state is read). v2 keys are kept
+for one release so a rollback finds its old data. Before F-004,
 an empty draft was overwritten by the starter on the next load, so no stored
 empty draft could carry an older meaning.
 
@@ -764,7 +782,7 @@ Function/constant names are better long-term search anchors.
 | DOM/state/utilities | `store`, `isIndex`, `oneOf` (after `K`), `$`, `E`, `safeParse`, limit constants, state, `esc`, `toast`, `storageWarn`, `tab`, `runTab`, `T`, lines 1283-1292 |
 | Debugger/highlights/instrumentation | `updateDebugControls`, `lineExplanation`, `renderEditorLines`, `instrumentCode`, `extractErrorLine`, `installStepBuiltin`, lines 1294-1308 |
 | Localization and learning UI | `applyLang`, `buildLessons`, `buildExamples`, `buildDocs`, `loadLesson`, lines 1309-1315 |
-| Saving/progression/badges | `save`, `cursor`, `progressUI`, `complete`, `badges`, `resetProgress`, lines 1316-1322 |
+| Saving/progression/badges | `save`, `cursor`, `progressUI`, `complete`, `badges`, `resetProgress`, lines 1316-1322; ids and migration: `V2_LESSON_IDS`, `lessonIndex`, `lessonId`, `migrateV2` |
 | Drawing/zoom/coordinates | `resetCanvas`, `clampZoom`, `applyZoom`, `drawCoordinateOverlay`, `applyCoordinates`, `clearDrawing`, lines 1323-1332 |
 | Python lifecycle and errors | `output`, `builtinRead`, `nextFrame`, `run`, `friendly`, `stop`, `setRun`, lines 1333-1341 |
 | Export/integration/startup | `copyCode`, `py`, `imgFromSvg`, `png`, `bind`, `init`, lines 1342-1348 |
@@ -862,7 +880,7 @@ filing or implementing a fix.
 | GAP-17 | **Fixed by F-006.** English How It Works cards carry `.en`, so the Arabic-only view shows exactly the three Arabic cards | Covered by `tests/fixes.spec.js` |
 | GAP-18 | **Fixed by F-006.** The Arabic whole-body font rule targets `body[data-view="ar"]` and now applies | Covered by `tests/fixes.spec.js` |
 | GAP-19 | Many static ARIA labels, cursor wording, and print heading remain English | Include assistive text and print output in localization work |
-| GAP-20 | Completion is unchecked and badge rules use positional indexes | Reordering lessons can change saved progress/badge meaning; stable IDs require a migration |
+| GAP-20 | Completion is self-declared (unchecked). **Positional part fixed by F-002:** progress, saved lesson and badges use stable lesson ids, with a migration from v2 indexes | Unchecked completion is by design (D3); see F-011 for optional checks |
 | GAP-21 | Some teacher notes use old numbering; several early starters introduce loops before the formal loops level | Review pedagogy separately from fixing runtime behavior |
 | GAP-22 | Class-only tabs, nonsemantic progress, limited live status, and intercepted Tab | Accessibility work needs defined interaction and announcement requirements |
 | GAP-23 | No verified browser matrix or performance budgets. Automated Chromium smoke tests and CI were added by F-001 (`tests/`, `npm test`) | Extend coverage per §14; add other browsers or budgets only with explicit scope |

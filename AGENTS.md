@@ -29,8 +29,8 @@ Precedence when documents disagree: **source code > SPEC.md > ROADMAP.md > READM
 4. **Safe rendering.** Any text interpolated into `innerHTML` goes through `esc()`. Program output uses `textContent`. Never render learner code or output as HTML.
 5. **Children's privacy.** No analytics, trackers, ads, fingerprinting, accounts, remote logging, or new third-party network requests. Any new external script must be pinned to an exact version and justified in the PR.
 6. **Storage discipline.** All `localStorage` keys live in the `K` map in `app.html` and are versioned (`tl.<name>.vN`). Read and write only through `store.get(key, fallback, validate)` / `store.set(key, value)`; never call `localStorage` directly (`check.mjs` enforces this). Changing the meaning or shape of a stored value requires a new version suffix plus a migration from the old key. Never silently wipe learner progress or code.
-7. **Lesson order is load-bearing.** Saved lesson selection, completion progress and badge rules all use **zero-based array indexes**. Until stable lesson IDs exist (ROADMAP `F-002`), do not insert, remove or reorder lessons without a progress migration.
-8. **Intentional failures stay failing.** Lessons 26 and 27 (indexes 25 and 26) ship deliberately broken code (missing colon, bad indentation). Do not "fix" them.
+7. **Lesson ids are permanent.** Saved lesson selection, completion progress and badge rules use each lesson's `id` (F-002). Never change, reuse or recycle an id. Never edit `V2_LESSON_IDS`, which decodes pre-F-002 progress. Lessons may be inserted or reordered; `LESSON_AR` must be reordered with them, since it is index-aligned.
+8. **Intentional failures stay failing.** Lessons 26 and 27 (`l26-debug-the-turtle-missing-colon`, `l27-debug-the-turtle-indentation`) ship deliberately broken code (missing colon, bad indentation). Do not "fix" them.
 9. **Scope discipline.** Implement exactly the spec you were given. Known gaps in `SPEC.md §13` are not permission to fix unrelated things in the same PR; file or reference them separately.
 10. **Keep SPEC.md true.** If you change behavior, update the relevant `SPEC.md` sections, inventories (counts of lessons/examples/docs), and its baseline table in the same PR.
 
@@ -50,7 +50,7 @@ node tools/check.mjs
 npm test
 ```
 
-`tools/check.mjs` verifies: content arrays parse and have required fields; `LESSON_AR` is aligned with `lessons`; every level has a `LEVEL_AR` translation; `I18N`/`DEBUG_I18N` have identical `en`/`ar` key sets; badge rules reference valid lesson indexes; every `$("id")` lookup has a matching element; storage keys go through `K`; external scripts are version-pinned; the landing page still links to `app.html`; `offline/` is up to date with `app.html`; `assets/libs/` and `offline/assets/libs/` match the pinned SHA-256 hashes in `tools/build-offline.mjs`; the Skulpt loader CDN URLs are pinned and their SRI hashes match the local files. It must print `OK` before you open a PR.
+`tools/check.mjs` verifies: content arrays parse and have required fields; `LESSON_AR` is aligned with `lessons`; every level has a `LEVEL_AR` translation; `I18N`/`DEBUG_I18N` have identical `en`/`ar` key sets; lesson ids are well-formed and unique, `V2_LESSON_IDS` is unchanged, and badge rules reference existing lesson ids; every `$("id")` lookup has a matching element; storage keys go through `K`; external scripts are version-pinned; the landing page still links to `app.html`; `offline/` is up to date with `app.html`; `assets/libs/` and `offline/assets/libs/` match the pinned SHA-256 hashes in `tools/build-offline.mjs`; the Skulpt loader CDN URLs are pinned and their SRI hashes match the local files. It must print `OK` before you open a PR.
 
 `npm test` runs the Playwright suite in Chromium. CI runs it as the `e2e` job inside the official Playwright container, on every push to `main` and on every PR that touches `app.html`, `index.html`, `offline/`, `tests/`, `tools/`, package or Playwright config, or workflows. Docs-only PRs skip it, and a skipped job counts as passed. To upgrade Playwright, change `package.json`, `package-lock.json` and the container image tag in `.github/workflows/check.yml` together; `check.mjs` fails if they differ. Each test gets isolated storage. The real Skulpt interpreter runs, loaded from the hash-verified `offline/libs/` copies instead of the CDN. **A test fails if the page makes any other network request, throws an uncaught error, or logs a `console.error`.** It covers:
 
@@ -107,10 +107,10 @@ Key symbols: `lessons`, `LESSON_AR`, `LEVEL_AR`, `docs`, `extraDocs`, `examples`
 ## 5. Recipes
 
 ### Add a lesson
-1. Until `F-002` lands, append only to the **end of Level 10**, or append a new "Level 11" at the end; anything else shifts indexes and corrupts saved progress.
-2. Add the lesson object to `lessons` with all 12 fields (`SPEC.md §5.1`), add the Arabic object to `LESSON_AR` at the same index, and add any new level name to `LEVEL_AR`.
+1. Insert the lesson wherever it fits pedagogically. Give it a new, never-used `id`: use `l<next number>-<slug of the title>`, where the number is one more than the highest id number ever used, not its position.
+2. Add the lesson object to `lessons` with all 13 fields (`SPEC.md §5.1`), add the Arabic object to `LESSON_AR` at the **same index**, and add any new level name to `LEVEL_AR`.
 3. Run the starter code in both Normal and Step mode. It must succeed (unless it is a deliberate debugging lesson, documented as such).
-4. Decide whether a badge rule in `badges()` should include the new index.
+4. Decide whether a badge rule in `badges()` should include the new lesson's id. Tests that select lessons by position (for example `tests/app.spec.js` for lessons 12, 26 and 27) may need their position updated.
 5. Update `SPEC.md` §5.2 catalog, counts (38 → N) everywhere, and §6 if badges changed.
 
 ### Add an example or a syntax-help entry
