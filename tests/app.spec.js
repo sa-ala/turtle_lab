@@ -75,13 +75,10 @@ test("lesson 27 fails on the unindented loop body with a red line (§7.4)", asyn
   await expect(page.locator("#runBtn")).toBeEnabled();
 });
 
-// Known bug GAP-25 (SPEC.md §13): Skulpt 1.2.0 reports both mistakes as "SyntaxError: bad input on
-// line N", which friendly() does not recognise, so learners get the generic message instead of the
-// colon / indentation guidance. test.fail() keeps CI green; when GAP-25 is fixed Playwright reports
-// "expected to fail, but passed" — then delete the test.fail() line.
+// GAP-25 (fixed by F-006): Skulpt 1.2.0 reports both mistakes as "SyntaxError: bad input on line N";
+// friendly() inspects the reported and previous lines to choose the colon or indentation guidance.
 for (const [index, key] of [[25, "friendlySyntax"], [26, "friendlyIndent"]]) {
   test(`lesson ${index + 1} shows its specific ${key} guidance (GAP-25)`, async ({ page }) => {
-    test.fail(true, "GAP-25: friendly() does not recognise Skulpt's 'bad input' errors");
     await openApp(page);
     await selectLesson(page, index);
     await runAndWait(page);
