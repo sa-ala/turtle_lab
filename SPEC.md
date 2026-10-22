@@ -72,7 +72,7 @@ roles, teacher accounts, permissions, classroom rosters, or separate dashboards.
 | BR-07 | Switching lessons restores that lesson's draft. Loading an example, Syntax Help Try it, and Reset Code ask before replacing code that differs from the lesson starter (F-007). |
 | BR-08 | Resetting progress requires confirmation and removes completion/badges, but preserves the selected lesson, code, and preferences. |
 | BR-09 | English and Arabic are supported, with different language-selection models on the two pages. On the first app visit (no `tl.lang.v1`), the app adopts the landing choice (`ar` gives Arabic; `en` or Both gives English); after that the two preferences are independent (F-014). |
-| BR-10 | No grading, automatic goal checking, score beyond stars, certificate, collaboration, cloud sync, or project gallery is implemented. Optional, non-grading goal feedback is designed in `docs/specs/F-011-challenge-checks.md` (proposed). |
+| BR-10 | No grading, automatic goal checking, score beyond stars, certificate, collaboration, cloud sync, or project gallery is implemented. Optional, non-grading goal feedback is designed in `docs/specs/F-011-challenge-checks.md` (postponed). |
 | BR-11 | No monetization, subscription, payment, analytics event collection, or account-registration flow appears in the reviewed source. |
 
 No conversion targets, lesson-duration targets, learning-outcome metrics,
