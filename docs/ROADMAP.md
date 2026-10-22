@@ -19,7 +19,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-006 | Small-fix bundle | P1 | S | — | 09–13, 17, 18 | Done |
 | F-007 | Per-lesson drafts and overwrite protection | P2 | M | F-002, F-004 | 01 | Done |
 | F-008 | Deep links: lesson, example, language | P2 | S | F-002 | — | Done |
-| F-009 | Editor ergonomics | P2 | M | — | 22 (part) | Proposed |
+| F-009 | Editor ergonomics | P2 | M | — | 22 (part) | Done |
 | F-010 | Pause / Next-step debugger | P2 | M | F-005 | 08 | Done |
 | F-011 | Challenge checks (opt-in auto-feedback) | P2 | L epic | F-002, F-005 | — | Proposed |
 | F-012 | My Projects (local multi-project save) | P2 | M | F-007 | 01 | Proposed |
@@ -198,6 +198,8 @@ Independent fixes; one PR, one commit per gap.
 ---
 
 ## F-009 Editor ergonomics
+
+**Status: Done** (without the optional syntax-colored overlay, which still needs a decision). Tests in `tests/editor.spec.js`, run in Chromium and Firefox.
 
 **Problem.** The editor is a plain textarea: Tab only inserts spaces, there is no outdent, auto-indent or keyboard escape (part of GAP-22).
 
