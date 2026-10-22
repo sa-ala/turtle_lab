@@ -68,7 +68,7 @@ roles, teacher accounts, permissions, classroom rosters, or separate dashboards.
 | BR-03 | Completion is self-reported using **I did it!** in Challenges. Running code, meeting a drawing goal, or passing a test is not required. |
 | BR-04 | Each distinct completed lesson contributes one star. Repeating completion does not add another star. |
 | BR-05 | Completion and preferences belong to the browser storage context, not a user account. |
-| BR-06 | Code editing has one shared saved draft, not a per-lesson or per-project draft collection. |
+| BR-06 | Each lesson keeps its own saved draft (F-007), and learners can keep any number of named projects in My Projects (F-012). |
 | BR-07 | Switching lessons, loading examples, trying syntax samples, and resetting code replace the draft without a confirmation dialog. |
 | BR-08 | Resetting progress requires confirmation and removes completion/badges, but preserves the selected lesson, code, and preferences. |
 | BR-09 | English and Arabic are supported, with different language-selection models on the two pages. Their preferences are independent. |
@@ -146,7 +146,7 @@ they do not execute Python.
 | Editor | Plain textarea, line-number gutter, current/error-line overlays, autosave status, cursor location | `code`, `rail`, `codeHighlights`, `highlightInner`, `saveStatus`, `cursor` |
 | Results below editor | Output and Errors tabs with separate content panels | `output`, `errors`, `out`, `err`; `[data-run-tab]` |
 | Drawing | Stage, Skulpt target, coordinate helper, zoom controls, Clear, Save PNG | `stage`, `target`, `coordOverlay`, `coordToggle`, `zoomOut`, `zoomIn`, `zoomReset`, `zoomLabel`, `clearBtn`, `pngBtn` |
-| Learning area | Lesson, Syntax Help, Challenges, Teacher & Parent, Badges | `[data-tab]`; `lesson`, `syntax`, `challenge`, `teacher`, `badges` |
+| Learning area | Lesson, Syntax Help, Challenges, Teacher & Parent, Badges, My Projects (F-012) | `[data-tab]`; `lesson`, `syntax`, `challenge`, `teacher`, `badges`, `projects` |
 | Print-only area | Syntax Cheat Sheet title and all reference commands/explanations | `printDocs` |
 | Notifications | Transient status messages | `toast` |
 
@@ -203,6 +203,28 @@ completion toast. It does not advance to the next lesson.
 | Shift+Tab in editor | Outdent the current or every selected line by up to four spaces (F-009) |
 | Enter in editor | New line keeping the current line's indentation, plus four spaces when the text before the caret ends with `:` (a trailing `# comment` is allowed) (F-009) |
 | Esc, then Tab / Shift+Tab | Leaves the editor with normal focus navigation; explained by the screen-reader help text `#editorHelp` (`aria-describedby`) (F-009) |
+
+**My Projects** (F-012, learning tab `projects`) stores named copies of code
+in this browser (`tl.projects.v1`):
+
+- **Save code as new project** asks for a name in the accessible `#nameDialog`.
+  Empty names are refused, and Cancel or Esc creates nothing. It stores the
+  editor code with timestamps and, if something was drawn, a 120×90 PNG
+  thumbnail cropped to the drawing (dropped if over about 40 KB).
+- **Import .py** creates a project from a file of up to 200 KB (CRLF
+  normalized; it isn't opened automatically).
+- Per project:
+  - **Open** loads the code into the editor, asking first if the editor holds
+    edited code (F-007).
+  - **Save here** overwrites the project with the editor code, after a
+    confirmation.
+  - **Rename**, **Duplicate** ("name (copy)") and **Export .py**.
+  - **Delete**, after a confirmation ("Keep it" is the default).
+
+Every change is written at once. If the write fails, the change is rolled
+back and a localized toast explains it (F-004). Buttons carry accessible names
+that include the project name, and focus returns to a sensible button after
+each action.
 
 "Ask first" (F-007) opens a native modal `<dialog>` (`#replaceDialog`, via
 `okToReplace()` and `askReplace()`) with localized "Replace your code?" text
@@ -689,6 +711,7 @@ browser-dependent.
 | --- | --- | --- |
 | `turtleLabLandingLanguage` | `en`, `ar`, or `both` | `both`; landing only; invalid values normalize to `both` |
 | `tl.drafts.v1` | JSON object `{ lessonId: code }` (F-007) | `{}`. A lesson with no entry shows its starter; any saved string, including an empty draft, is restored as-is. A draft equal to the starter is removed rather than stored. Non-string values are ignored |
+| `tl.projects.v1` | JSON array of `{ id, name, code, created, updated, thumb? }` (F-012) | `[]`. Entries without string `id`/`name`/`code` are ignored; names are cut to 60 characters; `thumb` is kept only if it is a `data:image/png;base64,` URL |
 | `tl.code.v1` | Legacy single draft (pre-F-007) | Read only to migrate: if `tl.drafts.v1` is absent, a draft that differs from the current lesson's starter becomes that lesson's draft. Never written or deleted |
 | `tl.lesson.v3` | Selected lesson id | First lesson unless the id exists in `lessons` |
 | `tl.progress.v3` | JSON array of completed lesson ids | `[]`; only string ids that exist in `lessons` are kept, de-duplicated; unknown ids are dropped on the next save |
@@ -924,7 +947,7 @@ filing or implementing a fix.
 
 | ID | Observation | Impact / decision for future work |
 | --- | --- | --- |
-| GAP-01 | **Fixed by F-007.** Drafts are kept per lesson, and examples, Try it and Reset Code ask before replacing edited code. There is still no undo history | See F-012 for multiple saved projects |
+| GAP-01 | **Fixed by F-007 and F-012.** Drafts are kept per lesson; examples, Try it and Reset Code ask before replacing edited code; named projects can be saved | There is still no undo history beyond the editor's own Ctrl+Z |
 | GAP-02 | **Fixed by F-004.** Empty drafts are preserved; lesson, progress, mode, speed, zoom and language are validated on read (§9) | Covered by `tests/storage.spec.js` |
 | GAP-03 | **Fixed by F-004.** Storage failures are caught; the app keeps working, warns once, and shows "Not saved" (§9) | No retry or export fallback; see F-016 for progress export |
 | GAP-04 | **Mostly fixed by F-005.** `run()` ignores calls while a run is active (keyboard included). Remaining: Stop is still cooperative (no worker termination) and Skulpt state is global. In testing, a stopped program printed nothing after a new run started, but isolation is not guaranteed | True isolation would need a worker or per-run interpreter |

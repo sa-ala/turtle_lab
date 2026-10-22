@@ -22,7 +22,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-009 | Editor ergonomics | P2 | M | — | 22 (part) | Done |
 | F-010 | Pause / Next-step debugger | P2 | M | F-005 | 08 | Done |
 | F-011 | Challenge checks (opt-in auto-feedback) | P2 | L epic | F-002, F-005 | — | Proposed |
-| F-012 | My Projects (local multi-project save) | P2 | M | F-007 | 01 | Proposed |
+| F-012 | My Projects (local multi-project save) | P2 | M | F-007 | 01 | Done |
 | F-013 | Accessibility pass | P3 | M | — | 22 | Proposed |
 | F-014 | Localization completeness and language sync | P3 | M | — | 16, 19 | Proposed |
 | F-015 | Offline / installable (PWA) | P3 | M | F-003 | 24 | Proposed |
@@ -238,6 +238,8 @@ Independent fixes; one PR, one commit per gap.
 ---
 
 ## F-012 My Projects (local multi-project save)
+
+**Status: Done.** Learning tab `projects`, `tl.projects.v1`, tests in `tests/projects.spec.js`. Adds **Save here** (overwrite a project with the editor code), so later edits can be kept.
 
 **Problem.** Creative work in the final-project lessons has nowhere to live beyond one draft.
 

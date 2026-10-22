@@ -66,6 +66,7 @@ npm test
 - deep links `#lesson=`, `#example=`, `#lang=`, Copy link to this lesson, and the landing Try This link (`tests/deep-links.spec.js`)
 - Step-mode Pause / Next step / Continue, Stop from every state, keyboard focus, and the Variables panel (`tests/step-debugger.spec.js`)
 - editor keys: Enter auto-indent, Tab / Shift+Tab on lines and selections, Esc then Tab, undo, in Chromium and Firefox (`tests/editor.spec.js`)
+- My Projects: create, open, rename, duplicate, Save here, delete, import/export `.py`, storage failure, Arabic and keyboard (`tests/projects.spec.js`)
 - run lifecycle: one run at a time, Stop then Run keeps the new drawing, Step-mode Stop settles the run, and lesson, example, reset, language or Try it changes stop a run first (`tests/run-lifecycle.spec.js`)
 - the offline bundle running with no external requests
 - Python loading: local files only, CDN fallback with a real SRI check, tampered CDN file rejected, loading state, failure and Retry (`tests/loader.spec.js`)
