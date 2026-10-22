@@ -142,7 +142,7 @@ they do not execute Python.
 | Course sidebar | Course heading, collapse/expand, completed count, stars, progress bar, lesson selector, Reset progress, level-grouped lesson buttons | `toggleLessons`, `progressText`, `starText`, `fill`, `lessonSelect`, `resetProgress`, `lessonList` |
 | Editor header | Lesson number/title, level, concept, keyboard shortcut reminder | `lessonTitle`, `lessonLevel`, `lessonConcept` |
 | Editor actions | Run, Reset lesson code, Copy code, Export .py, example selector | `runBtn`, `resetBtn`, `copyBtn`, `pyBtn`, `examples` |
-| Execution controls | Explanation/status banner, Normal/Step-by-step selector, conditional step-speed selector | `debugInfo`, `runMode`, `stepSpeedControl`, `stepSpeed` |
+| Execution controls | Explanation/status banner, Normal/Step-by-step selector, conditional step-speed selector; while a Step-mode run is active, Pause / Next step / Continue (F-010); Variables panel while paused; screen-reader step announcements | `debugInfo`, `runMode`, `stepSpeedControl`, `stepSpeed`, `stepControls`, `pauseBtn`, `nextBtn`, `continueBtn`, `varsPanel`, `varsList`, `stepState` |
 | Editor | Plain textarea, line-number gutter, current/error-line overlays, autosave status, cursor location | `code`, `rail`, `codeHighlights`, `highlightInner`, `saveStatus`, `cursor` |
 | Results below editor | Output and Errors tabs with separate content panels | `output`, `errors`, `out`, `err`; `[data-run-tab]` |
 | Drawing | Stage, Skulpt target, coordinate helper, zoom controls, Clear, Save PNG | `stage`, `target`, `coordOverlay`, `coordToggle`, `zoomOut`, `zoomIn`, `zoomReset`, `zoomLabel`, `clearBtn`, `pngBtn` |
@@ -513,8 +513,30 @@ Successful code execution never automatically completes a lesson.
 
 ### 7.3 Step-by-step implementation
 
-Step mode is automatic delayed execution, not a manual Next/Continue debugger.
-There are no breakpoints, variable inspection, call-stack viewer, or pause/resume.
+Step mode runs with a timed delay per step and, since F-010, can be paused and
+advanced manually. While a Step-mode run is active, **⏸ Pause**, **⏭ Next step**
+and **▶ Continue** appear in the debug bar (`#stepControls`):
+
+- **Pause** sets `stepPaused` and cancels the pending timer, so execution halts
+  before the highlighted line. If pressed while a line is still executing, it
+  halts at the next step.
+- **Next step** (enabled only while paused) releases exactly one step. Pressing
+  it while a line is still executing does nothing.
+- **Continue** clears the pause and resumes timed stepping at once.
+- **Stop** works in every state (§4.4) and clears the pause.
+
+Each suspension waits on a promise that the timer, Next or Continue resolves
+(`activeStepResolve`); Stop rejects it (`activeStepReject`). A polite live
+region (`#stepState`) announces "Paused before line N…" and "Continuing…".
+Focus follows the action: Pause moves it to Next, Continue moves it to Pause,
+and focus goes to Run when the controls hide. While paused, the **Variables**
+panel (`#varsPanel`, LTR) lists simple globals (`int`, `float`, `str`, `bool`,
+`list`) from `Sk.globals`, using Python `repr` truncated to 60 characters.
+Dunder names, modules, functions and turtles are skipped, and Skulpt's
+`_$rw$` suffix for reserved words is removed.
+
+There are no breakpoints, call-stack viewer, or local-variable inspection.
+Normal mode is unchanged: no instrumentation, and the controls never appear.
 
 `instrumentCode()` inserts an indented `__tl_step__(originalLineNumber)`
 before eligible source lines. It skips blanks, comments, `elif`, `else`,
@@ -523,7 +545,8 @@ continuations. It tracks bracket depth using a lightweight
 string/comment-stripping routine, not a Python parser.
 
 The callback checks cancellation, counts steps, highlights the original editor
-line and gutter, scrolls/focuses the editor, and shows the original line plus
+line and gutter, scrolls the editor to it without moving keyboard focus (F-010;
+error highlighting still focuses the editor), and shows the original line plus
 a heuristic explanation. It suspends execution with a timer when supported;
 the suspension's `reject` is kept in `activeStepReject` so Stop can settle it
 immediately instead of leaving it pending.
