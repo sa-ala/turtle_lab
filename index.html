@@ -1312,7 +1312,9 @@ turtle.done()</code></pre>
     const page = document.getElementById("main");
     const buttons = document.querySelectorAll("[data-set-view]");
     const root = document.documentElement;
-    const savedView = localStorage.getItem("turtleLabLandingLanguage") || "both";
+    // Storage can throw (blocked site data, some private modes); the page must still work.
+    let savedView = "both";
+    try { savedView = localStorage.getItem("turtleLabLandingLanguage") || "both"; } catch (e) {}
 
     function setLanguageView(view) {
       const validView = ["en", "ar", "both"].includes(view) ? view : "both";
@@ -1320,7 +1322,7 @@ turtle.done()</code></pre>
       document.body.dataset.view = validView;
       root.lang = validView === "ar" ? "ar" : "en";
       root.dir = validView === "ar" ? "rtl" : "ltr";
-      localStorage.setItem("turtleLabLandingLanguage", validView);
+      try { localStorage.setItem("turtleLabLandingLanguage", validView); } catch (e) {}
 
       buttons.forEach((button) => {
         const isActive = button.dataset.setView === validView;

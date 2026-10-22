@@ -70,6 +70,11 @@ if (kBlock) {
   const stray = [...app.matchAll(/localStorage\.(?:get|set|remove)Item\("([^"]+)"/g)].map((m) => m[1]);
   if (stray.length) fail(`raw localStorage key literal(s) in app.html, use K: ${[...new Set(stray)].join(", ")}`);
 }
+// All app storage goes through store.get/store.set (F-004); localStorage may only appear inside `const store=`.
+if (!/\r?\nconst store=\{/.test(app)) fail("const store helper not found in app.html");
+app.split(/\r?\n/).forEach((l, i) => { if (/localStorage/.test(l) && !l.startsWith("const store=")) fail(`app.html line ${i + 1}: use store.get/store.set instead of localStorage`); });
+// The landing page has no helper; each storage call must sit inside a try on the same line.
+landing.split(/\r?\n/).forEach((l, i) => { if (/localStorage\./.test(l) && !/\btry\s*\{/.test(l)) fail(`index.html line ${i + 1}: wrap localStorage access in try { ... }`); });
 if (!/turtleLabLandingLanguage/.test(landing)) fail("index.html landing language key changed");
 
 // Every app link from the landing page must stay relative.

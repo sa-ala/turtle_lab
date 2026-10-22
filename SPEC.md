@@ -598,28 +598,39 @@ browser-dependent.
 | Key | Stored representation | Default / consumer |
 | --- | --- | --- |
 | `turtleLabLandingLanguage` | `en`, `ar`, or `both` | `both`; landing only; invalid values normalize to `both` |
-| `tl.code.v1` | Raw editor source string | Selected starter when no nonempty saved draft exists |
-| `tl.lesson.v2` | Numeric zero-based index serialized as string | `0`; nonfinite/out-of-range values reset to 0 |
-| `tl.progress.v2` | JSON array of completed indexes | `[]`; parsed into a Set |
+| `tl.code.v1` | Raw editor source string | Selected starter when the key is absent; any saved string, including an empty draft, is restored as-is |
+| `tl.lesson.v2` | Numeric zero-based index serialized as string | `0` unless the value is an integer from 0 to lessons − 1 |
+| `tl.progress.v2` | JSON array of completed indexes | `[]`; only integer indexes from 0 to lessons − 1 are kept, de-duplicated in a Set |
 | `tl.hc.v1` | `true` / `false` strings | Off unless exactly `true` |
 | `tl.lang.v1` | `en` / `ar` | `en`; unknown language falls back to English |
 | `tl.side.v1` | `1` collapsed / `0` expanded | Expanded unless exactly `1` |
-| `tl.runMode.v1` | `normal` / `step` | `normal` |
-| `tl.stepSpeed.v1` | `900`, `500`, or `200` | `500` |
+| `tl.runMode.v1` | `normal` / `step` | `normal`; any other value falls back to `normal` |
+| `tl.stepSpeed.v1` | `900`, `500`, or `200` | `500`; any other value falls back to `500` |
 | `tl.zoom.v1` | Numeric scale string | `1`; nonfinite/out-of-range values reset to 1, then rounded/clamped |
 | `tl.coords.v1` | `1` on / `0` off | Off unless exactly `1` |
 
+All app reads and writes go through `store.get(key, fallback, validate)` and
+`store.set(key, value)` (F-004). Both catch storage exceptions, including a
+`localStorage` getter that throws when site data is blocked. A read returns
+the fallback when storage fails, the key is absent, or the validator rejects
+the value. `store.set` returns `false` on failure. The landing page wraps its
+two storage calls in `try`. `tools/check.mjs` rejects any `localStorage` use in
+`app.html` outside `store`, and any landing-page call not inside `try`.
+
 `save()` writes immediately and shows a localized Saved prefix plus a local
-hour/minute timestamp. Initialization later displays the generic autosave
-message. There is no debounce, revision history, unsaved-change warning,
+hour/minute timestamp, or the localized "Not saved" status when the write
+fails. Initialization later displays the generic autosave message, or "Not
+saved" if any storage call has failed. The first storage failure in a page
+session shows one localized toast (8 s) warning that code and progress will be
+lost when the page closes; it is not repeated. The status text is refreshed
+on the next save, not on a language switch. There is no debounce, revision history, unsaved-change warning,
 multi-tab conflict resolution, or storage migration routine.
 
-`safeParse()` tolerates malformed JSON and non-array progress values but
-does not validate individual indexes. Empty-string drafts are not preserved
-as empty after reload because resume uses truthiness. Fractional lesson
-indexes inside the valid numeric range are not rejected by the initial guard.
-Invalid mode/speed strings are not explicitly normalized against option values.
-Storage access itself is not wrapped for denied access or quota exceptions.
+Invalid stored values are ignored at read time and replaced on the next
+write of that key; they are not proactively rewritten. Stored keys and value
+formats were not changed by F-004, so no migration was needed. Before F-004,
+an empty draft was overwritten by the starter on the next load, so no stored
+empty draft could carry an older meaning.
 
 ## 10. Localization and accessibility
 
@@ -734,7 +745,7 @@ Function/constant names are better long-term search anchors.
 | App markup and accessible control IDs | `app.html` lines 1250-1260 |
 | Content and storage keys | `DEFAULT_CODE`, `lessons`, `LESSON_AR`, `LEVEL_AR`, `docs`, `extraDocs`, `examples`, `K`, lines 1262-1274 |
 | Localization dictionaries | `I18N`, `DEBUG_I18N`, lines 1275-1282 |
-| DOM/state/utilities | `$`, `E`, `safeParse`, limit constants, state, `esc`, `toast`, `tab`, `runTab`, `T`, lines 1283-1292 |
+| DOM/state/utilities | `store`, `isIndex`, `oneOf` (after `K`), `$`, `E`, `safeParse`, limit constants, state, `esc`, `toast`, `storageWarn`, `tab`, `runTab`, `T`, lines 1283-1292 |
 | Debugger/highlights/instrumentation | `updateDebugControls`, `lineExplanation`, `renderEditorLines`, `instrumentCode`, `extractErrorLine`, `installStepBuiltin`, lines 1294-1308 |
 | Localization and learning UI | `applyLang`, `buildLessons`, `buildExamples`, `buildDocs`, `loadLesson`, lines 1309-1315 |
 | Saving/progression/badges | `save`, `cursor`, `progressUI`, `complete`, `badges`, `resetProgress`, lines 1316-1322 |
@@ -814,8 +825,8 @@ filing or implementing a fix.
 | ID | Observation | Impact / decision for future work |
 | --- | --- | --- |
 | GAP-01 | One draft slot; replacing code has no confirmation or draft history | Lesson/example changes can overwrite work; choose a draft model and migration before adding projects |
-| GAP-02 | Empty saved drafts restore the starter; fractional lesson indexes and progress members lack full validation | Add explicit storage schemas, recovery behavior, and migrations if hardening persistence |
-| GAP-03 | Storage get/set operations can throw; no quota/denial UI exists | Plan explicit user-visible failures rather than claiming durable save |
+| GAP-02 | **Fixed by F-004.** Empty drafts are preserved; lesson, progress, mode, speed, zoom and language are validated on read (§9) | Covered by `tests/storage.spec.js` |
+| GAP-03 | **Fixed by F-004.** Storage failures are caught; the app keeps working, warns once, and shows "Not saved" (§9) | No retry or export fallback; see F-016 for progress export |
 | GAP-04 | Run has no active-run guard; keyboard shortcut can invoke it while Run buttons are disabled | Token checks suppress stale completion UI, but concurrent Skulpt globals/output are not isolated |
 | GAP-05 | Editing, lesson switching, reset, clear, and language controls remain usable during execution | Visible code/lesson may diverge from executing code; decide whether to lock, snapshot, or cancel |
 | GAP-06 | Stop is cooperative; clearing an active suspension's timer leaves its promise unsettled | Verify stop/restart/timer lifecycle; do not assume the old interpreter was terminated |
@@ -842,7 +853,8 @@ filing or implementing a fix.
 ## 14. Test-planning reference
 
 This section is a coverage map for test plans. The automated suite in
-`tests/` (F-001) currently covers landing languages, first app load, every
+`tests/` (F-001, F-004) currently covers persistence resilience (storage
+denial/quota, malformed values for every key, empty draft), landing languages, first app load, every
 lesson starter and example, teaching errors, step execution and Stop, Arabic
 localization, progress, and the offline bundle; the remaining rows are not
 yet automated. Separate existing behavior from proposed fixes

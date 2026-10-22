@@ -14,7 +14,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-001 | CI + browser smoke-test harness | P0 | M | — | 23 | Done |
 | F-002 | Stable lesson IDs and progress migration | P0 | M | F-001 | 20 | Proposed |
 | F-003 | Vendored Skulpt with loading state and fallback | P0 | S | — | 24 | Proposed |
-| F-004 | Safe storage layer with validation | P0 | S | — | 02, 03 | Proposed |
+| F-004 | Safe storage layer with validation | P0 | S | — | 02, 03 | Done |
 | F-005 | Run lifecycle hardening | P1 | M | F-001 | 04–07 | Proposed |
 | F-006 | Small-fix bundle | P1 | S | — | 09–13, 17, 18 | Proposed |
 | F-007 | Per-lesson drafts and overwrite protection | P2 | M | F-002, F-004 | 01 | Proposed |
@@ -38,10 +38,10 @@ These block specific items; agents must not decide them alone.
 | # | Decision | Blocks | Recommended default |
 | --- | --- | --- | --- |
 | D1 | May dev-only tooling (Playwright, `package.json` with devDependencies) live in the repo? | F-001 | **Decided: yes** (with F-001), under `package.json` devDependencies only; the site never needs `npm install` to run |
-| D2 | May runtime libraries live in `assets/libs/` (README already recommends it)? | F-003, F-015 | Yes, both pages stay single HTML files otherwise |
-| D3 | Should finishing a lesson ever be automatic, or always learner-declared? | F-011 | Keep "I did it!" as the completion action; checks only give feedback |
-| D4 | Are URL-shared programs acceptable (code visible in the link)? | F-008 | Lesson/example/language links yes; arbitrary code in URL deferred |
-| D5 | Level of Arabic coverage for syntax help and example names | F-014 | Translate explanations and names; keep Python code English |
+| D2 | May runtime libraries live in `assets/libs/` (README already recommends it)? | F-003, F-015 | **Decided: yes** (maintainer, 2026-10-22). Both pages stay single HTML files otherwise. F-003 should decide whether `offline/libs/` is reused or replaced |
+| D3 | Should finishing a lesson ever be automatic, or always learner-declared? | F-011 | **Decided** (maintainer, 2026-10-22): keep "I did it!" as the completion action; checks only give feedback |
+| D4 | Are URL-shared programs acceptable (code visible in the link)? | F-008 | **Decided** (maintainer, 2026-10-22): lesson/example/language links yes; arbitrary code in URL deferred |
+| D5 | Level of Arabic coverage for syntax help and example names | F-014 | **Decided** (maintainer, 2026-10-22): translate explanations and names; keep Python code English |
 
 ---
 
@@ -103,6 +103,8 @@ These block specific items; agents must not decide them alone.
 ---
 
 ## F-004 Safe storage layer with validation
+
+**Status: Done.** `store` helper in `app.html`, tests in `tests/storage.spec.js`. The status text is refreshed on the next save rather than on a language switch (pre-existing behavior, unchanged).
 
 **Problem.** `localStorage` calls can throw (private mode, quota, disabled storage) and several stored values are not validated (GAP-02, GAP-03).
 
