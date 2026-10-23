@@ -72,6 +72,7 @@ npm test
 - localization: no English-only UI text in Arabic mode (except "XY" and the "English" option), Arabic syntax help and example names, bilingual search, re-translation on switch, first-visit language sync, and landing labels per view (`tests/localization.spec.js`)
 - accessibility: axe-core (no serious or critical issues) on the landing page and app in both languages and main states, plus ARIA tabs, progressbar, announcements, labels and reduced motion (`tests/a11y.spec.js`). New UI must keep this file green
 - run lifecycle: one run at a time, Stop then Run keeps the new drawing, Step-mode Stop settles the run, and lesson, example, reset, language or Try it changes stop a run first (`tests/run-lifecycle.spec.js`)
+- lesson-first layout: lesson card visible above the fold at 1440 and 1280 px in both languages, card "I did it!", one button per action, the New output notice, and the card toggle (`tests/layout.spec.js`)
 - the offline bundle running with no external requests
 - Python loading: local files only, CDN fallback with a real SRI check, tampered CDN file rejected, loading state, failure and Retry (`tests/loader.spec.js`)
 

@@ -97,7 +97,7 @@ test("GAP-27: disabled buttons look disabled (Stop while idle)", async ({ page }
   await openApp(page);
   await expect(page.locator("#stopTop")).toBeDisabled();
   expect(Number(await page.locator("#stopTop").evaluate((b) => getComputedStyle(b).opacity))).toBeLessThan(0.6);
-  expect(Number(await page.locator("#runTop").evaluate((b) => getComputedStyle(b).opacity))).toBe(1);
+  expect(Number(await page.locator("#runBtn").evaluate((b) => getComputedStyle(b).opacity))).toBe(1);
 });
 
 for (const lang of ["en", "ar"]) {

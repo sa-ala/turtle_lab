@@ -69,7 +69,7 @@ roles, teacher accounts, permissions, classroom rosters, or separate dashboards.
 | BR-04 | Each distinct completed lesson contributes one star. Repeating completion does not add another star. |
 | BR-05 | Completion and preferences belong to the browser storage context, not a user account. |
 | BR-06 | Each lesson keeps its own saved draft (F-007), and learners can keep any number of named projects in My Projects (F-012). |
-| BR-07 | Switching lessons restores that lesson's draft. Loading an example, Syntax Help Try it, and Reset Code ask before replacing code that differs from the lesson starter (F-007). |
+| BR-07 | Switching lessons restores that lesson's draft. Loading an example, Syntax Help Try it, and Reset lesson code ask before replacing code that differs from the lesson starter (F-007). |
 | BR-08 | Resetting progress requires confirmation and removes completion/badges, but preserves the selected lesson, code, and preferences. |
 | BR-09 | English and Arabic are supported, with different language-selection models on the two pages. On the first app visit (no `tl.lang.v1`), the app adopts the landing choice (`ar` gives Arabic; `en` or Both gives English); after that the two preferences are independent (F-014). |
 | BR-10 | No grading, automatic goal checking, score beyond stars, certificate, collaboration, cloud sync, or project gallery is implemented. Optional, non-grading goal feedback is designed in `docs/specs/F-011-challenge-checks.md` (postponed). |
@@ -138,14 +138,15 @@ they do not execute Python.
 
 | Area | Controls/content | Main DOM identifiers |
 | --- | --- | --- |
-| Header | Run, Stop, Clear Drawing, Reset Code, High contrast, English/Arabic selector | `runTop`, `stopTop`, `clearTop`, `resetTop`, `hc`, `langSelect` |
+| Header | High contrast, English/Arabic selector (F-019 removed the duplicate Run, Stop, Clear and Reset lesson code buttons) | `hc`, `langSelect` |
 | Course sidebar | Course heading, collapse/expand, completed count, stars, progress bar, lesson selector, Reset progress, level-grouped lesson buttons | `toggleLessons`, `progressText`, `starText`, `fill`, `lessonSelect`, `resetProgress`, `lessonList` |
 | Editor header | Lesson number/title, level, concept, keyboard shortcut reminder | `lessonTitle`, `lessonLevel`, `lessonConcept` |
-| Editor actions | Run, Reset lesson code, Copy code, Export .py, example selector | `runBtn`, `resetBtn`, `copyBtn`, `pyBtn`, `examples` |
+| Lesson card (F-019) | "This lesson": goal, challenge, "I did it!" (same as the Challenges tab button), "More about this lesson" (opens the Lesson tab), Hide/Show toggle remembered in `tl.lessonCard.v1` | `lessonCard`, `lessonCardGoal`, `lessonCardChallenge`, `lessonCardDone`, `lessonCardMore`, `lessonCardToggle`, `lessonCardBody` |
+| Editor actions | Run group (Run, Stop, Reset lesson code) and file group (Copy code, Export .py, example selector) | `runBtn`, `stopTop`, `resetBtn`, `copyBtn`, `pyBtn`, `examples` |
 | Execution controls | Explanation/status banner, Normal/Step-by-step selector, conditional step-speed selector; while a Step-mode run is active, Pause / Next step / Continue (F-010); Variables panel while paused; screen-reader step announcements | `debugInfo`, `runMode`, `stepSpeedControl`, `stepSpeed`, `stepControls`, `pauseBtn`, `nextBtn`, `continueBtn`, `varsPanel`, `varsList`, `stepState` |
 | Editor | Plain textarea, line-number gutter, current/error-line overlays, autosave status, cursor location | `code`, `rail`, `codeHighlights`, `highlightInner`, `saveStatus`, `cursor` |
 | Results below editor | Output and Errors tabs with separate content panels | `output`, `errors`, `out`, `err`; `[data-run-tab]` |
-| Drawing | Stage, Skulpt target, coordinate helper, zoom controls, Clear, Save PNG | `stage`, `target`, `coordOverlay`, `coordToggle`, `zoomOut`, `zoomIn`, `zoomReset`, `zoomLabel`, `clearBtn`, `pngBtn` |
+| Drawing | Stage, Skulpt target, coordinate helper, zoom controls, Clear, Save PNG; "New output ↓" chip (F-019) shown when `print()` output lands while `#out` is off screen, with a dot on the Output tab | `stage`, `target`, `coordOverlay`, `coordToggle`, `zoomOut`, `zoomIn`, `zoomReset`, `zoomLabel`, `clearBtn`, `pngBtn`, `newOutput` |
 | Learning area | Lesson, Syntax Help, Challenges, Teacher & Parent, Badges, My Projects (F-012) | `[data-tab]`; `lesson`, `syntax`, `challenge`, `teacher`, `badges`, `projects` |
 | Print-only area | Syntax Cheat Sheet title and all reference commands/explanations | `printDocs` |
 | Notifications | Transient status messages | `toast` |
@@ -174,7 +175,7 @@ features.
 
 On a clean storage context, defaults are lesson 1, English app UI, expanded
 sidebar, normal contrast, Normal run mode, Medium step speed, 100% zoom,
-coordinates off, zero completions, and all badges locked.
+coordinates off, lesson card open, zero completions, and all badges locked.
 
 ### 4.2 Learn, experiment, and complete
 
@@ -195,7 +196,7 @@ completion toast. It does not advance to the next lesson.
 
 | Action | Effect |
 | --- | --- |
-| Reset Code / Reset lesson code | Ask first if the code differs from the starter; then load the selected lesson's original English starter, save, clear highlights, rebuild gutter/cursor, reset debug guidance |
+| Reset lesson code | Ask first if the code differs from the starter; then load the selected lesson's original English starter, save, clear highlights, rebuild gutter/cursor, reset debug guidance |
 | Load Example | Ask first if the code differs from the starter; then replace/save code, clear highlights, reset debug guidance, retain selected lesson and learning content. The example selector resets to its placeholder either way |
 | Syntax Help: Try it | Ask first if the code differs from the starter; then replace/save code with the entry's sample and rebuild lines; retain selected lesson |
 | Edit textarea | Save immediately per input event, clear highlights, rebuild line display; reset debug guidance when no run is active |
@@ -257,10 +258,10 @@ settles), resets button states, displays stopped guidance, switches to Errors,
 and schedules drawing-target clearing after 150 ms. That delayed clear is
 skipped if a newer run has started in the meantime (F-005).
 
-Switching lesson (dropdown or sidebar), loading an example, Reset Code, Syntax
+Switching lesson (dropdown or sidebar), loading an example, Reset lesson code, Syntax
 Help Try it, and changing language call `stopIfRunning()` first, so an active
 run is stopped before the code, lesson or language changes. Editing the code,
-Clear Drawing, and "I did it!" do not stop a run.
+Clear, and "I did it!" do not stop a run.
 
 ### 4.5 Reset progress and classroom use
 
@@ -655,7 +656,7 @@ intervals. The turtle's intended origin is the center, positive x points
 right, and positive y points up. Heading help describes 0 right, 90 up,
 180 left, 270 down.
 
-Clear Drawing empties target contents and resets error text to the initial
+Clear empties target contents and resets error text to the initial
 no-errors message. It does not clear the editor/output, change completion,
 switch tabs, cancel an active run, or reset zoom/coordinates.
 This differs from learner-code calls to `t.clear()` and `t.reset()`.
@@ -743,6 +744,7 @@ browser-dependent.
 | `tl.stepSpeed.v1` | `900`, `500`, or `200` | `500`; any other value falls back to `500` |
 | `tl.zoom.v1` | Numeric scale string | `1`; nonfinite/out-of-range values reset to 1, then rounded/clamped |
 | `tl.coords.v1` | `1` on / `0` off | Off unless exactly `1` |
+| `tl.lessonCard.v1` | `open` / `closed` (F-019) | `open`; any other value falls back to open |
 
 All app reads and writes go through `store.get(key, fallback, validate)` and
 `store.set(key, value)` (F-004). Both catch storage exceptions, including a
@@ -1009,11 +1011,11 @@ filing or implementing a fix.
 
 | ID | Observation | Impact / decision for future work |
 | --- | --- | --- |
-| GAP-01 | **Fixed by F-007 and F-012.** Drafts are kept per lesson; examples, Try it and Reset Code ask before replacing edited code; named projects can be saved | There is still no undo history beyond the editor's own Ctrl+Z |
+| GAP-01 | **Fixed by F-007 and F-012.** Drafts are kept per lesson; examples, Try it and Reset lesson code ask before replacing edited code; named projects can be saved | There is still no undo history beyond the editor's own Ctrl+Z |
 | GAP-02 | **Fixed by F-004.** Empty drafts are preserved; lesson, progress, mode, speed, zoom and language are validated on read (§9) | Covered by `tests/storage.spec.js` |
 | GAP-03 | **Fixed by F-004.** Storage failures are caught; the app keeps working, warns once, and shows "Not saved" (§9) | No retry or export fallback; see F-016 for progress export |
 | GAP-04 | **Mostly fixed by F-005.** `run()` ignores calls while a run is active (keyboard included). Remaining: Stop is still cooperative (no worker termination) and Skulpt state is global. In testing, a stopped program printed nothing after a new run started, but isolation is not guaranteed | True isolation would need a worker or per-run interpreter |
-| GAP-05 | **Partly fixed by F-005.** Lesson switching, examples, Reset Code, Try it and language changes stop an active run first. Editing and Clear Drawing remain usable during a run by design | Revisit with F-010 if the debugger needs a locked editor |
+| GAP-05 | **Partly fixed by F-005.** Lesson switching, examples, Reset lesson code, Try it and language changes stop an active run first. Editing and Clear remain usable during a run by design | Revisit with F-010 if the debugger needs a locked editor |
 | GAP-06 | **Fixed by F-005.** Stop rejects the pending step suspension, so the stopped run settles and no timer or promise is left behind | Covered by `tests/run-lifecycle.spec.js` |
 | GAP-07 | **Fixed by F-005.** Stop's delayed target reset only runs if no newer run has started | Covered by `tests/run-lifecycle.spec.js` |
 | GAP-08 | Source rewriting is not parser-aware across all Python syntax, notably multiline/triple-quoted strings and decorator relationships | Compare Normal and Step semantics before broadening supported Python constructs |

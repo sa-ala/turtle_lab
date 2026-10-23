@@ -29,7 +29,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-016 | Progress export / import for teachers | P3 | S | F-002, F-004 | — | Postponed |
 | F-017 | Content authoring tool | P3 | S | F-002 | — | Done |
 | F-018 | Curriculum v2: ordering fixes and "Beyond the basics" track | P2 | L epic | F-002, F-017 | — | Done (PR 1-2; `input()` deferred) |
-| F-019 | Lesson-first layout and control cleanup | P2 | M | GAP-27..31 | — | Proposed |
+| F-019 | Lesson-first layout and control cleanup | P2 | M | GAP-27..31 | — | In progress (PR A done) |
 
 Suggested order: F-003, F-004, F-006 (independent quick wins) → F-001 → F-002 → F-005 → then P2 by maintainer preference.
 
@@ -319,7 +319,7 @@ Move the two debug lessons next to the first loop lessons, introduce `speed()`, 
 
 ## F-019 Lesson-first layout and control cleanup
 
-**Status: Proposed.** Full spec: [docs/specs/F-019-layout-focus.md](specs/F-019-layout-focus.md).
+**Status: In progress.** PR A (lesson card, one button per action, new-output notice) is done; PR B (collapsible levels, Reset progress out of the sidebar, turtle shape) remains. Full spec: [docs/specs/F-019-layout-focus.md](specs/F-019-layout-focus.md).
 
 Put the lesson goal, challenge and "I did it!" above the fold in a lesson card, remove duplicate Run/Clear/Reset buttons, flag new `print()` output, make sidebar levels collapsible, and move Reset progress out of the sidebar.
 

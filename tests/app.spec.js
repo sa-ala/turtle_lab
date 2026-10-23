@@ -10,7 +10,7 @@ test("first load uses clean defaults (§4.1, §14 first app load)", async ({ pag
   await expect(page.locator("#lessonSelect")).toHaveValue("0");
   await expect(page.locator("#code")).toHaveValue(lessons[0].starterCode);
   await expect(page.locator("#runBtn")).toBeEnabled();
-  await expect(page.locator("#runTop")).toBeEnabled();
+  await expect(page.locator("#runBtn")).toBeEnabled();
   await expect(page.locator("#stopTop")).toBeDisabled();
   await expect(page.locator("#out")).toHaveText(await t(page, "outputPlaceholder"));
   await expect(page.locator("#err")).toHaveText(await t(page, "noErrors"));
@@ -114,7 +114,7 @@ test("Step-by-step highlights lines in order, Stop re-enables Run, and Run works
 
   await page.click("#stopTop");
   await expect(page.locator("#runBtn")).toBeEnabled();
-  await expect(page.locator("#runTop")).toBeEnabled();
+  await expect(page.locator("#runBtn")).toBeEnabled();
   await expect(page.locator("#stopTop")).toBeDisabled();
   await expect(page.locator("#err")).toHaveText(await t(page, "stopped"));
   await expect(page.locator("#rail .railLine.current")).toHaveCount(0);
