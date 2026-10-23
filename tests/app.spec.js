@@ -47,9 +47,9 @@ test("Run button draws lesson 1 and shows success (§4.4, §7.2)", async ({ page
   await expect(page.locator("#starText")).toHaveText("0 ⭐");
 });
 
-test("lesson 26 fails on the missing colon with a red line; adding the colon fixes it (§7.4)", async ({ page }) => {
+test("lesson 13 fails on the missing colon with a red line; adding the colon fixes it (§7.4)", async ({ page }) => {
   await openApp(page);
-  await selectLesson(page, 25);
+  await selectLesson(page, 12);
   await runAndWait(page);
 
   await expect(page.locator("#err h3")).toHaveText(await t(page, "friendlyTitle"));
@@ -59,16 +59,16 @@ test("lesson 26 fails on the missing colon with a red line; adding the colon fix
   await expect(page.locator("#runBtn")).toBeEnabled();
 
   const fixed = (await page.inputValue("#code")).replace(/^(for .*\))\s*$/m, "$1:");
-  expect(fixed, "lesson 26 starter should contain a for-loop header without a colon").not.toBe(await page.inputValue("#code"));
+  expect(fixed, "lesson 13 starter should contain a for-loop header without a colon").not.toBe(await page.inputValue("#code"));
   await page.fill("#code", fixed);
   await runAndWait(page);
   await expectRunSucceeded(page);
   await expect(page.locator("#rail .railLine.error")).toHaveCount(0);
 });
 
-test("lesson 27 fails on the unindented loop body with a red line (§7.4)", async ({ page }) => {
+test("lesson 14 fails on the unindented loop body with a red line (§7.4)", async ({ page }) => {
   await openApp(page);
-  await selectLesson(page, 26);
+  await selectLesson(page, 13);
   await runAndWait(page);
   await expect(page.locator("#err h3")).toHaveText(await t(page, "friendlyTitle"));
   await expect(page.locator("#rail .railLine.error")).toHaveText("6");
@@ -77,7 +77,7 @@ test("lesson 27 fails on the unindented loop body with a red line (§7.4)", asyn
 
 // GAP-25 (fixed by F-006): Skulpt 1.2.0 reports both mistakes as "SyntaxError: bad input on line N";
 // friendly() inspects the reported and previous lines to choose the colon or indentation guidance.
-for (const [index, key] of [[25, "friendlySyntax"], [26, "friendlyIndent"]]) {
+for (const [index, key] of [[12, "friendlySyntax"], [13, "friendlyIndent"]]) {
   test(`lesson ${index + 1} shows its specific ${key} guidance (GAP-25)`, async ({ page }) => {
     await openApp(page);
     await selectLesson(page, index);

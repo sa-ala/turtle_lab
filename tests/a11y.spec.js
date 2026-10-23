@@ -26,7 +26,7 @@ for (const lang of ["en", "ar"]) {
     }
     await page.click("#hc");
     expect(await seriousViolations(page), "high contrast").toEqual([]);
-    await selectLesson(page, 25);
+    await selectLesson(page, 12);
     await runAndWait(page); // friendly error with details
     expect(await seriousViolations(page), "error shown").toEqual([]);
     await page.fill("#code", "print('mine')\n");
@@ -110,7 +110,7 @@ test("screen readers hear run start, success, error and stop", async ({ page }) 
   const said = await page.evaluate(() => window.__said.filter(Boolean));
   expect(said).toEqual([await t(page, "runStarted"), await t(page, "success")]);
 
-  await selectLesson(page, 25);
+  await selectLesson(page, 12);
   await runAndWait(page);
   await expect(page.locator("#stepState")).toContainText(await t(page, "friendlyTitle"));
   await expect(page.locator("#stepState")).toContainText(await t(page, "friendlySyntax"));
