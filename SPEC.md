@@ -139,14 +139,14 @@ they do not execute Python.
 | Area | Controls/content | Main DOM identifiers |
 | --- | --- | --- |
 | Header | High contrast, English/Arabic selector (F-019 removed the duplicate Run, Stop, Clear and Reset lesson code buttons) | `hc`, `langSelect` |
-| Course sidebar | Course heading, collapse/expand, completed count, stars, progress bar, lesson selector, Reset progress, level-grouped lesson buttons | `toggleLessons`, `progressText`, `starText`, `fill`, `lessonSelect`, `resetProgress`, `lessonList` |
+| Course sidebar | Course heading, collapse/expand, completed count, stars, progress bar, lesson selector, lesson buttons grouped under collapsible level headings showing done/total (F-019; only the current lesson's level opens by default, open state is not stored). Reset progress lives only under Teacher & Parent | `toggleLessons`, `progressText`, `starText`, `fill`, `lessonSelect`, `lessonList`, `levelBtn-N`, `levelItems-N` |
 | Editor header | Lesson number/title, level, concept, keyboard shortcut reminder | `lessonTitle`, `lessonLevel`, `lessonConcept` |
 | Lesson card (F-019) | "This lesson": goal, challenge, "I did it!" (same as the Challenges tab button), "More about this lesson" (opens the Lesson tab), Hide/Show toggle remembered in `tl.lessonCard.v1` | `lessonCard`, `lessonCardGoal`, `lessonCardChallenge`, `lessonCardDone`, `lessonCardMore`, `lessonCardToggle`, `lessonCardBody` |
 | Editor actions | Run group (Run, Stop, Reset lesson code) and file group (Copy code, Export .py, example selector) | `runBtn`, `stopTop`, `resetBtn`, `copyBtn`, `pyBtn`, `examples` |
 | Execution controls | Explanation/status banner, Normal/Step-by-step selector, conditional step-speed selector; while a Step-mode run is active, Pause / Next step / Continue (F-010); Variables panel while paused; screen-reader step announcements | `debugInfo`, `runMode`, `stepSpeedControl`, `stepSpeed`, `stepControls`, `pauseBtn`, `nextBtn`, `continueBtn`, `varsPanel`, `varsList`, `stepState` |
 | Editor | Plain textarea, line-number gutter, current/error-line overlays, autosave status, cursor location | `code`, `rail`, `codeHighlights`, `highlightInner`, `saveStatus`, `cursor` |
 | Results below editor | Output and Errors tabs with separate content panels | `output`, `errors`, `out`, `err`; `[data-run-tab]` |
-| Drawing | Stage, Skulpt target, coordinate helper, zoom controls, Clear, Save PNG; "New output ↓" chip (F-019) shown when `print()` output lands while `#out` is off screen, with a dot on the Output tab | `stage`, `target`, `coordOverlay`, `coordToggle`, `zoomOut`, `zoomIn`, `zoomReset`, `zoomLabel`, `clearBtn`, `pngBtn`, `newOutput` |
+| Drawing | Stage, Skulpt target, coordinate helper, zoom controls, Clear, Save PNG; green start arrow at the center pointing east, hidden once a run draws (F-019); "New output ↓" chip (F-019) shown when `print()` output lands while `#out` is off screen, with a dot on the Output tab | `stage`, `target`, `coordOverlay`, `coordToggle`, `zoomOut`, `zoomIn`, `zoomReset`, `zoomLabel`, `clearBtn`, `pngBtn`, `newOutput` |
 | Learning area | Lesson, Syntax Help, Challenges, Teacher & Parent, Badges, My Projects (F-012) | `[data-tab]`; `lesson`, `syntax`, `challenge`, `teacher`, `badges`, `projects` |
 | Print-only area | Syntax Cheat Sheet title and all reference commands/explanations | `printDocs` |
 | Notifications | Transient status messages | `toast` |
@@ -175,7 +175,7 @@ features.
 
 On a clean storage context, defaults are lesson 1, English app UI, expanded
 sidebar, normal contrast, Normal run mode, Medium step speed, 100% zoom,
-coordinates off, lesson card open, zero completions, and all badges locked.
+coordinates off, lesson card open, only Level 1 expanded in the sidebar, zero completions, and all badges locked.
 
 ### 4.2 Learn, experiment, and complete
 
@@ -1042,6 +1042,7 @@ filing or implementing a fix.
 | GAP-29 | **Fixed.** The zoom reset button showed "100%" next to the zoom label, so the percentage appeared twice | The button reads Reset / إعادة (`zoomResetShort`); `tests/fixes.spec.js` |
 | GAP-30 | **Fixed.** Long lesson titles widened the sidebar grid, so the lesson select and Reset progress overflowed the sidebar | `.controls` uses `minmax(0, 1fr)`; `tests/fixes.spec.js` at 1440 and 900 px |
 | GAP-31 | **Fixed.** In high contrast, sidebar lesson numbers were light on a light circle | `body.hc .num` is white on black; the toast gets a white border; `tests/fixes.spec.js` |
+| GAP-32 | **Open.** In a heavily loaded parallel test run, a Step-mode run with a 1 ms step delay (test-only; the UI's fastest is 200 ms) sometimes stalls inside a turtle call and never finishes, with no error (lessons 43 and 46). It never happens when the test runs alone | Not reproduced by learners. `tests/curriculum.spec.js` retries those tests twice; investigate Skulpt turtle animation suspensions in Step mode before removing the retry |
 
 ## 14. Test-planning reference
 

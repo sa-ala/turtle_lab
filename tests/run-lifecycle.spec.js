@@ -62,7 +62,7 @@ test("AC3: Stop in Step mode settles the paused run; no timers or further highli
 // AC4 and the related actions from the F-005 scope: each stops the run first, does its job, and Run works immediately.
 const ACTIONS = [
   ["switching lesson (dropdown)", async (page) => { await page.selectOption("#lessonSelect", "2"); await expect(page.locator("#lessonSelect")).toHaveValue("2"); }],
-  ["switching lesson (sidebar list)", async (page) => { await page.click('#lessonList .lesson[data-i="4"]'); await expect(page.locator("#lessonSelect")).toHaveValue("4"); }],
+  ["switching lesson (sidebar list)", async (page) => { await page.click("#levelBtn-1"); await page.click('#lessonList .lesson[data-i="4"]'); await expect(page.locator("#lessonSelect")).toHaveValue("4"); }],
   ["loading an example", async (page) => { await page.selectOption("#examples", "1"); await expect(page.locator("#code")).toHaveValue(await page.evaluate(() => examples[1].code)); }],
   ["Reset Code", async (page) => { await page.click("#resetBtn"); await expect(page.locator("#code")).toHaveValue(await page.evaluate(() => lessons[11].starterCode)); }],
   ["changing language", async (page) => { await page.selectOption("#langSelect", "ar"); await expect(page.locator("html")).toHaveAttribute("dir", "rtl"); }],

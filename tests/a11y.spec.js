@@ -17,6 +17,7 @@ for (const view of ["both", "en", "ar"]) {
 
 for (const lang of ["en", "ar"]) {
   test(`axe: app (${lang}) in its main states has no serious or critical issues`, async ({ page }) => {
+    test.slow(); // many axe passes plus a run; can pass 60 s when Step-mode tests load the machine in parallel
     await openApp(page);
     if (lang === "ar") await page.selectOption("#langSelect", "ar");
     expect(await seriousViolations(page), "first load").toEqual([]);

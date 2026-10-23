@@ -120,13 +120,13 @@ for (const lang of ["en", "ar"]) {
 }
 
 for (const width of [1440, 900]) {
-  test(`GAP-30: lesson select and Reset progress stay inside the sidebar at ${width}px`, async ({ page }) => {
+  test(`GAP-30: the lesson select stays inside the sidebar at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await openApp(page);
     await selectLesson(page, 46); // a long title
     const box = (sel) => page.locator(sel).evaluate((e) => { const r = e.getBoundingClientRect(); return { l: r.left, r: r.right }; });
     const side = await box(".side");
-    for (const sel of ["#lessonSelect", "#resetProgress"]) {
+    for (const sel of ["#lessonSelect"]) { // Reset progress left the sidebar in F-019
       const b = await box(sel);
       expect(b.r, sel).toBeLessThanOrEqual(side.r + 0.5);
       expect(b.l, sel).toBeGreaterThanOrEqual(side.l - 0.5);

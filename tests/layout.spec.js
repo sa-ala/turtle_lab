@@ -86,3 +86,59 @@ test("More about this lesson opens the Lesson tab in the Learning Area", async (
   await expect(page.locator('.learn .tab[data-tab="lesson"]')).toHaveAttribute("aria-selected", "true");
   expect(await inViewport(page, '.learn .tab[data-tab="lesson"]')).toBe(true);
 });
+
+// F-019 PR B
+test("AC5: only the current level is open; headings show done/total and aria-expanded", async ({ page }) => {
+  await openApp(page);
+  const groups = page.locator("#lessonList .levelGroup");
+  await expect(groups).toHaveCount(12);
+  await expect(page.locator("#levelBtn-0")).toHaveAttribute("aria-expanded", "true");
+  for (let k = 1; k < 12; k++) await expect(page.locator(`#levelBtn-${k}`)).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator('#lessonList .lesson[data-i="0"]')).toBeVisible();
+  await expect(page.locator('#lessonList .lesson[data-i="3"]')).toBeHidden();
+  await expect(page.locator("#levelBtn-0 .lvCount")).toHaveText(await page.evaluate(() => T("levelProgress")(0, 3)));
+
+  await page.selectOption("#lessonSelect", "29"); // lesson 30, Level 8
+  await expect(page.locator("#levelBtn-7")).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator('#lessonList .lesson[data-i="29"]')).toBeVisible();
+
+  await page.click("#lessonCardDone");
+  await expect(page.locator("#levelBtn-7 .lvCount")).toHaveText(await page.evaluate(() => T("levelProgress")(1, 3)));
+  await expect(page.locator("#levelBtn-7")).toHaveAttribute("aria-expanded", "true"); // rebuild keeps it open
+
+  await page.click("#levelBtn-1");
+  await expect(page.locator('#lessonList .lesson[data-i="3"]')).toBeVisible();
+  await page.click("#levelBtn-1");
+  await expect(page.locator('#lessonList .lesson[data-i="3"]')).toBeHidden();
+});
+
+test("AC5: level headings are translated and keep their state in Arabic", async ({ page }) => {
+  await openApp(page);
+  await page.click("#levelBtn-2");
+  await page.selectOption("#langSelect", "ar");
+  await expect(page.locator("#levelBtn-0 .lvName")).toHaveText(await page.evaluate(() => LEVEL_AR[lessons[0].level]));
+  await expect(page.locator("#levelBtn-0 .lvCount")).toHaveText(await page.evaluate(() => T("levelProgress")(0, 3)));
+  await expect(page.locator("#levelBtn-2")).toHaveAttribute("aria-expanded", "true");
+});
+
+test("AC6: Reset progress is not in the sidebar and still works from Teacher & Parent", async ({ page }) => {
+  await openApp(page);
+  await expect(page.locator(".side #resetProgress")).toHaveCount(0);
+  await page.click("#lessonCardDone");
+  await expect(page.locator("#progressText")).toHaveText(await page.evaluate(() => T("progress")(1, lessons.length)));
+  await page.click('.learn .tab[data-tab="teacher"]');
+  page.once("dialog", (d) => d.accept());
+  await page.click("#resetTeacher");
+  await expect(page.locator("#progressText")).toHaveText(await page.evaluate(() => T("progress")(0, lessons.length)));
+});
+
+test("the start marker is an arrow that hides once a run draws, and returns after Clear", async ({ page }) => {
+  await openApp(page);
+  const marker = page.locator("#stage .center");
+  await expect(marker).toBeVisible();
+  expect(await marker.evaluate((e) => getComputedStyle(e).borderLeftWidth)).toBe("16px");
+  await runAndWait(page);
+  await expect(marker).toBeHidden();
+  await page.click("#clearBtn");
+  await expect(marker).toBeVisible();
+});
