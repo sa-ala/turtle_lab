@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | In progress (PR A done) |
+| Status | Done |
 | Priority | P2 |
 | Size | M (split into PR A and PR B below) |
 | Depends on | GAP-27..31 fixes (merged first) |
@@ -90,6 +90,8 @@ RTL: the card mirrors like other cards; code stays LTR. High contrast: card uses
 
 ## Decisions (2026-10-23)
 Taken with the recommended defaults: Stop is always visible next to Run and dimmed when idle; Load Example stays in the editor toolbar, in the file group; the lesson card shows goal and challenge only. Stop keeps its id `stopTop` so `setRun()` and the tests are unchanged. The toolbar is split into a run group and a file group so it wraps to two rows at most.
+
+PR B: the pink circle seen before a run was the CSS `.center` marker, not Skulpt's turtle (Skulpt already draws the classic arrow). It is now a green arrow pointing east, hidden with `#target:not(:empty) ~ .center` once a run draws, so learner programs are unchanged. The level count label reads "2/3 done" / "2/3 مكتملة".
 
 ## Open questions (resolved above)
 1. Should Stop always be visible (dimmed) or appear only during a run? Recommended: always visible next to Run, dimmed when idle, so the button does not jump.
