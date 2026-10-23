@@ -92,3 +92,52 @@ for (const [lang, collapsed] of [["en", false], ["ar", false], ["en", true]]) {
     await expectRunSucceeded(page);
   });
 }
+
+test("GAP-27: disabled buttons look disabled (Stop while idle)", async ({ page }) => {
+  await openApp(page);
+  await expect(page.locator("#stopTop")).toBeDisabled();
+  expect(Number(await page.locator("#stopTop").evaluate((b) => getComputedStyle(b).opacity))).toBeLessThan(0.6);
+  expect(Number(await page.locator("#runTop").evaluate((b) => getComputedStyle(b).opacity))).toBe(1);
+});
+
+for (const lang of ["en", "ar"]) {
+  test(`GAP-28: the error banner shows the friendly guidance and the line (${lang})`, async ({ page }) => {
+    await openApp(page);
+    if (lang === "ar") await page.selectOption("#langSelect", "ar");
+    await selectLesson(page, 12); // missing colon
+    await runAndWait(page);
+    const text = await page.evaluate(() => T("errorLine")(5, T("friendlySyntax")));
+    await expect(page.locator("#debugInfo")).toHaveText(text);
+    expect(text).toContain(await t(page, "friendlySyntax"));
+  });
+
+  test(`GAP-29: zoom reset button is labelled Reset, not a second percentage (${lang})`, async ({ page }) => {
+    await openApp(page);
+    if (lang === "ar") await page.selectOption("#langSelect", "ar");
+    await expect(page.locator("#zoomReset")).toHaveText(await t(page, "zoomResetShort"));
+    await expect(page.locator("#zoomLabel")).toHaveText("100%");
+  });
+}
+
+for (const width of [1440, 900]) {
+  test(`GAP-30: lesson select and Reset progress stay inside the sidebar at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await openApp(page);
+    await selectLesson(page, 46); // a long title
+    const box = (sel) => page.locator(sel).evaluate((e) => { const r = e.getBoundingClientRect(); return { l: r.left, r: r.right }; });
+    const side = await box(".side");
+    for (const sel of ["#lessonSelect", "#resetProgress"]) {
+      const b = await box(sel);
+      expect(b.r, sel).toBeLessThanOrEqual(side.r + 0.5);
+      expect(b.l, sel).toBeGreaterThanOrEqual(side.l - 0.5);
+    }
+  });
+}
+
+test("GAP-31: lesson numbers are readable in high contrast", async ({ page }) => {
+  await openApp(page);
+  await page.click("#hc");
+  const [fg, bg] = await page.locator("#lessonList .num").nth(1).evaluate((e) => [getComputedStyle(e).color, getComputedStyle(e).backgroundColor]);
+  expect(fg).toBe("rgb(255, 255, 255)");
+  expect(bg).toBe("rgb(0, 0, 0)");
+});

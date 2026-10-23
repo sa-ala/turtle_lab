@@ -620,7 +620,7 @@ line numbers are mapped back to source when available.
 
 Errors use an "Almost there!" heading, localized guidance, an optional
 "Check line N" suffix, and expandable Technical details containing escaped raw
-error text. A resolved line receives red editor/gutter styling and focus.
+error text. A resolved line receives red editor/gutter styling and focus. The status banner above the editor shows the same heading, guidance and line (GAP-28).
 
 | Match, in evaluation order | Guidance category |
 | --- | --- |
@@ -1035,6 +1035,11 @@ filing or implementing a fix.
 | GAP-25 | **Fixed by F-006.** `badInputHint()` maps Skulpt's `bad input` error to the colon or indentation guidance from the source lines | Lessons 13/14 show their specific guidance; covered by `tests/app.spec.js` |
 | GAP-26 | **Fixed by F-006.** Below 860 px the single-column app grid used `1fr`, which cannot shrink below its content, so the page was wider than phone screens (508 px of content at 420 px in English, 457 px in Arabic) | Grid now uses `minmax(0,1fr)`; covered by `tests/fixes.spec.js` |
 | GAP-24 | **Fixed by F-003.** Skulpt is vendored in `assets/libs/` with an SRI-checked CDN fallback, a loading state and a Retry control | Dependency failure is detected on Run; classroom/offline reliability needs explicit scope |
+| GAP-27 | **Fixed.** No `:disabled` style existed, so disabled buttons looked enabled (Stop stayed bright red while idle) | Disabled buttons and selects are dimmed with a not-allowed cursor; `tests/fixes.spec.js` |
+| GAP-28 | **Fixed.** With a known error line, the status banner said only "Almost there! Check line N."; the guidance was in the Errors tab, often below the fold | `errorLine(n, m)` now includes the friendly message in both languages; `tests/fixes.spec.js` |
+| GAP-29 | **Fixed.** The zoom reset button showed "100%" next to the zoom label, so the percentage appeared twice | The button reads Reset / إعادة (`zoomResetShort`); `tests/fixes.spec.js` |
+| GAP-30 | **Fixed.** Long lesson titles widened the sidebar grid, so the lesson select and Reset progress overflowed the sidebar | `.controls` uses `minmax(0, 1fr)`; `tests/fixes.spec.js` at 1440 and 900 px |
+| GAP-31 | **Fixed.** In high contrast, sidebar lesson numbers were light on a light circle | `body.hc .num` is white on black; the toast gets a white border; `tests/fixes.spec.js` |
 
 ## 14. Test-planning reference
 
