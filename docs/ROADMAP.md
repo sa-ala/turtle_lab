@@ -28,6 +28,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-015 | Offline / installable (PWA) | P3 | M | F-003 | 24 | Postponed |
 | F-016 | Progress export / import for teachers | P3 | S | F-002, F-004 | — | Postponed |
 | F-017 | Content authoring tool | P3 | S | F-002 | — | Done |
+| F-018 | Curriculum v2: ordering fixes and "Beyond the basics" track | P2 | L epic | F-002, F-017 | — | Approved |
 
 Suggested order: F-003, F-004, F-006 (independent quick wins) → F-001 → F-002 → F-005 → then P2 by maintainer preference.
 
@@ -302,3 +303,13 @@ Teacher & Parent gets "Export progress" (downloads `turtle-lab-progress.json` wi
 Promote the AGENTS.md edit recipe into `tools/content.mjs` with commands `extract` (writes `content/lessons.json`, `content/lessons.ar.json`, etc. for review) and `inject` (writes them back into `app.html` as single-line literals). The runtime stays a single file; `content/` is optional and git-ignored unless the maintainer decides otherwise.
 
 **Acceptance criteria.** After one normalizing run, `extract` then `inject` with no edits yields a byte-identical `app.html` (the first run may only change JSON whitespace); invalid JSON or misaligned Arabic arrays abort `inject` with a clear error.
+
+---
+
+## F-018 Curriculum v2: ordering fixes and "Beyond the basics" track
+
+**Status: Approved** (maintainer, 2026-10-23). Full spec: [docs/specs/F-018-curriculum-v2.md](specs/F-018-curriculum-v2.md).
+
+Move the two debug lessons next to the first loop lessons, introduce `speed()`, `circle()`, `len()` and `%` before first use, fix mismatched teacher-note lesson numbers, and add an optional advanced track (`input`, `random`, nested loops, `return`, recursion).
+
+**Acceptance criteria.** Existing lesson ids and saved progress keep working; each concept is taught before it is used; new lessons are fully bilingual; `check.mjs` and `npm test` pass.
