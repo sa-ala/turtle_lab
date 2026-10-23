@@ -28,7 +28,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-015 | Offline / installable (PWA) | P3 | M | F-003 | 24 | Postponed |
 | F-016 | Progress export / import for teachers | P3 | S | F-002, F-004 | — | Postponed |
 | F-017 | Content authoring tool | P3 | S | F-002 | — | Done |
-| F-018 | Curriculum v2: ordering fixes and "Beyond the basics" track | P2 | L epic | F-002, F-017 | — | Approved |
+| F-018 | Curriculum v2: ordering fixes and "Beyond the basics" track | P2 | L epic | F-002, F-017 | — | Done (PR 1-2; `input()` deferred) |
 
 Suggested order: F-003, F-004, F-006 (independent quick wins) → F-001 → F-002 → F-005 → then P2 by maintainer preference.
 
@@ -308,7 +308,7 @@ Promote the AGENTS.md edit recipe into `tools/content.mjs` with commands `extrac
 
 ## F-018 Curriculum v2: ordering fixes and "Beyond the basics" track
 
-**Status: Approved** (maintainer, 2026-10-23). Full spec: [docs/specs/F-018-curriculum-v2.md](specs/F-018-curriculum-v2.md).
+**Status: Done** (maintainer approved 2026-10-23). Lessons 39-47 added; the `input()` lesson is deferred until the app has a non-blocking input UI. Full spec: [docs/specs/F-018-curriculum-v2.md](specs/F-018-curriculum-v2.md).
 
 Move the two debug lessons next to the first loop lessons, introduce `speed()`, `circle()`, `len()` and `%` before first use, fix mismatched teacher-note lesson numbers, and add an optional advanced track (`input`, `random`, nested loops, `return`, recursion).
 

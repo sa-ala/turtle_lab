@@ -29,7 +29,7 @@ test("ids are unique and V2_LESSON_IDS matches the baseline order", async ({ pag
   const { ids, v2 } = await page.evaluate(() => ({ ids: lessons.map((l) => l.id), v2: V2_LESSON_IDS }));
   expect(new Set(ids).size).toBe(ids.length);
   // F-018 moved the two debug lessons earlier: same ids, new order. Ids are permanent, so the sets must match.
-  expect([...ids].sort()).toEqual([...v2].sort());
+  expect(ids.filter((id) => v2.includes(id)).sort()).toEqual([...v2].sort()); // every original id still exists; F-018 appended 9 more
   expect(ids.indexOf("l26-debug-the-turtle-missing-colon")).toBe(12);
 });
 
@@ -58,7 +58,7 @@ test("AC2: inserting a lesson mid-array does not change which lessons are comple
   await serveInsertedBuild(page);
   await seed(page, { "tl.lesson.v3": IDS[11], "tl.progress.v3": JSON.stringify([IDS[0], IDS[11], IDS[35]]) });
   await openApp(page);
-  await expect(page.locator("#lessonSelect option")).toHaveCount(39);
+  await expect(page.locator("#lessonSelect option")).toHaveCount(48);
   expect(await completeTitles(page)).toEqual([TITLES[0], TITLES[11], TITLES[35]]);
   await expect(page.locator("#lessonSelect")).toHaveValue("12"); // same lesson, new position
   await expect(page.locator("#lessonTitle")).toContainText(TITLES[11]);

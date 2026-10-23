@@ -80,7 +80,7 @@ test("malformed values for every key fall back to defaults without errors (AC2)"
     "tl.coords.v1": "x",
   });
   await expect(page.locator("#lessonSelect")).toHaveValue("0");
-  await expect(page.locator("#progressText")).toHaveText("1 of 38 lessons complete"); // only the valid, de-duplicated index 1
+  await expect(page.locator("#progressText")).toHaveText("1 of 47 lessons complete"); // only the valid, de-duplicated index 1
   await expect(page.locator('#lessonList .lesson[data-i="1"]')).toContainText("✓");
   await expect(page.locator("#starText")).toHaveText("1 ⭐");
   await expect(page.locator("body")).not.toHaveClass(/\bhc\b/);
@@ -94,7 +94,7 @@ test("malformed values for every key fall back to defaults without errors (AC2)"
   await expectRunSucceeded(page);
 });
 
-for (const raw of ["abc", "-1", "38", "2.5", " ", "1e400"]) {
+for (const raw of ["abc", "-1", "47", "2.5", " ", "1e400"]) {
   test(`invalid saved lesson ${JSON.stringify(raw)} falls back to lesson 1 (AC2)`, async ({ page }) => {
     await seed(page, { "tl.lesson.v2": raw });
     await expect(page.locator("#lessonSelect")).toHaveValue("0");
@@ -104,7 +104,7 @@ for (const raw of ["abc", "-1", "38", "2.5", " ", "1e400"]) {
 for (const raw of ["not json", '{"0":true}', '"[0]"', "null", '["0","1"]']) {
   test(`invalid saved progress ${JSON.stringify(raw)} means no lessons complete (AC2)`, async ({ page }) => {
     await seed(page, { "tl.progress.v2": raw });
-    await expect(page.locator("#progressText")).toHaveText("0 of 38 lessons complete");
+    await expect(page.locator("#progressText")).toHaveText("0 of 47 lessons complete");
   });
 }
 

@@ -35,7 +35,7 @@ A review of the 38-lesson catalog (SPEC.md §5.2) found:
 ### PR 1 — Reorder and fix (content only)
 | Change | Detail |
 | --- | --- |
-| Move `l26-debug-the-turtle-missing-colon` and `l27-debug-the-turtle-indentation` | Directly after `l13-triangle-with-a-loop` (Level 4). Level headings are per-lesson strings, so move the lessons into Level 4 and rename Level 7 to e.g. "While Loops and Safe Stopping". |
+| Move `l26-debug-the-turtle-missing-colon` and `l27-debug-the-turtle-indentation` | Directly after `l12-a-better-square-with-loops` (Level 4), as implemented. Level headings are per-lesson strings, so move the lessons into Level 4 and rename Level 7 to e.g. "While Loops and Safe Stopping". |
 | Fold `speed()` into an early lesson | Add a line and a tryThis to lesson 12 or 13; add a `circle()` introduction to an early lesson (e.g. lesson 10, Fill a Shape) rather than first use in 35. |
 | Strengthen lesson 32 text | Explain `len()` and `%` (remainder) with a small `print` example in `steps`. |
 | De-duplicate lessons 6 and 7 | Lesson 6 exercise stays on `size`; color/pen variables live only in lesson 7. |
@@ -43,23 +43,11 @@ A review of the 38-lesson catalog (SPEC.md §5.2) found:
 
 Constraints: AGENTS.md rules 7 and 8 (ids permanent; lessons 26/27 stay broken), `LESSON_AR` reordered in step, and tests that select by position (`tests/app.spec.js` lessons 12, 26, 27) updated. Check `badges()` rules (they reference ids, so they should be unaffected).
 
-### PR 2 — "Beyond the basics" lessons
-Appended after the Final Project as new levels (ids continue at `l39-…`; do not reuse any number).
+### PR 2 — "Beyond the basics" lessons (implemented)
 
-| # | Title (working) | Concept | Skulpt check |
-| --- | --- | --- | --- |
-| 39 | Ask the Player | `input()`, `int()`, `str()` | Does `input()` work in the output panel? |
-| 40 | Random Colors | `import random`, `random.choice`, `random.randint` | |
-| 41 | A Grid of Shapes | nested loops | |
-| 42 | Loop Through a List | `for color in colors` | |
-| 43 | Counting by Steps | `range(start, stop, step)` | |
-| 44 | Functions That Give Back | `return`, default arguments | |
-| 45 | Words on the Canvas | `write`, `bgcolor`, `hideturtle`, `stamp` | |
-| 46 | f-strings and `+=` | formatted output, running totals | |
-| 47 | Recursion: Fractal Tree | recursion | stack depth in Skulpt |
-| 48 | Capstone: Interactive Art | combines input/random/functions | |
+Lessons 39-47 were appended after the Final Project as Level 11 "Randomness and Patterns" (39-42) and Level 12 "Reuse, Text, and Recursion" (43-47): random colors, a grid of shapes (nested loops), loop through a list, `range(start, stop, step)`, `return` and default arguments, `write`/`stamp`/`screen.bgcolor`, f-strings and `+=`, a recursive fractal tree, and a random-art capstone.
 
-Each lesson needs all 13 fields (SPEC §5.1), an index-aligned `LESSON_AR` entry, real teacher notes, and new level names in `LEVEL_AR`.
+**Prototype outcome:** the planned `input()` lesson was dropped. The app sets no Skulpt input handler, so `input()` falls back to a blocking browser prompt, which is poor UX and untested in both languages. It needs its own spec (an in-page input UI). Recursion works in Skulpt (tree depth 7), but Step mode on it runs hundreds of lines, so the lesson says to use Normal mode. `turtle.bgcolor()` does not exist in Skulpt 1.2.0, so the lessons use `turtle.Screen().bgcolor()`.
 
 ### PR 3 — Docs, badges and tests
 - SPEC.md §5.2 catalog and counts (38 → N) everywhere; §6 if badges change.
