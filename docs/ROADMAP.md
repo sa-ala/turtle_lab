@@ -30,6 +30,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-017 | Content authoring tool | P3 | S | F-002 | — | Done |
 | F-018 | Curriculum v2: ordering fixes and "Beyond the basics" track | P2 | L epic | F-002, F-017 | — | Done (PR 1-2; `input()` deferred) |
 | F-019 | Lesson-first layout and control cleanup | P2 | M | GAP-27..31 | — | Done |
+| F-020 | Lesson card and editor toolbar clarity | P2 | M | F-019 | — | In progress (PR A done) |
 
 Suggested order: F-003, F-004, F-006 (independent quick wins) → F-001 → F-002 → F-005 → then P2 by maintainer preference.
 
@@ -324,3 +325,11 @@ Move the two debug lessons next to the first loop lessons, introduce `speed()`, 
 Put the lesson goal, challenge and "I did it!" above the fold in a lesson card, remove duplicate Run/Clear/Reset buttons, flag new `print()` output, make sidebar levels collapsible, and move Reset progress out of the sidebar.
 
 **Acceptance criteria.** Lesson goal and "I did it!" visible without scrolling at 1440×900 and 1280×720 in both languages; one button per action; axe and localization tests stay green.
+
+---
+
+## F-020 Lesson card and editor toolbar clarity
+
+**Status: In progress.** Full spec: [docs/specs/F-020-card-toolbar-clarity.md](specs/F-020-card-toolbar-clarity.md). PR A done: "Mark challenge done" (amber, not green) with "Done!" state, a nudge after a successful run, chevron toggle and text link in the card, idle banner hidden in Normal mode, grey disabled Stop. PR B (proposed): editor header bar with Run Mode attached to Run and quieter secondary actions.
+
+**Acceptance criteria.** Run is the only green action in the middle column; completion stays learner-declared (D3); a11y and localization tests stay green.

@@ -96,7 +96,10 @@ for (const [lang, collapsed] of [["en", false], ["ar", false], ["en", true]]) {
 test("GAP-27: disabled buttons look disabled (Stop while idle)", async ({ page }) => {
   await openApp(page);
   await expect(page.locator("#stopTop")).toBeDisabled();
-  expect(Number(await page.locator("#stopTop").evaluate((b) => getComputedStyle(b).opacity))).toBeLessThan(0.6);
+  // F-020: a disabled Stop is neutral grey instead of faded red; other disabled controls are dimmed
+  expect(await page.locator("#stopTop").evaluate((b) => getComputedStyle(b).backgroundColor)).toBe("rgb(229, 231, 235)");
+  await page.evaluate(() => { document.getElementById("copyBtn").disabled = true; });
+  expect(Number(await page.locator("#copyBtn").evaluate((b) => getComputedStyle(b).opacity))).toBeLessThan(0.6);
   expect(Number(await page.locator("#runBtn").evaluate((b) => getComputedStyle(b).opacity))).toBe(1);
 });
 
