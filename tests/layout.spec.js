@@ -204,3 +204,41 @@ test("F-020: the card toggle is a chevron with an accessible name", async ({ pag
   await expect(tg).toHaveText("▸");
   await expect(tg).toHaveAttribute("aria-label", await t(page, "lessonCardShow"));
 });
+
+// F-020 PR B: editor header bar
+for (const lang of ["en", "ar"]) {
+  test(`F-020 AC7: Run Mode sits in the Run group; no separate Run Mode row when idle (${lang})`, async ({ page }) => {
+    await openApp(page);
+    if (lang === "ar") await page.selectOption("#langSelect", "ar");
+    await expect(page.locator(".runActions #runMode")).toHaveCount(1);
+    await expect(page.locator(".runActions #stepSpeedControl")).toHaveCount(1);
+    await expect(page.locator("#runMode")).toHaveAccessibleName(await t(page, "runMode"));
+    await expect(page.locator("#debugbar")).toBeHidden();
+    await expect(page.locator("#runHint")).toHaveText(await t(page, "runHint"));
+    await expect(page.locator("#runBtn")).toHaveAttribute("title", await t(page, "keyboard"));
+    await expect(page.locator("#runBtn")).toHaveAttribute("aria-keyshortcuts", "Control+Enter Meta+Enter");
+    await expect(page.locator(".editor .meta .pill")).toHaveCount(2); // level and concept only; the shortcut moved to Run
+  });
+}
+
+test("F-020 AC7: in Step mode, Step speed joins the Run group and the step bar appears only during the run", async ({ page }) => {
+  await openApp(page);
+  await expect(page.locator("#stepSpeedControl")).toBeHidden();
+  await page.selectOption("#runMode", "step");
+  await expect(page.locator("#stepSpeedControl")).toBeVisible();
+  await expect(page.locator("#runHint")).toBeHidden();
+  await expect(page.locator("#debugbar")).toBeHidden();
+  await page.selectOption("#stepSpeed", "900");
+  await page.evaluate(() => { window.__done = run(); });
+  await expect(page.locator("#debugbar")).toBeVisible();
+  await expect(page.locator("#pauseBtn")).toBeVisible();
+  await page.click("#stopTop");
+  await page.evaluate(() => window.__done);
+  await expect(page.locator("#debugbar")).toBeHidden();
+});
+
+test("F-020 AC7: file actions are quieter than Run and Stop (no shadow)", async ({ page }) => {
+  await openApp(page);
+  for (const id of ["resetBtn", "copyBtn", "pyBtn"]) expect(await page.locator("#" + id).evaluate((b) => getComputedStyle(b).boxShadow), id).toBe("none");
+  expect(await page.locator("#runBtn").evaluate((b) => getComputedStyle(b).boxShadow)).not.toBe("none");
+});

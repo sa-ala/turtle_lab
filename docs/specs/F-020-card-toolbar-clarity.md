@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | In progress (PR A done) |
+| Status | Done |
 | Priority | P2 |
 | Size | M (PR A small, PR B medium) |
 | Depends on | F-019 |
@@ -36,7 +36,7 @@ After F-019 the middle column stacks the lesson card, the editor toolbar, the st
 4. The status banner is hidden for the Normal-mode idle hint. It still shows the Step-mode hint, loading/failed states, running lines, success and errors.
 5. A disabled Stop is neutral grey (including its icon), not faded red.
 
-### PR B — editor header bar (proposed)
+### PR B — editor header bar (done)
 6. The toolbar becomes the editor's own header bar, visually attached to the code area and separated from the card.
 7. Run and Stop form one group on the start side. Run Mode moves into a small selector attached to Run (Normal / Step-by-step); the separate Run Mode row is removed; Step speed appears only in Step mode.
 8. Reset lesson code, Copy code, Export .py and Load Example become quiet secondary buttons (no shadow, smaller) on the end side.
@@ -75,8 +75,11 @@ High contrast: the completion button and nudge use yellow on black; link and che
 
 ## Documentation updates
 - [x] SPEC.md §3 control table (PR A)
-- [ ] SPEC.md §7 run controls (PR B)
+- [x] SPEC.md §3 editor actions and execution controls (PR B)
 - [x] docs/ROADMAP.md row
 
-## Open questions
-1. PR B: should Step speed live in the Run selector too, or stay a separate control that appears in Step mode? Recommended: separate, shown only in Step mode.
+## PR B notes
+Run Mode and Step speed keep their ids, so `setRun()`, `updateDebugControls()` and the step-debugger tests are unchanged. The Run Mode label is visually hidden (the select keeps it as its accessible name, plus a tooltip). A visible "Ctrl+Enter" keycap would be English-only text in Arabic, so the hint is a translated phrase (`runHint`) and the full `keyboard` string is Run's tooltip. The hint hides in Step mode, where Step speed needs the room. At 1280 px the run and file groups wrap to more rows; at 1440 px they fit in two.
+
+## Open questions (resolved)
+1. PR B: should Step speed live in the Run selector too, or stay a separate control that appears in Step mode? Resolved: separate, shown only in Step mode, inside the Run group.
