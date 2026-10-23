@@ -64,7 +64,7 @@ roles, teacher accounts, permissions, classroom rosters, or separate dashboards.
 | ID | Rule |
 | --- | --- |
 | BR-01 | Learning activities run client-side without installing Python or using an application backend. |
-| BR-02 | All 38 lessons are freely selectable; no prerequisite lock or enforced sequence exists. |
+| BR-02 | All 47 lessons are freely selectable; no prerequisite lock or enforced sequence exists. |
 | BR-03 | Completion is self-reported using **I did it!** in Challenges. Running code, meeting a drawing goal, or passing a test is not required. |
 | BR-04 | Each distinct completed lesson contributes one star. Repeating completion does not add another star. |
 | BR-05 | Completion and preferences belong to the browser storage context, not a user account. |
@@ -281,7 +281,7 @@ examples or Try it buttons.
 
 ### 5.1 Data contracts
 
-`lessons` is an ordered array of **38** objects with these fields:
+`lessons` is an ordered array of **47** objects with these fields:
 
 | Field | Type | Purpose |
 | --- | --- | --- |
@@ -303,7 +303,7 @@ All baseline lessons have the same expected-result text: "Run the code and
 compare the drawing with the goal." All share three steps: run the starter;
 change one number, color, or command; run again and observe.
 
-`LESSON_AR` contains **38 index-aligned objects**, translating every lesson
+`LESSON_AR` contains **47 index-aligned objects**, translating every lesson
 field above except `id`, `level` and `starterCode`. `LEVEL_AR` translates the ten
 English level names. `lessonData(i)` merges the Arabic fields over the English
 base when Arabic is selected, with the base available as fallback.
@@ -375,6 +375,15 @@ programs, hints, teaching notes, and Arabic copy remain in the arrays above.
 | 36 | l36 | 10 | Draw a Robot Face | Square head, coordinate-positioned eyes/mouth; add features |
 | 37 | l37 | 10 | Design a Turtle Scene | Filled sun and house body using a function; extend scene |
 | 38 | l38 | 10 | Final Project | Open template; suggested 3 colors, loop, function, filled shape, pattern |
+| 39 | l39 | 11 | Random Colors | `import random`, `random.choice`, `random.randint`; random lengths and turns |
+| 40 | l40 | 11 | A Grid of Shapes | Nested loops draw 3 rows by 4 columns of squares |
+| 41 | l41 | 11 | Loop Through a List | `for color in colors` draws growing circles in each color |
+| 42 | l42 | 11 | Counting by Steps | `range(20, 200, 20)` square spiral; count down with a negative step |
+| 43 | l43 | 12 | Functions That Give Back | `return` in `turn_angle()`; `polygon(sides, size=80, color="blue")` defaults |
+| 44 | l44 | 12 | Words on the Canvas | `screen.bgcolor()`, `write()`, `stamp()`, `hideturtle()` |
+| 45 | l45 | 12 | f-strings and Running Totals | `f"Side {i + 1}"` output and `total += 50` |
+| 46 | l46 | 12 | Recursion: Fractal Tree | Recursive `tree(length)` with a stop rule |
+| 47 | l47 | 12 | Capstone: Random Art Studio | Function, list, `random` and loop combined into confetti art |
 
 | Level | Exact English heading | Lessons |
 | --- | --- | --- |
@@ -388,12 +397,16 @@ programs, hints, teaching notes, and Arabic copy remain in the arrays above.
 | 8 | Level 8: Functions and Reuse | 28-30 |
 | 9 | Level 9: Lists and Pattern Art | 31-35 |
 | 10 | Level 10: Creative Projects | 36-38 |
+| 11 | Level 11: Randomness and Patterns | 39-42 |
+| 12 | Level 12: Reuse, Text, and Recursion | 43-47 |
 
 Lessons 13 and 14 (ids `l26`, `l27`) must initially fail: their invalid code is a deliberate
 teaching fixture, not a starter-code defect. Lesson 37's goal mentions ground,
 sun, and house, but its starter only supplies the sun and house body; scene
 completion is left to the learner.
 Teacher notes no longer quote lesson numbers (F-018); the array order determines numbering.
+
+Lessons 39-47 (F-018 "Beyond the basics") are always visible and have no lock or badge. Skulpt 1.2.0 has no `turtle.bgcolor()`, so lessons 44 and 47 use `turtle.Screen().bgcolor()`. `input()` is deliberately not taught: the app configures no input handler, so Skulpt would fall back to a blocking browser prompt dialog. Step mode on lesson 46 runs hundreds of lines, so use Normal mode or Stop.
 
 ### 5.3 Example library
 
@@ -468,7 +481,7 @@ those ids had when they were introduced.
 
 Earned badges use an `earned` class, a checkmark, and localized unlocked text.
 Locked badges show a generic completion prompt. Completing all valid lessons
-produces 38 stars and 100%; a run alone produces neither.
+produces 47 stars and 100%; a run alone produces neither.
 
 ## 7. Execution architecture
 
@@ -1037,7 +1050,7 @@ for the limitations above.
 | --- | --- |
 | Landing navigation | Every internal anchor resolves; all app CTAs reach `app.html`; external references use correct URLs/new-tab isolation; preview CTA opens the Square example (covered by `tests/deep-links.spec.js`) |
 | Landing languages | Clean default Both; English/Arabic/Both visibility, root direction/language, pressed states, reload persistence, invalid preference normalization; inspect GAP-17/18 |
-| First app load / resume | Clean defaults, 38 selectable lessons, 10 headings, 13 examples, 25 docs; restore draft/lesson/preferences; drawing/results not persisted |
+| First app load / resume | Clean defaults, 47 selectable lessons, 12 headings, 13 examples, 25 docs; restore draft/lesson/preferences; drawing/results not persisted |
 | Lesson content | Matching titles/metadata/prose/starter on sidebar and selector changes; no automatic run/advance; complete lesson overlays in both languages |
 | Teaching errors | Lesson 13 missing colon and lesson 14 indentation fail intentionally; corrected versions draw the square |
 | Code editing | Immediate storage write, gutter line count, caret line/column, scroll alignment, four-space Tab replacement, reset behavior, no implicit outdent |
@@ -1050,7 +1063,7 @@ for the limitations above.
 | Drawing clear | Clears target/error text but preserves code, output, selection, progress, zoom and coordinates |
 | Zoom boundaries | Repeated decrement/increment clamps at 50%/250%, intermediate 10-point changes, reset 100%, persistence, centered overlay/drawing alignment |
 | Coordinates | Off/on state/ARIA, origin and sign conventions, 10/50/100 spacing, high contrast, zoom, resize, pixel ratios 1 and 2 |
-| Progress | Self-complete without running; no duplicate stars; all 38 => 38 stars/100%; each badge's OR condition, reset confirm/cancel, retained draft/preferences |
+| Progress | Self-complete without running; no duplicate stars; all 47 => 47 stars/100%; each badge's OR condition, reset confirm/cancel, retained draft/preferences |
 | Syntax search | Empty query, mixed case, whitespace trim, matching category/command/explanation, example-only text excluded, no-match text, Arabic query limitations |
 | Export | Exact draft in .py with English-derived filename; clipboard permitted/rejected/absent; PNG no-layer guard, canvas/SVG layers, grid/overlay contract, zoom and DPR |
 | Localization | LTR code/output in RTL layout, right gutter, translated lesson panels and controls, preserved draft, independent landing/app preferences, known untranslated strings |

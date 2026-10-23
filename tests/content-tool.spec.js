@@ -66,7 +66,7 @@ test("V2_LESSON_IDS is not exported (it is frozen)", () => {
 
 const BROKEN = [
   ["invalid JSON", (w) => w.put("lessons.json", '[{"id": "l1-x",]'), /lessons\.json is not valid JSON/],
-  ["Arabic lessons misaligned", (w) => { const a = w.json("lessons.ar.json"); a.pop(); w.put("lessons.ar.json", a); }, /lessons\.ar\.json has 37 entries but lessons\.json has 38/],
+  ["Arabic lessons misaligned", (w) => { const a = w.json("lessons.ar.json"); a.pop(); w.put("lessons.ar.json", a); }, /lessons\.ar\.json has 46 entries but lessons\.json has 47/],
   ["Arabic syntax help misaligned", (w) => { const a = w.json("docs.ar.json"); a.push({ category: "x", explanation: "y" }); w.put("docs.ar.json", a); }, /docs\.ar\.json has 26 entries/],
   ["Arabic example names misaligned", (w) => { const a = w.json("examples.names.ar.json"); a.splice(2, 1); w.put("examples.names.ar.json", a); }, /examples\.names\.ar\.json has 12 entries but examples\.json has 13/],
   ["a new example without an Arabic name", (w) => { const a = w.json("examples.json"); a.push({ name: "Hexagon", code: "import turtle" }); w.put("examples.json", a); }, /index-aligned/],
