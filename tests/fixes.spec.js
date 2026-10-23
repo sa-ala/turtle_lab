@@ -20,7 +20,7 @@ test("GAP-10: Debug Help names the same colour as the current-line highlight", a
 
 test("GAP-11: Syntax Help Try it clears the red error line and status", async ({ page }) => {
   await openApp(page);
-  await selectLesson(page, 25);
+  await selectLesson(page, 12);
   await runAndWait(page);
   await expect(page.locator("#rail .railLine.error")).toHaveCount(1);
   await page.click('.learn .tab[data-tab="syntax"]');

@@ -9,7 +9,7 @@ approved roadmap or a guarantee of browser compatibility.
 
 | Attribute | Baseline |
 | --- | --- |
-| Review date | 2026-10-20 |
+| Review date | 2026-10-23 |
 | Source revision | `b2cc25f` |
 | Primary sources | [index.html](index.html), [app.html](app.html) |
 | Supporting sources | [README.md](README.md), [LICENSE](LICENSE) |
@@ -328,71 +328,72 @@ order. It only decodes progress saved by index (`tl.lesson.v2`,
 
 ### 5.2 Ordered lesson catalog
 
-Each lesson's id is `l<N>-<slug of the English title>`, where N is the lesson
-number in this baseline table (for example lesson 12 is
-`l12-a-better-square-with-loops`). Ids keep their baseline number even if
-lessons are later inserted or reordered. The "Goal / exercise" column summarizes the implemented content; exact starter
+Each lesson's id is `l<N>-<slug of the English title>`, where N is the "Id number"
+column (for example `l12-a-better-square-with-loops`). Ids keep their original
+number even though lessons are reordered: F-018 moved the two debugging lessons
+(`l26`, `l27`) to positions 13 and 14, so the first column is the current
+position and the second is the permanent id number. The "Goal / exercise" column summarizes the implemented content; exact starter
 programs, hints, teaching notes, and Arabic copy remain in the arrays above.
 
-| Lesson | Level | Title | Goal / exercise |
-| --- | --- | --- | --- |
-| 1 | 1 | Your First Line | `forward(100)`; compare distances 50, 150, 250 |
-| 2 | 1 | Turn the Turtle | Draw a corner with 90-degree turns; experiment with 45, 60, 120 and left |
-| 3 | 1 | Draw a Square Step by Step | Four manual forward/right pairs; enlarge or alter a side |
-| 4 | 2 | Comments and Print Messages | `#` comments and `print()` output; add a personal message |
-| 5 | 2 | Numbers and Text | Strings and arithmetic; compute a distance and print a message |
-| 6 | 2 | Change Size with Variables | Square controlled by `size`; add color and pen-size variables |
-| 7 | 2 | Color and Pen Variables | Text/numeric variables controlling color and thickness |
-| 8 | 3 | Colorful Lines | Red, blue, green lines; choose other colors |
-| 9 | 3 | Thick Lines | Purple square using `pensize(8)`; compare thickness |
-| 10 | 3 | Fill a Shape | Red outline/yellow filled square; adapt to a filled triangle |
-| 11 | 3 | Move Without Drawing | Two lines separated with penup/pendown; add a third |
-| 12 | 4 | A Better Square with Loops | `for`/`range(4)`/indentation; adapt to triangle or hexagon |
-| 13 | 4 | Triangle with a Loop | Three sides and 120-degree turns; change color/thickness |
-| 14 | 4 | Pentagon and Hexagon | `angle = 360 / sides`; vary polygon sides |
-| 15 | 4 | Shape Generator | Parameter-like variables for sides/size; try 36 sides of length 20 |
-| 16 | 5 | True or False? | Print `size > 100` and `size == 100`; vary size |
-| 17 | 5 | If: Choose a Color | Conditional red line when size exceeds 100 |
-| 18 | 5 | If / Else: Big or Small Shape | Red or blue square based on size |
-| 19 | 5 | Elif: Pick a Shape | Select polygon color using if/elif/else |
-| 20 | 5 | Boolean Logic | Combine size and `use_red` with `and`; try `False` and `or` |
-| 21 | 6 | Go to a Position | Coordinate-defined square; vary coordinates |
-| 22 | 6 | Home and Heading | `home()` and `setheading()`; explore 90/180/270 degrees |
-| 23 | 6 | Draw a Simple House | Combine square body and roof; add door/window |
-| 24 | 7 | While Loop Counter | Square with a condition and incrementing counter |
-| 25 | 7 | Stop the Loop Safely | Bounded loop; intentionally remove increment and practice Stop |
-| 26 | 7 | Debug the Turtle: Missing Colon | Intentionally invalid `for i in range(4)`; add colon |
-| 27 | 7 | Debug the Turtle: Indentation | Intentionally unindented loop body; fix indentation |
-| 28 | 8 | Create a Square Function | Define/call `square(size)`; draw multiple sizes |
-| 29 | 8 | Draw Many Squares | Function inside a rotation loop; change repetitions and angle |
-| 30 | 8 | Draw Any Polygon Function | `polygon(sides, size, color)`; add calls and reposition |
-| 31 | 9 | First List of Colors | Index a list of red/blue/green; add a fourth |
-| 32 | 9 | Rainbow Polygon Art | Cycle colors with `% len(colors)` over 60 repetitions |
-| 33 | 9 | Star | Five repetitions with 144-degree turns; compare 72 degrees |
-| 34 | 9 | Spiral | 80 iterations of increasing distance and 91-degree turns |
-| 35 | 9 | Flower | 36 circles of radius 60, rotated by 10 degrees |
-| 36 | 10 | Draw a Robot Face | Square head, coordinate-positioned eyes/mouth; add features |
-| 37 | 10 | Design a Turtle Scene | Filled sun and house body using a function; extend scene |
-| 38 | 10 | Final Project | Open template; suggested 3 colors, loop, function, filled shape, pattern |
+| Lesson | Id number | Level | Title | Goal / exercise |
+| --- | --- | --- | --- | --- |
+| 1 | l1 | 1 | Your First Line | `forward(100)`; compare distances 50, 150, 250 |
+| 2 | l2 | 1 | Turn the Turtle | Draw a corner with 90-degree turns; experiment with 45, 60, 120 and left |
+| 3 | l3 | 1 | Draw a Square Step by Step | Four manual forward/right pairs; enlarge or alter a side |
+| 4 | l4 | 2 | Comments and Print Messages | `#` comments and `print()` output; add a personal message |
+| 5 | l5 | 2 | Numbers and Text | Strings and arithmetic; compute a distance and print a message |
+| 6 | l6 | 2 | Change Size with Variables | Square controlled by `size`; draw a second square with `size * 2` |
+| 7 | l7 | 2 | Color and Pen Variables | Text/numeric variables controlling color and thickness |
+| 8 | l8 | 3 | Colorful Lines | Red, blue, green lines; choose other colors |
+| 9 | l9 | 3 | Thick Lines | Purple square using `pensize(8)`; compare thickness |
+| 10 | l10 | 3 | Fill a Shape | Red outline/yellow filled square; adapt to a filled triangle or `circle(50)` |
+| 11 | l11 | 3 | Move Without Drawing | Two lines separated with penup/pendown; add a third |
+| 12 | l12 | 4 | A Better Square with Loops | `for`/`range(4)`/indentation; adapt to triangle or hexagon |
+| 13 | l26 | 4 | Debug the Turtle: Missing Colon | Intentionally invalid `for i in range(4)`; add colon |
+| 14 | l27 | 4 | Debug the Turtle: Indentation | Intentionally unindented loop body; fix indentation |
+| 15 | l13 | 4 | Triangle with a Loop | Three sides and 120-degree turns; change color/thickness |
+| 16 | l14 | 4 | Pentagon and Hexagon | `angle = 360 / sides`; vary polygon sides; `speed()` introduced |
+| 17 | l15 | 4 | Shape Generator | Parameter-like variables for sides/size; try 36 sides of length 20 |
+| 18 | l16 | 5 | True or False? | Print `size > 100` and `size == 100`; vary size |
+| 19 | l17 | 5 | If: Choose a Color | Conditional red line when size exceeds 100 |
+| 20 | l18 | 5 | If / Else: Big or Small Shape | Red or blue square based on size |
+| 21 | l19 | 5 | Elif: Pick a Shape | Select polygon color using if/elif/else |
+| 22 | l20 | 5 | Boolean Logic | Combine size and `use_red` with `and`; try `False` and `or` |
+| 23 | l21 | 6 | Go to a Position | Coordinate-defined square; vary coordinates |
+| 24 | l22 | 6 | Home and Heading | `home()` and `setheading()`; explore 90/180/270 degrees |
+| 25 | l23 | 6 | Draw a Simple House | Combine square body and roof; add door/window |
+| 26 | l24 | 7 | While Loop Counter | Square with a condition and incrementing counter |
+| 27 | l25 | 7 | Stop the Loop Safely | Bounded loop; intentionally remove increment and practice Stop |
+| 28 | l28 | 8 | Create a Square Function | Define/call `square(size)`; draw multiple sizes |
+| 29 | l29 | 8 | Draw Many Squares | Function inside a rotation loop; change repetitions and angle |
+| 30 | l30 | 8 | Draw Any Polygon Function | `polygon(sides, size, color)`; add calls and reposition |
+| 31 | l31 | 9 | First List of Colors | Index a list of red/blue/green; add a fourth |
+| 32 | l32 | 9 | Rainbow Polygon Art | Cycle colors with `% len(colors)` over 60 repetitions; `len()` and `%` explained |
+| 33 | l33 | 9 | Star | Five repetitions with 144-degree turns; compare 72 degrees |
+| 34 | l34 | 9 | Spiral | 80 iterations of increasing distance and 91-degree turns |
+| 35 | l35 | 9 | Flower | 36 circles of radius 60, rotated by 10 degrees |
+| 36 | l36 | 10 | Draw a Robot Face | Square head, coordinate-positioned eyes/mouth; add features |
+| 37 | l37 | 10 | Design a Turtle Scene | Filled sun and house body using a function; extend scene |
+| 38 | l38 | 10 | Final Project | Open template; suggested 3 colors, loop, function, filled shape, pattern |
 
 | Level | Exact English heading | Lessons |
 | --- | --- | --- |
 | 1 | Level 1: Meet the Turtle | 1-3 |
 | 2 | Level 2: Values, Output, and Variables | 4-7 |
 | 3 | Level 3: Colors, Style, and Pen Control | 8-11 |
-| 4 | Level 4: Loops Make Magic | 12-15 |
-| 5 | Level 5: Decisions and Logic | 16-20 |
-| 6 | Level 6: Positions and Coordinates | 21-23 |
-| 7 | Level 7: While Loops and Debugging | 24-27 |
+| 4 | Level 4: Loops Make Magic | 12-17 |
+| 5 | Level 5: Decisions and Logic | 18-22 |
+| 6 | Level 6: Positions and Coordinates | 23-25 |
+| 7 | Level 7: While Loops and Safe Stopping | 26-27 |
 | 8 | Level 8: Functions and Reuse | 28-30 |
 | 9 | Level 9: Lists and Pattern Art | 31-35 |
 | 10 | Level 10: Creative Projects | 36-38 |
 
-Lessons 26 and 27 must initially fail: their invalid code is a deliberate
+Lessons 13 and 14 (ids `l26`, `l27`) must initially fail: their invalid code is a deliberate
 teaching fixture, not a starter-code defect. Lesson 37's goal mentions ground,
 sun, and house, but its starter only supplies the sun and house body; scene
-completion is left to the learner. Some teacher notes retain obsolete lesson
-numbers; the array order, not prose numbering, determines actual numbering.
+completion is left to the learner.
+Teacher notes no longer quote lesson numbers (F-018); the array order determines numbering.
 
 ### 5.3 Example library
 
@@ -1018,7 +1019,7 @@ filing or implementing a fix.
 | GAP-21 | Some teacher notes use old numbering; several early starters introduce loops before the formal loops level | Review pedagogy separately from fixing runtime behavior |
 | GAP-22 | **Fixed by F-009 and F-013.** Tab escape, ARIA tabs, progressbar, live announcements, reduced motion, localized labels and contrast fixes; axe-core reports no serious or critical issues | No manual screen-reader audit or WCAG conformance claim yet |
 | GAP-23 | No verified browser matrix or performance budgets. Automated Chromium smoke tests and CI were added by F-001 (`tests/`, `npm test`) | Extend coverage per §14; add other browsers or budgets only with explicit scope |
-| GAP-25 | **Fixed by F-006.** `badInputHint()` maps Skulpt's `bad input` error to the colon or indentation guidance from the source lines | Lessons 26/27 show their specific guidance; covered by `tests/app.spec.js` |
+| GAP-25 | **Fixed by F-006.** `badInputHint()` maps Skulpt's `bad input` error to the colon or indentation guidance from the source lines | Lessons 13/14 show their specific guidance; covered by `tests/app.spec.js` |
 | GAP-26 | **Fixed by F-006.** Below 860 px the single-column app grid used `1fr`, which cannot shrink below its content, so the page was wider than phone screens (508 px of content at 420 px in English, 457 px in Arabic) | Grid now uses `minmax(0,1fr)`; covered by `tests/fixes.spec.js` |
 | GAP-24 | **Fixed by F-003.** Skulpt is vendored in `assets/libs/` with an SRI-checked CDN fallback, a loading state and a Retry control | Dependency failure is detected on Run; classroom/offline reliability needs explicit scope |
 
@@ -1038,7 +1039,7 @@ for the limitations above.
 | Landing languages | Clean default Both; English/Arabic/Both visibility, root direction/language, pressed states, reload persistence, invalid preference normalization; inspect GAP-17/18 |
 | First app load / resume | Clean defaults, 38 selectable lessons, 10 headings, 13 examples, 25 docs; restore draft/lesson/preferences; drawing/results not persisted |
 | Lesson content | Matching titles/metadata/prose/starter on sidebar and selector changes; no automatic run/advance; complete lesson overlays in both languages |
-| Teaching errors | Lesson 26 missing colon and lesson 27 indentation fail intentionally; corrected versions draw the square |
+| Teaching errors | Lesson 13 missing colon and lesson 14 indentation fail intentionally; corrected versions draw the square |
 | Code editing | Immediate storage write, gutter line count, caret line/column, scroll alignment, four-space Tab replacement, reset behavior, no implicit outdent |
 | Code replacement | All 13 examples and 25 Try it samples replace/save draft without lesson navigation; reset restores current starter; identify stale highlight case |
 | Normal execution | First line, square, loops, conditionals, functions, lists, multiple turtles, print output, empty/whitespace fallback; success does not grant completion |

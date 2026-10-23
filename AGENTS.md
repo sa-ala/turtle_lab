@@ -31,7 +31,7 @@ Precedence when documents disagree: **source code > SPEC.md > ROADMAP.md > READM
 5. **Children's privacy.** No analytics, trackers, ads, fingerprinting, accounts, remote logging, or new third-party network requests. Any new external script must be pinned to an exact version and justified in the PR.
 6. **Storage discipline.** All `localStorage` keys live in the `K` map in `app.html` and are versioned (`tl.<name>.vN`). Read and write only through `store.get(key, fallback, validate)` / `store.set(key, value)`; never call `localStorage` directly (`check.mjs` enforces this). Changing the meaning or shape of a stored value requires a new version suffix plus a migration from the old key. Never silently wipe learner progress or code.
 7. **Lesson ids are permanent.** Saved lesson selection, completion progress and badge rules use each lesson's `id` (F-002). Never change, reuse or recycle an id. Never edit `V2_LESSON_IDS`, which decodes pre-F-002 progress. Lessons may be inserted or reordered; `LESSON_AR` must be reordered with them, since it is index-aligned.
-8. **Intentional failures stay failing.** Lessons 26 and 27 (`l26-debug-the-turtle-missing-colon`, `l27-debug-the-turtle-indentation`) ship deliberately broken code (missing colon, bad indentation). Do not "fix" them.
+8. **Intentional failures stay failing.** Lessons 13 and 14 (`l26-debug-the-turtle-missing-colon`, `l27-debug-the-turtle-indentation`) ship deliberately broken code (missing colon, bad indentation). Do not "fix" them.
 9. **Scope discipline.** Implement exactly the spec you were given. Known gaps in `SPEC.md §13` are not permission to fix unrelated things in the same PR; file or reference them separately.
 10. **Keep SPEC.md true.** If you change behavior, update the relevant `SPEC.md` sections, inventories (counts of lessons/examples/docs), and its baseline table in the same PR.
 
@@ -57,8 +57,8 @@ npm test
 
 - landing language toggle and persistence, and "Start Coding"
 - clean first-load defaults and content counts
-- every lesson starter and every example runs (except the deliberately broken lessons 26 and 27)
-- lessons 26 and 27 fail with a red line on the right line, and the corrected code runs
+- every lesson starter and every example runs (except the deliberately broken lessons 13 and 14)
+- lessons 13 and 14 fail with a red line on the right line, and the corrected code runs
 - Step mode highlighting order, Stop, and Run again
 - Arabic RTL with LTR code, and code/language preserved across reload
 - "I did it!" progress, stars and badges, and their persistence
@@ -117,7 +117,7 @@ Key symbols: `lessons`, `LESSON_AR`, `LEVEL_AR`, `docs`, `extraDocs`, `examples`
 1. Insert the lesson wherever it fits pedagogically. Give it a new, never-used `id`: use `l<next number>-<slug of the title>`, where the number is one more than the highest id number ever used, not its position.
 2. Using `tools/content.mjs` (§4), add the lesson object to `lessons` with all 13 fields (`SPEC.md §5.1`), add the Arabic object to `LESSON_AR` at the **same index**, and add any new level name to `LEVEL_AR`.
 3. Run the starter code in both Normal and Step mode. It must succeed (unless it is a deliberate debugging lesson, documented as such).
-4. Decide whether a badge rule in `badges()` should include the new lesson's id. Tests that select lessons by position (for example `tests/app.spec.js` for lessons 12, 26 and 27) may need their position updated.
+4. Decide whether a badge rule in `badges()` should include the new lesson's id. Tests that select lessons by position (for example `tests/app.spec.js` for lessons 12, 13 and 14) may need their position updated.
 5. Update `SPEC.md` §5.2 catalog, counts (38 → N) everywhere, and §6 if badges changed.
 
 ### Add an example or a syntax-help entry
@@ -150,7 +150,7 @@ Content comes in paired `.en` / `.ar` blocks. Keep both, keep `href="app.html"` 
 
 Automated by `tools/check.mjs`: listed in §3.
 
-Automated by `npm test` (see §3): no console errors, Run → Stop → Run, persistence across reload, lessons 26/27 fail and all other starters and all examples run, Arabic RTL with LTR code, no unexpected network requests.
+Automated by `npm test` (see §3): no console errors, Run → Stop → Run, persistence across reload, lessons 13/14 fail and all other starters and all examples run, Arabic RTL with LTR code, no unexpected network requests.
 
 Manual:
 

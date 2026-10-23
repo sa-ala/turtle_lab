@@ -29,7 +29,7 @@ test("with Arabic selected, no English-only UI text remains (all tabs, running, 
   await expect(page.locator("#err")).toHaveText(await t(page, "runningStatus"));
   (await englishOnly(page)).forEach((x) => found.add(x));
   await page.waitForFunction(() => activeRun === null);
-  await selectLesson(page, 25); await runAndWait(page); (await englishOnly(page)).forEach((x) => found.add(x));
+  await selectLesson(page, 12); await runAndWait(page); (await englishOnly(page)).forEach((x) => found.add(x));
   await page.fill("#code", "x = 1\n"); (await englishOnly(page)).forEach((x) => found.add(x));
   expect([...found].filter((x) => !ALLOWED.has(x))).toEqual([]);
 });

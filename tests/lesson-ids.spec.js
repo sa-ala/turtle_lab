@@ -28,7 +28,9 @@ test("ids are unique and V2_LESSON_IDS matches the baseline order", async ({ pag
   await openApp(page);
   const { ids, v2 } = await page.evaluate(() => ({ ids: lessons.map((l) => l.id), v2: V2_LESSON_IDS }));
   expect(new Set(ids).size).toBe(ids.length);
-  expect(v2).toEqual(ids); // until a lesson is inserted, the baseline order is the current order
+  // F-018 moved the two debug lessons earlier: same ids, new order. Ids are permanent, so the sets must match.
+  expect([...ids].sort()).toEqual([...v2].sort());
+  expect(ids.indexOf("l26-debug-the-turtle-missing-colon")).toBe(12);
 });
 
 test("AC1: v2 progress [0,11,35] migrates to the same lessons and badges", async ({ page }) => {
