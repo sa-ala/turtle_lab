@@ -91,3 +91,32 @@ test("an unknown saved lesson id falls back to lesson 1", async ({ page }) => {
   await openApp(page);
   await expect(page.locator("#lessonSelect")).toHaveValue("0");
 });
+
+// F-018 moved the two debug lessons from positions 26-27 to 13-14 (ids unchanged). Progress saved before that
+// must keep the same completed lessons, stars and badges, now shown at the new positions.
+const PRE_F018 = ["l26-debug-the-turtle-missing-colon", "l27-debug-the-turtle-indentation", "l13-triangle-with-a-loop", "l25-stop-the-loop-safely", "l38-final-project"];
+
+test("F-018: v3 progress saved before the reorder keeps its lessons, stars and badges", async ({ page }) => {
+  await seed(page, { "tl.lesson.v3": PRE_F018[0], "tl.progress.v3": JSON.stringify(PRE_F018) });
+  await openApp(page);
+  expect(PRE_F018.map((id) => IDS.indexOf(id))).toEqual([12, 13, 14, 26, 37]);
+  await expect(page.locator("#lessonSelect")).toHaveValue("12"); // same lesson, new position
+  await expect(page.locator("#lessonTitle")).toContainText(TITLES[12]);
+  for (const i of [12, 13, 14, 26, 37]) await expect(page.locator(`#lessonList .lesson[data-i="${i}"]`)).toContainText("✓");
+  await expect(page.locator("#starText")).toHaveText(await page.evaluate(() => T("stars")(5)));
+  await expect(page.locator("#progressText")).toHaveText(await page.evaluate(() => T("progress")(5, lessons.length)));
+  // Shape Builder (l13), Loop Hero (l13, l25) and Turtle Creator (l38); not First Line, Color Artist or Function Master
+  const names = await page.evaluate(() => T("badges"));
+  await expect(page.locator("#badgeGrid .badge.earned")).toHaveCount(3);
+  for (const n of [names[1], names[2], names[5]]) await expect(page.locator("#badgeGrid .badge.earned", { hasText: n })).toHaveCount(1);
+  expect(JSON.parse(await stored(page, "tl.progress.v3")).sort()).toEqual([...PRE_F018].sort()); // nothing rewritten or lost
+});
+
+test("F-018: v2 progress (by baseline index) for the debug lessons lands on their new positions", async ({ page }) => {
+  await seed(page, { "tl.lesson.v2": "25", "tl.progress.v2": "[25,26]" });
+  await openApp(page);
+  await expect(page.locator("#lessonSelect")).toHaveValue("12");
+  for (const i of [12, 13]) await expect(page.locator(`#lessonList .lesson[data-i="${i}"]`)).toContainText("✓");
+  await expect(page.locator("#starText")).toHaveText(await page.evaluate(() => T("stars")(2)));
+  expect(JSON.parse(await stored(page, "tl.progress.v3")).sort()).toEqual(PRE_F018.slice(0, 2).sort());
+});
