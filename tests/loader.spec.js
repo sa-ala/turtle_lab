@@ -50,7 +50,7 @@ test.describe("when local files are missing", () => {
     await expect(page.locator("#pyRetry")).toHaveText(await t(page, "retry"));
     await expect(page.locator("#debugInfo")).toHaveText(await t(page, "pyFailed"));
     await expect(page.locator("#runBtn")).toBeDisabled();
-    await expect(page.locator("#runTop")).toBeDisabled();
+    await expect(page.locator("#runBtn")).toBeDisabled();
 
     // Arabic too.
     await page.selectOption("#langSelect", "ar");
@@ -72,7 +72,7 @@ test("shows Getting Python ready… and keeps Run disabled while loading", async
   await page.goto("/app.html", { waitUntil: "domcontentloaded" }); // "load" waits for the held-back script
   await expect(page.locator("#debugInfo")).toHaveText(await t(page, "pyLoading"));
   await expect(page.locator("#runBtn")).toBeDisabled();
-  await expect(page.locator("#runTop")).toBeDisabled();
+  await expect(page.locator("#runBtn")).toBeDisabled();
   // Ctrl+Enter while loading does not start a run.
   await page.locator("#code").press("Control+Enter");
   await expect(page.locator("#err")).toHaveText(await t(page, "noErrors"));

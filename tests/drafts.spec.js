@@ -47,7 +47,7 @@ test("AC2: an existing v1 draft is migrated into the current lesson; tl.code.v1 
 for (const [name, act] of [
   ["loading an example", (page) => page.selectOption("#examples", "1")],
   ["Syntax Help Try it", async (page) => { await page.click('.learn .tab[data-tab="syntax"]'); await page.locator("#docGrid .try").nth(3).click(); }], // entry 0 equals lesson 1's starter
-  ["Reset Code", (page) => page.click("#resetTop")],
+  ["Reset Code", (page) => page.click("#resetBtn")],
 ]) {
   test(`AC3: ${name} replaces unmodified starter code without asking`, async ({ page }) => {
     await openApp(page);
@@ -86,7 +86,7 @@ test("the confirmation dialog is localized in Arabic", async ({ page }) => {
   await openApp(page);
   await page.selectOption("#langSelect", "ar");
   await page.fill("#code", "print('x')\n");
-  await page.click("#resetTop");
+  await page.click("#resetBtn");
   await expect(dialog(page)).toBeVisible();
   await expect(page.locator("#replaceTitle")).toHaveText(await t(page, "replaceTitle"));
   await expect(page.locator("#replaceOk")).toHaveText(await t(page, "replaceOk"));

@@ -30,7 +30,7 @@ for (const lang of ["en", "ar"]) {
     await runAndWait(page); // friendly error with details
     expect(await seriousViolations(page), "error shown").toEqual([]);
     await page.fill("#code", "print('mine')\n");
-    await page.click("#resetTop");
+    await page.click("#resetBtn");
     await expect(page.locator("#replaceDialog")).toBeVisible();
     expect(await seriousViolations(page), "dialog open").toEqual([]);
     await page.click("#replaceCancel");

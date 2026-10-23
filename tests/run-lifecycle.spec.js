@@ -64,7 +64,7 @@ const ACTIONS = [
   ["switching lesson (dropdown)", async (page) => { await page.selectOption("#lessonSelect", "2"); await expect(page.locator("#lessonSelect")).toHaveValue("2"); }],
   ["switching lesson (sidebar list)", async (page) => { await page.click('#lessonList .lesson[data-i="4"]'); await expect(page.locator("#lessonSelect")).toHaveValue("4"); }],
   ["loading an example", async (page) => { await page.selectOption("#examples", "1"); await expect(page.locator("#code")).toHaveValue(await page.evaluate(() => examples[1].code)); }],
-  ["Reset Code", async (page) => { await page.click("#resetTop"); await expect(page.locator("#code")).toHaveValue(await page.evaluate(() => lessons[11].starterCode)); }],
+  ["Reset Code", async (page) => { await page.click("#resetBtn"); await expect(page.locator("#code")).toHaveValue(await page.evaluate(() => lessons[11].starterCode)); }],
   ["changing language", async (page) => { await page.selectOption("#langSelect", "ar"); await expect(page.locator("html")).toHaveAttribute("dir", "rtl"); }],
   ["Syntax Help Try it", async (page) => { await page.click('.learn .tab[data-tab="syntax"]'); await page.locator("#docGrid .try").first().click(); await expect(page.locator("#code")).toHaveValue(await page.evaluate(() => docs[0].example)); }],
 ];
