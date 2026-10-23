@@ -15,7 +15,7 @@ for (const [width, height] of [[1440, 900], [1280, 720]]) {
       const l = await page.evaluate(() => lessonData(current));
       await expect(page.locator("#lessonCardGoal")).toHaveText(l.goal);
       await expect(page.locator("#lessonCardChallenge")).toHaveText(l.challenge);
-      await expect(page.locator("#lessonCardDone")).toHaveText(await t(page, "didIt"));
+      await expect(page.locator("#lessonCardDone")).toHaveText(await t(page, "cardMark"));
       for (const sel of ["#lessonCardGoal", "#lessonCardChallenge", "#lessonCardDone", "#runBtn", "#stopTop"]) expect(await inViewport(page, sel), sel).toBe(true);
     });
   }
@@ -70,11 +70,11 @@ test("the lesson card can be hidden, and stays hidden after reload, in both lang
   await page.click("#lessonCardToggle");
   await expect(page.locator("#lessonCardBody")).toBeHidden();
   await expect(page.locator("#lessonCardToggle")).toHaveAttribute("aria-expanded", "false");
-  await expect(page.locator("#lessonCardToggle")).toHaveText(await t(page, "lessonCardShow"));
+  await expect(page.locator("#lessonCardToggle")).toHaveAttribute("aria-label", await t(page, "lessonCardShow"));
   await page.reload();
   await expect(page.locator("#lessonCardBody")).toBeHidden();
   await page.selectOption("#langSelect", "ar");
-  await expect(page.locator("#lessonCardToggle")).toHaveText(await t(page, "lessonCardShow"));
+  await expect(page.locator("#lessonCardToggle")).toHaveAttribute("aria-label", await t(page, "lessonCardShow"));
   await page.click("#lessonCardToggle");
   await expect(page.locator("#lessonCardBody")).toBeVisible();
 });
@@ -141,4 +141,66 @@ test("the start marker is an arrow that hides once a run draws, and returns afte
   await expect(marker).toBeHidden();
   await page.click("#clearBtn");
   await expect(marker).toBeVisible();
+});
+
+// F-020 PR A: lesson card clarity
+test("F-020: completion is a Mark challenge done button, not a second green button; Done! after completing", async ({ page }) => {
+  await openApp(page);
+  const done = page.locator("#lessonCardDone");
+  await expect(done).toHaveText(await t(page, "cardMark"));
+  await expect(done).toHaveAttribute("aria-pressed", "false");
+  const [runBg, doneBg] = await page.evaluate(() => [getComputedStyle(runBtn).backgroundImage + getComputedStyle(runBtn).backgroundColor, getComputedStyle(lessonCardDone).backgroundImage + getComputedStyle(lessonCardDone).backgroundColor]);
+  expect(doneBg).not.toBe(runBg);
+  await done.click();
+  await expect(done).toHaveText(await t(page, "cardDone"));
+  await expect(done).toHaveAttribute("aria-pressed", "true");
+  await done.click(); // a second click changes nothing
+  await expect(page.locator("#starText")).toHaveText(await page.evaluate(() => T("stars")(1)));
+});
+
+for (const lang of ["en", "ar"]) {
+  test(`F-020: a successful run nudges the challenge until the lesson changes or is marked done (${lang})`, async ({ page }) => {
+    await openApp(page);
+    if (lang === "ar") await page.selectOption("#langSelect", "ar");
+    await expect(page.locator("#lessonCardNudge")).toBeHidden();
+    await runAndWait(page);
+    await expect(page.locator("#lessonCardNudge")).toBeVisible();
+    await expect(page.locator("#lessonCardNudge")).toHaveText(await t(page, "cardNudge"));
+    await expect(page.locator("#lessonCard")).toHaveClass(/(^| )nudge( |$)/);
+    await selectLesson(page, 1);
+    await expect(page.locator("#lessonCardNudge")).toBeHidden();
+    await runAndWait(page);
+    await page.click("#lessonCardDone");
+    await expect(page.locator("#lessonCardNudge")).toBeHidden();
+  });
+}
+
+test("F-020: a failed run does not nudge", async ({ page }) => {
+  await openApp(page);
+  await selectLesson(page, 12); // missing colon
+  await runAndWait(page);
+  await expect(page.locator("#lessonCardNudge")).toBeHidden();
+});
+
+test("F-020: the idle banner is hidden in Normal mode and shown in Step mode, during runs and on errors", async ({ page }) => {
+  await openApp(page);
+  await expect(page.locator("#debugInfo")).toBeHidden();
+  await page.selectOption("#runMode", "step");
+  await expect(page.locator("#debugInfo")).toBeVisible();
+  await expect(page.locator("#debugInfo")).toHaveText(await t(page, "debugStep"));
+  await page.selectOption("#runMode", "normal");
+  await expect(page.locator("#debugInfo")).toBeHidden();
+  await selectLesson(page, 12);
+  await runAndWait(page);
+  await expect(page.locator("#debugInfo")).toBeVisible();
+});
+
+test("F-020: the card toggle is a chevron with an accessible name", async ({ page }) => {
+  await openApp(page);
+  const tg = page.locator("#lessonCardToggle");
+  await expect(tg).toHaveText("▾");
+  await expect(tg).toHaveAttribute("aria-label", await t(page, "lessonCardHide"));
+  await tg.click();
+  await expect(tg).toHaveText("▸");
+  await expect(tg).toHaveAttribute("aria-label", await t(page, "lessonCardShow"));
 });
