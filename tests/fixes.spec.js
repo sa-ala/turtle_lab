@@ -141,3 +141,15 @@ test("GAP-31: lesson numbers are readable in high contrast", async ({ page }) =>
   expect(fg).toBe("rgb(255, 255, 255)");
   expect(bg).toBe("rgb(0, 0, 0)");
 });
+
+for (const lang of ["en", "ar"]) {
+  test(`GAP-33: lesson numbers keep a gap before the title (${lang})`, async ({ page }) => {
+    await openApp(page);
+    if (lang === "ar") await page.selectOption("#langSelect", "ar");
+    const gap = await page.locator('#lessonList .lesson[data-i="0"]').evaluate((b) => {
+      const n = b.children[0].getBoundingClientRect(), title = b.children[1].getBoundingClientRect();
+      return document.documentElement.dir === "rtl" ? n.left - title.right : title.left - n.right;
+    });
+    expect(gap).toBeGreaterThanOrEqual(6);
+  });
+}
