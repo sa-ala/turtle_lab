@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Approved (maintainer, 2026-10-23) |
+| Status | Done (2026-10-24); the `input()` lesson is deferred |
 | Priority | P2 |
 | Size | L epic (split into the three PRs below) |
 | Depends on | F-002, F-017 |
@@ -32,7 +32,7 @@ A review of the 38-lesson catalog (SPEC.md §5.2) found:
 
 ## Proposed changes
 
-### PR 1 — Reorder and fix (content only)
+### PR 1 — Reorder and fix (content only) (implemented, #23)
 | Change | Detail |
 | --- | --- |
 | Move `l26-debug-the-turtle-missing-colon` and `l27-debug-the-turtle-indentation` | Directly after `l12-a-better-square-with-loops` (Level 4), as implemented. Level headings are per-lesson strings, so move the lessons into Level 4 and rename Level 7 to e.g. "While Loops and Safe Stopping". |
@@ -43,13 +43,16 @@ A review of the 38-lesson catalog (SPEC.md §5.2) found:
 
 Constraints: AGENTS.md rules 7 and 8 (ids permanent; lessons 26/27 stay broken), `LESSON_AR` reordered in step, and tests that select by position (`tests/app.spec.js` lessons 12, 26, 27) updated. Check `badges()` rules (they reference ids, so they should be unaffected).
 
-### PR 2 — "Beyond the basics" lessons (implemented)
+### PR 2 — "Beyond the basics" lessons (implemented, #24)
 
 Lessons 39-47 were appended after the Final Project as Level 11 "Randomness and Patterns" (39-42) and Level 12 "Reuse, Text, and Recursion" (43-47): random colors, a grid of shapes (nested loops), loop through a list, `range(start, stop, step)`, `return` and default arguments, `write`/`stamp`/`screen.bgcolor`, f-strings and `+=`, a recursive fractal tree, and a random-art capstone.
 
 **Prototype outcome:** the planned `input()` lesson was dropped. The app sets no Skulpt input handler, so `input()` falls back to a blocking browser prompt, which is poor UX and untested in both languages. It needs its own spec (an in-page input UI). Recursion works in Skulpt (tree depth 7), but Step mode on it runs hundreds of lines, so the lesson says to use Normal mode. `turtle.bgcolor()` does not exist in Skulpt 1.2.0, so the lessons use `turtle.Screen().bgcolor()`.
 
-### PR 3 — Docs, badges and tests
+### PR 3 — Docs, badges and tests (folded into PR 2, except the migration test)
+
+The counts, catalog and test updates had to land with PR 2 for its tests to pass, so there was no separate PR 3. The badge question was decided as "no new badge" (Decisions, item 2). The progress-migration test from the test plan was added afterwards in `tests/lesson-ids.spec.js` (v3 ids and v2 indexes saved before the reorder keep their lessons, stars and badges).
+
 - SPEC.md §5.2 catalog and counts (38 → N) everywhere; §6 if badges change.
 - Optional badge for the new track (decide in Open questions).
 - Update `tests/app.spec.js` content counts and position-based tests; every new starter must run in Normal and Step mode.
@@ -69,9 +72,9 @@ Lessons 39-47 were appended after the Final Project as Level 11 "Randomness and 
 - Manual (AGENTS.md §3): Arabic RTL, high contrast and < 860 px for the new level headings.
 
 ## Documentation updates
-- [ ] SPEC.md §5.1–5.2, §6, §14 counts and baseline
-- [ ] README / landing lesson count claims (both languages)
-- [ ] docs/ROADMAP.md status
+- [x] SPEC.md §5.1–5.2, §6, §14 counts and baseline (no badge change, so §6 is unchanged)
+- [x] README / landing lesson count claims (both languages): none state a lesson count
+- [x] docs/ROADMAP.md status
 
 ## Decisions
 Delegated by the maintainer (2026-10-23) and decided with these defaults:
