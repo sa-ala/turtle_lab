@@ -1661,6 +1661,11 @@ let skulptLoading=loadSkulpt();skulptLoading.catch(()=>{}); // the UI handles fa
     #target:not(:empty) ~ .center {
         display: none
     }
+    /* GAP-33: the gap between a lesson number and its title follows the reading direction (was margin-right only) */
+    .num {
+        margin-right: 0;
+        margin-inline-end: 8px
+    }
 </style>
 </head>
 <body>

@@ -1043,6 +1043,7 @@ filing or implementing a fix.
 | GAP-30 | **Fixed.** Long lesson titles widened the sidebar grid, so the lesson select and Reset progress overflowed the sidebar | `.controls` uses `minmax(0, 1fr)`; `tests/fixes.spec.js` at 1440 and 900 px |
 | GAP-31 | **Fixed.** In high contrast, sidebar lesson numbers were light on a light circle | `body.hc .num` is white on black; the toast gets a white border; `tests/fixes.spec.js` |
 | GAP-32 | **Open.** In a heavily loaded parallel test run, a Step-mode run with a 1 ms step delay (test-only; the UI's fastest is 200 ms) sometimes stalls inside a turtle call and never finishes, with no error (lessons 43 and 46). It never happens when the test runs alone | Not reproduced by learners. `tests/curriculum.spec.js` retries those tests twice; investigate Skulpt turtle animation suspensions in Step mode before removing the retry |
+| GAP-33 | **Fixed.** In Arabic (RTL) the sidebar lesson number circles touched the title, because `.num` used `margin-right` | `.num` uses `margin-inline-end`; `tests/fixes.spec.js` in both languages |
 
 ## 14. Test-planning reference
 
