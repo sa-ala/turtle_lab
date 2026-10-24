@@ -56,18 +56,18 @@ All pieces are verified in the vendored Skulpt 1.2.0 (Normal mode, Chromium, 128
 
 | # | id | Name (en) | Name (ar) | Level chip | Built with (lesson ids) | Run time |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `g-rainbow-spiral` | Rainbow Spiral | دوّامة قوس قزح | After Level 9 | l12, l31, l34 | ~4.5 s, animated |
-| 2 | `g-spirograph` | Spirograph | زهرة الدوائر | After Level 9 | l12, l31, l35 | ~3 s, animated |
-| 3 | `g-mandala` | Mandala | ماندالا | After Level 9 | l28, l30, l35 | ~4.5 s, animated |
-| 4 | `g-sunset` | Sunset at Sea | غروب على البحر | After Level 11 | l10, l21, l28, l41 | instant |
-| 5 | `g-starry-night` | Starry Night | ليلة مليئة بالنجوم | After Level 11 | l28, l33, l39 | ~5 s, animated |
-| 6 | `g-city-night` | City at Night | مدينة في الليل | After Level 11 | l24, l28, l39, l40, l42 | instant |
-| 7 | `g-blossom-tree` | Blossom Tree | شجرة مزهرة | After Level 12 | l39, l46 | instant |
-| 8 | `g-koch-snowflake` | Koch Snowflake | ندفة ثلج كوخ | After Level 12 | l46 | instant |
-| 9 | `g-sierpinski` | Sierpinski Triangle | مثلث سيربنسكي | After Level 12 | l10, l46 | instant |
-| 10 | `g-golden-galaxy` | Golden Galaxy | المجرّة الذهبية | Beyond the lessons | l41, l42 | instant |
+| 1 | `g-rainbow-spiral` | Rainbow Spiral | دوّامة قوس قزح | After Level 9 | l12, l31, l34 | ~2.5 s |
+| 2 | `g-spirograph` | Spirograph | زهرة الدوائر | After Level 9 | l12, l31, l35 | ~2 s |
+| 3 | `g-mandala` | Mandala | ماندالا | After Level 9 | l28, l30, l35 | ~2.5 s |
+| 4 | `g-sunset` | Sunset at Sea | غروب على البحر | After Level 11 | l10, l21, l28, l41 | ~4 s |
+| 5 | `g-starry-night` | Starry Night | ليلة مليئة بالنجوم | After Level 11 | l28, l33, l39 | ~3 s |
+| 6 | `g-city-night` | City at Night | مدينة في الليل | After Level 11 | l24, l28, l39, l40, l42 | ~4 s |
+| 7 | `g-blossom-tree` | Blossom Tree | شجرة مزهرة | After Level 12 | l39, l46 | ~4 s |
+| 8 | `g-koch-snowflake` | Koch Snowflake | ندفة ثلج كوخ | After Level 12 | l46 | ~4 s |
+| 9 | `g-sierpinski` | Sierpinski Triangle | مثلث سيربنسكي | After Level 12 | l10, l46 | ~4 s |
+| 10 | `g-golden-galaxy` | Golden Galaxy | المجرّة الذهبية | Beyond the lessons | l41, l42 | ~4 s |
 
-"Instant" pieces use `screen.tracer(0)` and `screen.update()`. Animated pieces use `screen.tracer(2)` so they still draw visibly but twice as fast. Blossom Tree is a deliberate step beyond lesson 46 (which builds the plain fractal tree), not a copy of it.
+Every piece animates. Each one calls `screen.tracer(n)` (n = 2 for the first pieces, up to 80 for Sierpinski and Golden Galaxy) so it draws visibly in about 2–5 s. An earlier draft used `tracer(0)`, which painted nothing until the final `screen.update()`: the picture popped in all at once in Normal mode, and Step mode showed an empty canvas. During Step runs the app also makes `tracer(n)` paint every move (`stepTracer()`), so each line's drawing shows. Blossom Tree is a deliberate step beyond lesson 46 (which builds the plain fractal tree), not a copy of it.
 
 Descriptions and remix ideas:
 
@@ -168,7 +168,7 @@ The maintainer delegated these to the recommended options (2026-10-24).
 - **Q4. Landing page.** No "See what you can build" strip in this feature.
 
 ## Appendix: verified piece code
-Run in Skulpt 1.2.0 through the app's `run()` in Normal mode (Chromium, 1280×900, canvas ~430×520). Every piece stays inside a 320×320 box at the origin.
+Same as `gallery` in `app.html`. Run in Skulpt 1.2.0 through the app's `run()` in Normal and Step mode (Chromium, 1280×900, canvas ~430×520). Every piece stays inside a 320×320 box at the origin.
 
 <details><summary><code>g-rainbow-spiral</code></summary>
 
@@ -258,7 +258,7 @@ import turtle
 
 t = turtle.Turtle()
 screen = turtle.Screen()
-screen.tracer(0)
+screen.tracer(8)   # draw 8 moves per frame. Remix: try 1 to watch every move
 t.hideturtle()
 
 def band(y, height, color):
@@ -356,7 +356,7 @@ import random
 t = turtle.Turtle()
 screen = turtle.Screen()
 screen.bgcolor("midnightblue")
-screen.tracer(0)
+screen.tracer(40)   # draw 40 moves per frame. Remix: try 1 to watch every move
 t.hideturtle()
 
 def rectangle(x, y, w, h, color):
@@ -401,7 +401,7 @@ import random
 t = turtle.Turtle()
 screen = turtle.Screen()
 screen.bgcolor("lavenderblush")
-screen.tracer(0)
+screen.tracer(30)   # draw 30 moves per frame. Remix: try 1 to watch every move
 t.hideturtle()
 
 def tree(length, depth):
@@ -439,7 +439,7 @@ import turtle
 t = turtle.Turtle()
 screen = turtle.Screen()
 screen.bgcolor("aliceblue")
-screen.tracer(0)
+screen.tracer(50)   # draw 50 moves per frame. Remix: try 1 to watch every move
 t.hideturtle()
 t.pencolor("steelblue")
 t.width(2)
@@ -476,7 +476,7 @@ import turtle
 
 t = turtle.Turtle()
 screen = turtle.Screen()
-screen.tracer(0)
+screen.tracer(80)   # draw 80 moves per frame. Remix: try 1 to watch every move
 t.hideturtle()
 
 colors = ["crimson", "orange", "gold", "seagreen", "royalblue", "purple"]
@@ -516,7 +516,7 @@ import math
 t = turtle.Turtle()
 screen = turtle.Screen()
 screen.bgcolor("black")
-screen.tracer(0)
+screen.tracer(80)   # draw 80 moves per frame. Remix: try 1 to watch every move
 t.hideturtle()
 t.penup()
 
