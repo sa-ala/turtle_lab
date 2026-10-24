@@ -3,7 +3,8 @@
 //   node tools/check.mjs
 // Exits 1 if any invariant in AGENTS.md section 6 is broken.
 import { readFileSync, existsSync } from "node:fs";
-import { offlineHtml, sha256, sri384, LIBS, OUT_DIR, LIB_DIR, OUT_LIB_DIR } from "./build-offline.mjs";
+import { offlineHtml, sha256, sri384, LIBS, OUT_DIR, LIB_DIR, OUT_LIB_DIR, GALLERY_DIR, OUT_GALLERY_DIR, galleryFiles } from "./build-offline.mjs";
+import { validateGallery } from "./content.mjs";
 
 const app = readFileSync("app.html", "utf8");
 const landing = readFileSync("index.html", "utf8");
@@ -73,6 +74,15 @@ if (exampleNamesAr && examples) {
   exampleNamesAr.forEach((v, i) => { if (typeof v !== "string" || !v.trim()) fail(`EXAMPLE_NAMES_AR[${i}] missing or empty`); });
 }
 
+// F-021: gallery pieces (same rules as tools/content.mjs), each with its thumbnail, and no orphan thumbnails.
+const gallery = json("gallery"), galleryAr = json("GALLERY_AR");
+if (gallery && galleryAr && lessons) {
+  for (const e of validateGallery({ gallery, GALLERY_AR: galleryAr, lessons })) fail(e.replace(/gallery\.ar\.json/g, "GALLERY_AR").replace(/gallery\.json/g, "gallery"));
+  const thumbs = galleryFiles(GALLERY_DIR), want = gallery.map((g) => `${g.id}.jpg`);
+  for (const f of want) if (!thumbs.includes(f)) fail(`${GALLERY_DIR}/${f} missing; run node tools/gallery-thumbs.mjs`);
+  for (const f of thumbs) if (!want.includes(f)) fail(`${GALLERY_DIR}/${f} has no gallery piece; delete it`);
+}
+
 for (const [name, arr, fields] of [["docs/extraDocs", [...(docs||[]), ...(extraDocs||[])], ["category","command","explanation","example"]], ["examples", examples||[], ["name","code"]]])
   arr.forEach((d, i) => { for (const f of fields) if (typeof d[f] !== "string") fail(`${name}[${i}].${f} missing or not a string`); });
 
@@ -127,6 +137,8 @@ try {
   else if (readFileSync(`${OUT_DIR}/app.html`, "utf8").replace(/\r\n/g, "\n") !== want) fail(`${OUT_DIR}/app.html is stale; run node tools/build-offline.mjs`);
   for (const { file, sha256: h } of LIBS) for (const dir of [LIB_DIR, OUT_LIB_DIR])
     if (!existsSync(`${dir}/${file}`) || sha256(readFileSync(`${dir}/${file}`)) !== h) fail(`${dir}/${file} missing or modified; run node tools/build-offline.mjs`);
+  const thumbs = galleryFiles(GALLERY_DIR), copies = galleryFiles(OUT_GALLERY_DIR);
+  if (thumbs.join() !== copies.join() || thumbs.some((f) => !readFileSync(`${GALLERY_DIR}/${f}`).equals(readFileSync(`${OUT_GALLERY_DIR}/${f}`)))) fail(`${OUT_GALLERY_DIR}/ differs from ${GALLERY_DIR}/; run node tools/build-offline.mjs`);
 } catch (e) { fail(`offline bundle: ${e.message}`); }
 
 // The CI e2e container image must match the pinned Playwright version, or browsers will not match.
@@ -137,7 +149,7 @@ try {
   else if (pw !== image[1]) fail(`Playwright CI image v${image[1]} does not match @playwright/test ${pw} in package.json`);
 } catch (e) { fail(`Playwright version check: ${e.message}`); }
 
-const summary = lessons && `${lessons.length} lessons, ${(docs||[]).length + (extraDocs||[]).length} docs, ${(examples||[]).length} examples`;
+const summary = lessons && `${lessons.length} lessons, ${(docs||[]).length + (extraDocs||[]).length} docs, ${(examples||[]).length} examples, ${(gallery||[]).length} gallery pieces`;
 notes.forEach((n) => console.log("note:", n));
 if (errors.length) { errors.forEach((e) => console.error("FAIL:", e)); console.error(`\n${errors.length} problem(s).`); process.exit(1); }
 console.log(`OK: ${summary}. All invariants hold.`);

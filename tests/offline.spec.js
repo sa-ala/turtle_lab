@@ -10,3 +10,13 @@ test("offline/app.html runs lesson 1 using only local files", async ({ page }) =
   await expectRunSucceeded(page);
   expect(external).toEqual([]);
 });
+
+test("offline/app.html shows Gallery thumbnails and runs a piece (F-021)", async ({ page }) => {
+  await openApp(page, "/offline/app.html");
+  await page.click('.learn .tab[data-tab="gallery"]');
+  const img = page.locator("#gallery .gPiece img").first();
+  await img.scrollIntoViewIfNeeded();
+  await expect.poll(() => img.evaluate((el) => el.complete && el.naturalWidth)).toBe(240);
+  await page.locator("#gallery .gOpen").nth(7).click();
+  await expectRunSucceeded(page);
+});

@@ -9,8 +9,8 @@ approved roadmap or a guarantee of browser compatibility.
 
 | Attribute | Baseline |
 | --- | --- |
-| Review date | 2026-10-23 |
-| Source revision | `b2cc25f` |
+| Review date | 2026-10-24 |
+| Source revision | `ac69e8a` plus F-021 (Gallery) |
 | Primary sources | [index.html](index.html), [app.html](app.html) |
 | Supporting sources | [README.md](README.md), [LICENSE](LICENSE) |
 | Product | Turtle Lab |
@@ -72,7 +72,7 @@ roles, teacher accounts, permissions, classroom rosters, or separate dashboards.
 | BR-07 | Switching lessons restores that lesson's draft. Loading an example, Syntax Help Try it, and Reset lesson code ask before replacing code that differs from the lesson starter (F-007). |
 | BR-08 | Resetting progress requires confirmation and removes completion/badges, but preserves the selected lesson, code, and preferences. |
 | BR-09 | English and Arabic are supported, with different language-selection models on the two pages. On the first app visit (no `tl.lang.v1`), the app adopts the landing choice (`ar` gives Arabic; `en` or Both gives English); after that the two preferences are independent (F-014). |
-| BR-10 | No grading, automatic goal checking, score beyond stars, certificate, collaboration, cloud sync, or project gallery is implemented. Optional, non-grading goal feedback is designed in `docs/specs/F-011-challenge-checks.md` (postponed). |
+| BR-10 | No grading, automatic goal checking, score beyond stars, certificate, collaboration, cloud sync, or gallery of learners' work is implemented. The Gallery tab (F-021) holds only curated, built-in pieces. Optional, non-grading goal feedback is designed in `docs/specs/F-011-challenge-checks.md` (postponed). |
 | BR-11 | No monetization, subscription, payment, analytics event collection, or account-registration flow appears in the reviewed source. |
 
 No conversion targets, lesson-duration targets, learning-outcome metrics,
@@ -96,11 +96,13 @@ size). The other links carry no parameters.
 
 **Deep links (F-008).** On startup, after stored state is restored, the app
 reads the URL hash: `#lesson=<lesson id>`, `#example=<slug of the example name
-or 1-based number>` and `#lang=en|ar`. They can be combined with `&`, and are
-applied in the order lang, lesson, example. Invalid or unknown values are
+or 1-based number>`, `#gallery=<gallery id>` (F-021) and `#lang=en|ar`. They can be combined with `&`, and are
+applied in the order lang, lesson, example, gallery. Invalid or unknown values are
 ignored silently. The hash is then removed with `history.replaceState`, so a
 reload doesn't reapply it. The same handling runs on `hashchange`. A linked
-example goes through the F-007 overwrite protection. A linked lesson or
+example goes through the F-007 overwrite protection. A linked gallery piece
+opens the Gallery tab and loads the piece through the same protection, without
+running it. A linked lesson or
 language is saved like a normal choice. Links never carry code (decision D4).
 
 No in-app Home link back to the landing page is present. Learning-area tabs
@@ -147,7 +149,7 @@ they do not execute Python.
 | Editor | Plain textarea, line-number gutter, current/error-line overlays, autosave status, cursor location | `code`, `rail`, `codeHighlights`, `highlightInner`, `saveStatus`, `cursor` |
 | Results below editor | Output and Errors tabs with separate content panels | `output`, `errors`, `out`, `err`; `[data-run-tab]` |
 | Drawing | Stage, Skulpt target, coordinate helper, zoom controls, Clear, Save PNG; green start arrow at the center pointing east, hidden once a run draws (F-019); "New output ↓" chip (F-019) shown when `print()` output lands while `#out` is off screen, with a dot on the Output tab | `stage`, `target`, `coordOverlay`, `coordToggle`, `zoomOut`, `zoomIn`, `zoomReset`, `zoomLabel`, `clearBtn`, `pngBtn`, `newOutput` |
-| Learning area | Lesson, Syntax Help, Challenges, Teacher & Parent, Badges, My Projects (F-012) | `[data-tab]`; `lesson`, `syntax`, `challenge`, `teacher`, `badges`, `projects` |
+| Learning area | Lesson, Syntax Help, Challenges, Gallery (F-021), Teacher & Parent, Badges, My Projects (F-012) | `[data-tab]`; `lesson`, `syntax`, `challenge`, `gallery`, `teacher`, `badges`, `projects`; `galleryTip` |
 | Print-only area | Syntax Cheat Sheet title and all reference commands/explanations | `printDocs` |
 | Notifications | Transient status messages | `toast` |
 
@@ -199,6 +201,8 @@ completion toast. It does not advance to the next lesson.
 | Reset lesson code | Ask first if the code differs from the starter; then load the selected lesson's original English starter, save, clear highlights, rebuild gutter/cursor, reset debug guidance |
 | Load Example | Ask first if the code differs from the starter; then replace/save code, clear highlights, reset debug guidance, retain selected lesson and learning content. The example selector resets to its placeholder either way |
 | Syntax Help: Try it | Ask first if the code differs from the starter; then replace/save code with the entry's sample and rebuild lines; retain selected lesson |
+| Gallery: ▶ Open and run (F-021) | Ask first if the code differs from the starter; then stop any run, replace/save code with the piece, and run it in the selected Run Mode; retain selected lesson. In Step mode a tip suggests Normal mode (hidden again when Run Mode changes) |
+| Gallery: lesson chip (F-021) | Stop any run, switch to that lesson (with its draft) and show the Lesson tab |
 | Edit textarea | Save immediately per input event, clear highlights, rebuild line display; reset debug guidance when no run is active |
 | Tab in editor | Insert four spaces; with a multi-line selection, indent every selected line (F-009) |
 | Shift+Tab in editor | Outdent the current or every selected line by up to four spaces (F-009) |
@@ -458,6 +462,36 @@ Printing always includes all 25 entries regardless of the search filter.
 The reference documents intended teaching coverage, not complete CPython or
 Skulpt API compatibility. Python Turtle documentation is an external reference,
 not proof that every desktop Turtle API is supported in this browser runtime.
+
+### 5.5 Gallery (F-021)
+
+`gallery` holds **10** curated pieces `{id, level, uses, name, description,
+remix, code}` and `GALLERY_AR` the index-aligned Arabic `{name, description,
+remix}`. `id` is permanent (`g-<slug>`) and used by `#gallery=`. `level` is the
+level number that makes a piece reachable, or `null` for "Beyond the lessons".
+`uses` lists lesson ids, rendered as "Lesson N: title" chips. `remix` holds 2–3
+ideas; text in backticks renders as LTR `<code>` after escaping. Code stays
+Python (English). The Gallery tab shows them in this order:
+
+| Piece | id | Level chip | Built with |
+| --- | --- | --- | --- |
+| Rainbow Spiral | `g-rainbow-spiral` | After Level 9 | lessons 12, 31, 34 |
+| Spirograph | `g-spirograph` | After Level 9 | lessons 12, 31, 35 |
+| Mandala | `g-mandala` | After Level 9 | lessons 28, 30, 35 |
+| Sunset at Sea | `g-sunset` | After Level 11 | lessons 10, 21, 28, 41 |
+| Starry Night | `g-starry-night` | After Level 11 | lessons 28, 33, 39 |
+| City at Night | `g-city-night` | After Level 11 | lessons 24, 28, 39, 40, 42 |
+| Blossom Tree | `g-blossom-tree` | After Level 12 | lessons 39, 46 |
+| Koch Snowflake | `g-koch-snowflake` | After Level 12 | lesson 46 |
+| Sierpinski Triangle | `g-sierpinski` | After Level 12 | lessons 10, 46 |
+| Golden Galaxy | `g-golden-galaxy` | Beyond the lessons | lessons 41, 42 |
+
+Every piece finishes in Normal mode within about 5 s and stays inside the
+centered 320×320 box (the minimum canvas). Busy pieces use `screen.tracer(0)`
+and `screen.update()`; animated ones use `screen.tracer(2)`. Each card shows a
+static thumbnail `assets/gallery/<id>.jpg` (240×240 JPEG, `loading="lazy"`),
+generated by the dev-only `node tools/gallery-thumbs.mjs`. Gallery pieces award
+no stars or badges and nothing new is stored.
 
 ## 6. Progress, stars, and badge semantics
 
@@ -924,6 +958,7 @@ Function/constant names are better long-term search anchors.
 | DOM/state/utilities | `store`, `isIndex`, `oneOf` (after `K`), `$`, `E`, `safeParse`, limit constants, state, `esc`, `toast`, `storageWarn`, `tab`, `runTab`, `T`, lines 1283-1292 |
 | Debugger/highlights/instrumentation | `updateDebugControls`, `lineExplanation`, `renderEditorLines`, `instrumentCode`, `extractErrorLine`, `installStepBuiltin`, lines 1294-1308 |
 | Localization and learning UI | `applyLang`, `buildLessons`, `buildExamples`, `buildDocs`, `loadLesson`, lines 1309-1315 |
+| Gallery (F-021) | `gallery`, `GALLERY_AR` (content); `galleryData`, `galleryIndex`, `remixHtml`, `buildGallery`, `openGallery`, `galleryClick`; thumbnails in `assets/gallery/` from `tools/gallery-thumbs.mjs` |
 | Saving/progression/badges | `save`, `cursor`, `progressUI`, `complete`, `badges`, `resetProgress`, lines 1316-1322; ids and migration: `V2_LESSON_IDS`, `lessonIndex`, `lessonId`, `migrateV2` |
 | Drawing/zoom/coordinates | `resetCanvas`, `clampZoom`, `applyZoom`, `drawCoordinateOverlay`, `applyCoordinates`, `clearDrawing`, lines 1323-1332 |
 | Python lifecycle and errors | `output`, `builtinRead`, `nextFrame`, `run`, `friendly`, `stop`, `setRun`, lines 1333-1341 |
@@ -948,17 +983,19 @@ Content editing has a dev-only helper, `node tools/content.mjs` (F-017). `extrac
 writes the content arrays to a git-ignored `content/` folder as pretty JSON.
 `check` validates them. `inject` writes them back as single-line literals in the
 exact existing format, so an unedited round trip is byte-identical. Invalid
-JSON, misaligned Arabic arrays, missing lesson fields, levels without Arabic, and
-bad or duplicate ids abort `inject` with `app.html` unchanged. The site never
+JSON, misaligned Arabic arrays, missing lesson fields, levels without Arabic,
+bad or duplicate ids, and invalid gallery pieces (unknown lesson ids or levels,
+not 2–3 remix ideas) abort `inject` with `app.html` unchanged. The site never
 needs this tool.
 
 The only build-like step is `node tools/build-offline.mjs`, which generates
 `offline/`: `offline/app.html` (a copy of `app.html` with a banner),
 `offline/assets/libs/` (a copy of the vendored Skulpt 1.2.0 files and license
-from `assets/libs/`, SHA-256 verified), and `offline/README.txt`. The folder can be copied
+from `assets/libs/`, SHA-256 verified), `offline/assets/gallery/` (a copy of
+the Gallery thumbnails), and `offline/README.txt`. The folder can be copied
 and opened by double-clicking `offline/app.html` with no network access.
-`tools/check.mjs` fails if `offline/app.html` is stale or a library hash
-differs. Because browser storage is per origin, the offline copy (a `file://`
+`tools/check.mjs` fails if `offline/app.html` is stale, a library hash
+differs, or a Gallery thumbnail is missing, orphaned or not copied. Because browser storage is per origin, the offline copy (a `file://`
 origin) does not share progress or drafts with the hosted site.
 
 Open `index.html` directly for a basic entry point, or serve the repository
@@ -1059,11 +1096,12 @@ for the limitations above.
 | --- | --- |
 | Landing navigation | Every internal anchor resolves; all app CTAs reach `app.html`; external references use correct URLs/new-tab isolation; preview CTA opens the Square example (covered by `tests/deep-links.spec.js`) |
 | Landing languages | Clean default Both; English/Arabic/Both visibility, root direction/language, pressed states, reload persistence, invalid preference normalization; inspect GAP-17/18 |
-| First app load / resume | Clean defaults, 47 selectable lessons, 12 headings, 13 examples, 25 docs; restore draft/lesson/preferences; drawing/results not persisted |
+| First app load / resume | Clean defaults, 47 selectable lessons, 12 headings, 13 examples, 25 docs, 10 gallery pieces; restore draft/lesson/preferences; drawing/results not persisted |
 | Lesson content | Matching titles/metadata/prose/starter on sidebar and selector changes; no automatic run/advance; complete lesson overlays in both languages |
 | Teaching errors | Lesson 13 missing colon and lesson 14 indentation fail intentionally; corrected versions draw the square |
 | Code editing | Immediate storage write, gutter line count, caret line/column, scroll alignment, four-space Tab replacement, reset behavior, no implicit outdent |
 | Code replacement | All 13 examples and 25 Try it samples replace/save draft without lesson navigation; reset restores current starter; identify stale highlight case |
+| Gallery (F-021) | Every piece opens and runs; card content in both languages; overwrite dialog; lesson chips; Step tip and Stop; stop-then-run; `#gallery=` links; thumbnails online and offline (covered by `tests/gallery.spec.js`, `tests/offline.spec.js`) |
 | Normal execution | First line, square, loops, conditionals, functions, lists, multiple turtles, print output, empty/whitespace fallback; success does not grant completion |
 | Step execution | Delays 900/500/200ms, speed control hidden in Normal, control disabling, original-line mapping, multiline expressions, repeated body highlights, focus/scroll behavior |
 | Execution boundaries | Configured 45000/900000ms limits and 6000 callbacks; callback 6001 errors; measure actual behavior with deterministic fixtures and tolerances rather than hard wall-clock assumptions |

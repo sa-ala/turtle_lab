@@ -24,7 +24,7 @@ for (const crlf of [false, true]) {
     const w = workspace(crlf);
     const before = w.read();
     expect(w.run("extract").status).toBe(0);
-    for (const f of ["lessons.json", "lessons.ar.json", "levels.ar.json", "docs.json", "docs.extra.json", "docs.ar.json", "examples.json", "examples.names.ar.json"]) expect(existsSync(join(w.content, f))).toBe(true);
+    for (const f of ["lessons.json", "lessons.ar.json", "levels.ar.json", "docs.json", "docs.extra.json", "docs.ar.json", "examples.json", "examples.names.ar.json", "gallery.json", "gallery.ar.json"]) expect(existsSync(join(w.content, f))).toBe(true);
     const r = w.run("inject");
     expect(r.status).toBe(0);
     expect(r.stdout).toContain("no changes");
@@ -74,6 +74,14 @@ const BROKEN = [
   ["a malformed lesson id", (w) => { const a = w.json("lessons.json"); a[3].id = "Lesson 4"; w.put("lessons.json", a); }, /must look like "l12-short-title"/],
   ["a missing lesson field", (w) => { const a = w.json("lessons.json"); delete a[5].starterCode; w.put("lessons.json", a); }, /lessons\.json\[5\] is missing "starterCode"/],
   ["a level with no Arabic translation", (w) => { const a = w.json("lessons.json"); a[0].level = "Level 99: New"; w.put("lessons.json", a); }, /no Arabic for level "Level 99: New"/],
+  // F-021 gallery
+  ["Arabic gallery misaligned", (w) => { const a = w.json("gallery.ar.json"); a.pop(); w.put("gallery.ar.json", a); }, /gallery\.ar\.json has 9 entries but gallery\.json has 10/],
+  ["a duplicate gallery id", (w) => { const a = w.json("gallery.json"); a[1].id = a[0].id; w.put("gallery.json", a); }, /gallery\.json\[1\] reuses id "g-rainbow-spiral"/],
+  ["a malformed gallery id", (w) => { const a = w.json("gallery.json"); a[2].id = "Mandala"; w.put("gallery.json", a); }, /must look like "g-short-name"/],
+  ["a gallery piece using an unknown lesson", (w) => { const a = w.json("gallery.json"); a[0].uses.push("l99-nope"); w.put("gallery.json", a); }, /unknown lesson id "l99-nope"/],
+  ["a gallery piece with an unknown level", (w) => { const a = w.json("gallery.json"); a[0].level = 42; w.put("gallery.json", a); }, /level must be an existing level number or null/],
+  ["a gallery piece with one remix idea", (w) => { const a = w.json("gallery.json"); a[0].remix = ["only one"]; w.put("gallery.json", a); }, /gallery\.json\[0\]\.remix must hold 2 or 3/],
+  ["Arabic remix ideas that do not match", (w) => { const a = w.json("gallery.ar.json"); a[0].remix.pop(); w.put("gallery.ar.json", a); }, /gallery\.ar\.json\[0\]\.remix has 2 ideas but gallery\.json\[0\] has 3/],
   ["a missing content file", (w) => rmSync(join(w.content, "docs.ar.json")), /docs\.ar\.json not found/],
 ];
 for (const [name, breakIt, message] of BROKEN) {

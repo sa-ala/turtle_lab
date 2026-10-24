@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Turtle Lab content authoring tool (ROADMAP F-017). No dependencies. Run from repo root.
+// Turtle Lab content authoring tool (ROADMAP F-017; gallery added by F-021). No dependencies. Run from repo root.
 //
 //   node tools/content.mjs extract   writes app.html's content arrays to content/*.json (pretty-printed, for editing/review)
 //   node tools/content.mjs check     validates content/*.json without writing anything
@@ -24,6 +24,8 @@ export const FILES = [
   { name: "DOCS_AR", file: "docs.ar.json" },
   { name: "examples", file: "examples.json" },
   { name: "EXAMPLE_NAMES_AR", file: "examples.names.ar.json" },
+  { name: "gallery", file: "gallery.json" },
+  { name: "GALLERY_AR", file: "gallery.ar.json" },
 ];
 const LESSON_FIELDS = ["id", "level", "title", "concept", "goal", "explanation", "starterCode", "expected", "steps", "hint", "challenge", "tryThis", "teacherNote"];
 const AR_FIELDS = LESSON_FIELDS.filter((f) => !["id", "level", "starterCode"].includes(f));
@@ -77,6 +79,37 @@ export function validate(c) {
     if (Array.isArray(c.examples) && c.EXAMPLE_NAMES_AR.length !== c.examples.length) errs.push(`examples.names.ar.json has ${c.EXAMPLE_NAMES_AR.length} entries but examples.json has ${c.examples.length}: Arabic example names must be index-aligned`);
     c.EXAMPLE_NAMES_AR.forEach((v, i) => { if (!isStr(v) || !v.trim()) errs.push(`examples.names.ar.json[${i}] is missing or empty`); });
   }
+  errs.push(...validateGallery(c));
+  return errs;
+}
+
+// F-021: gallery pieces. Thumbnails (assets/gallery/<id>.jpg) are checked by tools/check.mjs.
+export function validateGallery(c) {
+  const errs = [], isStr = (v) => typeof v === "string" && v.trim() !== "";
+  const remixOk = (r) => Array.isArray(r) && r.length >= 2 && r.length <= 3 && r.every(isStr);
+  if (!Array.isArray(c.gallery)) return ["gallery.json must be an array"];
+  const lessonIds = Array.isArray(c.lessons) ? c.lessons.map((l) => l && l.id) : [];
+  const levels = new Set(Array.isArray(c.lessons) ? c.lessons.map((l) => Number((/^Level (\d+):/.exec(l && l.level) || [])[1])) : []);
+  c.gallery.forEach((g, i) => {
+    const at = `gallery.json[${i}]`;
+    if (!g || !isStr(g.id) || !/^g-[a-z0-9-]+$/.test(g.id)) errs.push(`${at}.id "${g && g.id}" must look like "g-short-name"`);
+    for (const f of ["name", "description", "code"]) if (!isStr(g && g[f])) errs.push(`${at}.${f} is missing or empty`);
+    if (g && g.level !== null && !levels.has(g.level)) errs.push(`${at}.level must be an existing level number or null`);
+    if (!g || !Array.isArray(g.uses) || !g.uses.length) errs.push(`${at}.uses must list at least one lesson id`);
+    else for (const id of g.uses) if (!lessonIds.includes(id)) errs.push(`${at}.uses has unknown lesson id "${id}"`);
+    if (!g || !remixOk(g.remix)) errs.push(`${at}.remix must hold 2 or 3 non-empty strings`);
+  });
+  const ids = c.gallery.map((g) => g && g.id);
+  ids.forEach((id, i) => { if (ids.indexOf(id) !== i) errs.push(`gallery.json[${i}] reuses id "${id}" (ids must be unique and never reused)`); });
+  if (!Array.isArray(c.GALLERY_AR)) errs.push("gallery.ar.json must be an array");
+  else {
+    if (c.GALLERY_AR.length !== c.gallery.length) errs.push(`gallery.ar.json has ${c.GALLERY_AR.length} entries but gallery.json has ${c.gallery.length}: Arabic gallery entries must be index-aligned`);
+    c.GALLERY_AR.forEach((g, i) => {
+      for (const f of ["name", "description"]) if (!isStr(g && g[f])) errs.push(`gallery.ar.json[${i}].${f} is missing or empty`);
+      if (!g || !remixOk(g.remix)) errs.push(`gallery.ar.json[${i}].remix must hold 2 or 3 non-empty strings`);
+      else if (c.gallery[i] && Array.isArray(c.gallery[i].remix) && g.remix.length !== c.gallery[i].remix.length) errs.push(`gallery.ar.json[${i}].remix has ${g.remix.length} ideas but gallery.json[${i}] has ${c.gallery[i].remix.length}`);
+    });
+  }
   return errs;
 }
 
@@ -108,7 +141,7 @@ function main(argv) {
   } else if (cmd === "check" || cmd === "inject") {
     const c = readContentDir(dir), errs = validate(c);
     if (errs.length) throw new ContentError(`content is invalid; ${cmd === "inject" ? "app.html was not changed" : "nothing written"}:\n  - ` + errs.join("\n  - "));
-    if (cmd === "check") { console.log(`OK: ${dir}/ is valid (${c.lessons.length} lessons, ${c.docs.length + c.extraDocs.length} docs, ${c.examples.length} examples)`); return; }
+    if (cmd === "check") { console.log(`OK: ${dir}/ is valid (${c.lessons.length} lessons, ${c.docs.length + c.extraDocs.length} docs, ${c.examples.length} examples, ${c.gallery.length} gallery pieces)`); return; }
     const before = readFileSync(app, "utf8"), after = injectInto(before, c);
     readArrays(after); // re-parse what was written, as a final safety net
     if (after === before) { console.log("OK: no changes; app.html is already up to date"); return; }

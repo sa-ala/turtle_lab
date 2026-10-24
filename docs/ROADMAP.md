@@ -31,7 +31,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-018 | Curriculum v2: ordering fixes and "Beyond the basics" track | P2 | L epic | F-002, F-017 | — | Done (PR 1-2; `input()` deferred) |
 | F-019 | Lesson-first layout and control cleanup | P2 | M | GAP-27..31 | — | Done |
 | F-020 | Lesson card and editor toolbar clarity | P2 | M | F-019 | — | Done |
-| F-021 | Gallery of inspiring pieces | P2 | L | F-007, F-008, F-017 | — | Proposed |
+| F-021 | Gallery of inspiring pieces | P2 | L | F-007, F-008, F-017 | — | Done |
 
 Suggested order: F-003, F-004, F-006 (independent quick wins) → F-001 → F-002 → F-005 → then P2 by maintainer preference.
 
@@ -339,7 +339,7 @@ Put the lesson goal, challenge and "I did it!" above the fold in a lesson card, 
 
 ## F-021 Gallery of inspiring pieces
 
-**Status: Proposed.** Full spec: [docs/specs/F-021-gallery.md](specs/F-021-gallery.md).
+**Status: Done.** Full spec: [docs/specs/F-021-gallery.md](specs/F-021-gallery.md). Open questions settled on the recommended options (2026-10-24): run in the selected mode with a Step-mode tip, Open and run runs at once, code replaces the lesson draft like examples, no landing-page strip.
 
 A Gallery tab in the learning area with 10 curated pieces (rainbow spiral, mandala, starry night, city at night, blossom tree, Koch snowflake, Sierpinski triangle, golden galaxy, and more). Each card shows a thumbnail, the level that makes it reachable, links to the lessons that teach its concepts, Open and run, and remix ideas. All pieces are verified in Skulpt 1.2.0 and finish in 5 s or less.
 

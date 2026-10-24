@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Proposed |
+| Status | Done |
 | Priority | P2 |
 | Size | L (one PR; split into A: content + tab, B: thumbnails + deep link if it grows past ~500 lines) |
 | Depends on | F-007, F-008, F-017 |
@@ -24,14 +24,14 @@ The app shows learners what they are doing now but not how far they can go. The 
 - Badges, stars or progress for gallery pieces.
 - Changing the existing examples list or the example selector.
 - Auto-grading of remixes (see F-011).
-- Saving a remix as a project directly from the card (see Open questions).
+- Saving a remix as a project directly from the card (see Decisions, Q3).
 
 ## User experience
 
 ### The tab
 1. The learning area gets a **Gallery** tab after Challenges. Tab selection is not persisted (same as the other tabs, `SPEC.md §4`).
 2. The tab opens with one intro line: "Big ideas built from the same blocks you are learning. Open one, run it, then make it yours."
-3. Pieces appear as a grid of cards, ordered from most reachable to most advanced. The grid has 2 columns in the learning area at ≥ 1180 px and 1 column below that and below 860 px.
+3. Pieces appear as a grid of cards, ordered from most reachable to most advanced. The grid fills as many columns of at least 250 px as fit the learning area (four at 1440 px, one on narrow screens).
 
 ### A card
 Each card shows, top to bottom:
@@ -79,7 +79,7 @@ Descriptions and remix ideas:
 | `g-sunset` | Bands of color from a list, a sun and its reflection. | أشرطة ألوان من قائمة، وشمس وانعكاسها. | Pick your own `sky` colors. · Move the sun with `t.goto(...)`. · Make it night: a white moon and dark colors. | اختر ألوان `sky` بنفسك. · حرّك الشمس باستخدام `t.goto(...)`. · اجعلها ليلًا: قمر أبيض وألوان داكنة. |
 | `g-starry-night` | A star function placed at random spots. Different every run. | دالة نجمة توضع في أماكن عشوائية. تختلف في كل تشغيل. | Set `stars` to 100. · Add `"pink"` to the star colors. · Make the moon bigger. | اجعل `stars` تساوي 100. · أضف `"pink"` إلى ألوان النجوم. · كبّر القمر. |
 | `g-city-night` | Random buildings with random lit windows. A new city every run. | مبانٍ عشوائية بنوافذ مضيئة عشوائيًا. مدينة جديدة في كل تشغيل. | Change 0.6 to 0.2 or 0.9 for fewer or more lights. · Make buildings taller. · Add stars to the sky. | غيّر 0.6 إلى 0.2 أو 0.9 لأضواء أقل أو أكثر. · اجعل المباني أطول. · أضف نجومًا إلى السماء. |
-| `g-blossom-tree` | A function that calls itself to grow branches, with blossoms at the tips. | دالة تستدعي نفسها لتنمو الأغصان، مع أزهار في الأطراف. | Change the depth 8 to 5 or 10. · Change the spread range to `randint(10, 45)`. · Make autumn leaves: orange and red dots. | غيّر العمق 8 إلى 5 أو 10. · غيّر مدى الانفراج إلى `randint(10, 45)`. · اصنع أوراق الخريف: نقاط برتقالية وحمراء. |
+| `g-blossom-tree` | A function that calls itself to grow branches, with blossoms at the tips. | دالة تستدعي نفسها لتنمو الأغصان، مع أزهار في الأطراف. | Change the depth 8 to 5 or 10. · Change the spread to `random.randint(10, 45)`. · Make autumn leaves: orange and red dots. | غيّر العمق 8 إلى 5 أو 10. · غيّر الانفراج إلى `random.randint(10, 45)`. · اصنع أوراق الخريف: نقاط برتقالية وحمراء. |
 | `g-koch-snowflake` | Each line becomes four smaller lines, again and again. | كل خط يصبح أربعة خطوط أصغر، مرة بعد مرة. | Set `level` to 0, 1, 2 and 3 to watch it grow. · Change `t.right(120)` in the last loop to `t.left(120)`. · Draw it in white on a dark background. | اجعل `level` تساوي 0 و1 و2 و3 لترى كيف تنمو. · غيّر `t.right(120)` في الحلقة الأخيرة إلى `t.left(120)`. · ارسمها بالأبيض على خلفية داكنة. |
 | `g-sierpinski` | A triangle made of three smaller triangles, each made of three smaller ones. | مثلث مكوّن من ثلاثة مثلثات أصغر، وكل منها من ثلاثة أصغر. | Change the depth 5 to 2 or 6. · Use your own `colors`. · Try `half * 0.6` instead of `half * 0.866`. | غيّر العمق 5 إلى 2 أو 6. · استخدم ألوانك في `colors`. · جرّب `half * 0.6` بدلًا من `half * 0.866`. |
 | `g-golden-galaxy` | 500 dots, each turned by the golden angle. Sunflowers grow seeds this way. | 500 نقطة، كل واحدة تدور بالزاوية الذهبية. هكذا تنمو بذور دوّار الشمس. | Change `turn` to 137, 138 or 90. · Change `range(500)` to `range(1000)`. · Make every dot the same size. | غيّر `turn` إلى 137 أو 138 أو 90. · غيّر `range(500)` إلى `range(1000)`. · اجعل كل النقاط بالحجم نفسه. |
@@ -88,7 +88,7 @@ Descriptions and remix ideas:
 
 | Key | en | ar |
 | --- | --- | --- |
-| `tabGallery` | Gallery | المعرض |
+| `galleryTab` | 🖼 Gallery | 🖼 المعرض |
 | `galleryIntro` | Big ideas built from the same blocks you are learning. Open one, run it, then make it yours. | أفكار كبيرة مبنية من نفس الأدوات التي تتعلمها. افتح واحدة وشغّلها ثم اجعلها خاصة بك. |
 | `galleryOpen` | ▶ Open and run | ▶ افتح وشغّل |
 | `galleryOpenLabel` | (name) => `Open and run ${name}` | (name) => `افتح وشغّل ${name}` |
@@ -99,6 +99,7 @@ Descriptions and remix ideas:
 | `galleryRemix` | Remix ideas | أفكار للتعديل |
 | `galleryImgAlt` | (name) => `Picture of ${name}` | (name) => `صورة ${name}` |
 | `galleryStepTip` | Tip: gallery pieces have thousands of steps. Switch Run Mode to Normal to see them draw quickly. | نصيحة: أعمال المعرض فيها آلاف الخطوات. غيّر وضع التشغيل إلى عادي لتراها تُرسم بسرعة. |
+| `galleryLoaded` | (name) => `${name} opened.` | (name) => `تم فتح ${name}.` |
 
 The lesson chip uses the lesson's position number and localized title at render time, so it stays correct if lessons are reordered.
 
@@ -129,7 +130,7 @@ The lesson chip uses the lesson's position number and localized title at render 
 - `openGallery(i, {run})`: `okToReplace()` → `stopIfRunning()` → set code and save it like `loadExample()` → `run()` when `run` is true. Reuse `loadExample`'s internals instead of duplicating them.
 - Lesson chips call the same path as selecting a lesson in the sidebar, then `tab("lesson")`.
 - `applyDeepLink()`: add `gallery` after `example`, call `tab("gallery")` and `openGallery(i, {run:false})`.
-- `galleryTip` shows when Open and run is used with Run Mode Step and hides on the next mode change or tab change.
+- `galleryTip` shows when Open and run is used with Run Mode Step, and hides when Run Mode changes or the next piece opens in Normal mode.
 - No storage changes: no new `K` keys.
 - Run/step: no change to `run()`. Pieces are ordinary programs, so `runToken`, `stop()` and Step mode apply unchanged.
 
@@ -144,7 +145,7 @@ The lesson chip uses the lesson's position number and localized title at render 
 8. `#gallery=g-koch-snowflake` opens on the Gallery tab with that code loaded and not running. `#gallery=nope` is ignored with no error.
 9. The offline bundle shows thumbnails and runs a piece with no external requests.
 10. axe reports no serious or critical issues on the Gallery tab in both languages. The tab is usable at < 860 px and in high contrast.
-11. `node tools/content.mjs check` fails on a misaligned `GALLERY_AR`, a duplicate or malformed gallery id, a `uses` entry that is not a lesson id, or a missing thumbnail.
+11. `node tools/content.mjs check` fails on a misaligned `GALLERY_AR`, a duplicate or malformed gallery id, a `uses` entry that is not a lesson id, an unknown level, or not 2–3 remix ideas. `node tools/check.mjs` fails on the same problems and on a missing, orphaned or uncopied thumbnail (the content tool runs on a bare copy of `app.html`, so thumbnails are not its job).
 
 ## Test plan
 - New `tests/gallery.spec.js`: every piece runs (AC 3), card content per language (AC 2), overwrite dialog (AC 4), lesson chip (AC 5), Step tip and Stop (AC 6), run lifecycle (AC 7), deep links (AC 8).
@@ -154,16 +155,17 @@ The lesson chip uses the lesson's position number and localized title at render 
 - Manual: high contrast both languages, < 860 px, 1280 px Arabic tab row fits (7 tabs).
 
 ## Documentation updates
-- [ ] SPEC.md: §4 learning-area tabs, new §5.5 Gallery inventory, §8 deep links, §12.1 source map (`gallery`, `GALLERY_AR`, `buildGallery`, `openGallery`), §14 inventory and baseline. BR-10: say a curated gallery exists and a learner-work gallery does not
-- [ ] AGENTS.md: §1 document map (`assets/gallery/`, `tools/gallery-thumbs.mjs`), §3 test list, §5 recipe "Add a gallery piece"
-- [ ] README and landing: optional one-line mention, both languages
-- [ ] docs/ROADMAP.md status
+- [x] SPEC.md: BR-10, §3.1 deep links, §3.3 learning-area tabs, §4.3 actions, new §5.5 Gallery, §12.1 source map, §12.2 tooling and offline bundle, §14 inventory, baseline
+- [x] AGENTS.md: §1 document map (`assets/gallery/`, `tools/gallery-thumbs.mjs`), §3 checks and test list, §4 content files, §5 recipe "Add a gallery piece"
+- [ ] README and landing: not changed (see Q4)
+- [x] docs/ROADMAP.md status
 
-## Open questions
-- **Q1. Step mode.** Recommended: run in the selected mode and show the tip (above). Alternative: Open and run switches Run Mode to Normal and announces it. That is faster for kids, but it changes a setting they chose.
-- **Q2. Auto-run.** Recommended: Open and run runs immediately, which is the "wow" moment. Alternative: a plain "Open" button that the learner then runs.
-- **Q3. Where the code goes.** Recommended: same as examples (replaces the current lesson draft, behind the F-007 dialog). Alternative: open each piece as a new My Projects entry, so remixes never overwrite lesson work. That is safer but adds clutter.
-- **Q4. Landing page.** Add a "See what you can build" strip linking to `app.html#gallery=…`? Out of scope unless approved.
+## Decisions
+The maintainer delegated these to the recommended options (2026-10-24).
+- **Q1. Step mode.** Run in the selected mode and show the tip. Rejected: switching Run Mode to Normal automatically, because it changes a setting the learner chose.
+- **Q2. Auto-run.** Open and run runs immediately. Deep links only load the piece.
+- **Q3. Where the code goes.** Same as examples: it replaces the current lesson draft, behind the F-007 dialog. Rejected for now: a new My Projects entry per piece.
+- **Q4. Landing page.** No "See what you can build" strip in this feature.
 
 ## Appendix: verified piece code
 Run in Skulpt 1.2.0 through the app's `run()` in Normal mode (Chromium, 1280×900, canvas ~430×520). Every piece stays inside a 320×320 box at the origin.
