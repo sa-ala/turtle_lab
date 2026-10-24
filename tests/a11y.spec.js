@@ -21,7 +21,7 @@ for (const lang of ["en", "ar"]) {
     await openApp(page);
     if (lang === "ar") await page.selectOption("#langSelect", "ar");
     expect(await seriousViolations(page), "first load").toEqual([]);
-    for (const tabId of ["syntax", "challenge", "teacher", "badges", "projects"]) {
+    for (const tabId of ["syntax", "challenge", "gallery", "teacher", "badges", "projects"]) {
       await page.click(`.learn .tab[data-tab="${tabId}"]`);
       expect(await seriousViolations(page), `tab ${tabId}`).toEqual([]);
     }
@@ -55,7 +55,7 @@ test("tabs follow the ARIA tablist pattern with arrow keys, Home and End (mirror
   await openApp(page);
   const learn = page.locator(".learn [role=tablist]");
   await expect(learn).toHaveAttribute("aria-label", await t(page, "learningTabsLabel"));
-  await expect(page.locator(".learn [role=tab]")).toHaveCount(6);
+  await expect(page.locator(".learn [role=tab]")).toHaveCount(7);
   const lessonTab = page.locator('.learn [data-tab="lesson"]');
   await expect(lessonTab).toHaveAttribute("aria-selected", "true");
   await expect(lessonTab).toHaveAttribute("tabindex", "0");

@@ -30,12 +30,13 @@ test("first load uses clean defaults (§4.1, §14 first app load)", async ({ pag
   await expect(page.locator("#badgeGrid .badge")).toHaveCount(6);
   await expect(page.locator("#badgeGrid .badge.earned")).toHaveCount(0);
 
-  // Content inventory (§5, §14): 47 lessons in 12 levels, 13 examples, 25 syntax entries
+  // Content inventory (§5, §14): 47 lessons in 12 levels, 13 examples, 25 syntax entries, 10 gallery pieces
   await expect(page.locator("#lessonSelect option")).toHaveCount(47);
   await expect(page.locator("#lessonList .lesson")).toHaveCount(47);
   await expect(page.locator("#lessonList .level")).toHaveCount(12);
   await expect(page.locator("#examples option:not([value=''])")).toHaveCount(13);
   await expect(page.locator("#printDocs .doc")).toHaveCount(25);
+  await expect(page.locator("#gallery .gPiece")).toHaveCount(10);
 });
 
 test("Run button draws lesson 1 and shows success (§4.4, §7.2)", async ({ page }) => {

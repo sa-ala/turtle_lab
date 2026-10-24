@@ -14,7 +14,7 @@ import { LIBS, LIB_DIR } from "../tools/build-offline.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const ORIGIN = "http://turtle.test";
-const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".txt": "text/plain; charset=utf-8", ".png": "image/png", ".svg": "image/svg+xml" };
+const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".txt": "text/plain; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml" };
 const CDN = new Map(LIBS.map((l) => [l.url, resolve(ROOT, LIB_DIR, l.file)]));
 
 async function fulfillFile(route, file, headers = {}) {

@@ -2,15 +2,18 @@
 // Regenerates the offline bundle in offline/ from app.html and assets/libs/. No dependencies. Run from repo root:
 //   node tools/build-offline.mjs
 // app.html loads Skulpt from assets/libs/ first (CDN only as a fallback), so offline/ mirrors that layout:
-// offline/app.html is app.html plus a banner, and offline/assets/libs/ is a copy of assets/libs/.
+// offline/app.html is app.html plus a banner, offline/assets/libs/ is a copy of assets/libs/, and offline/assets/gallery/
+// is a copy of the Gallery thumbnails in assets/gallery/ (F-021; regenerate those with tools/gallery-thumbs.mjs).
 // Vendored libraries are downloaded into assets/libs/ only when missing, and are always verified against the SHA-256 below.
 // To upgrade Skulpt: update SKULPT_FILES in app.html (cdn URL + sri) AND the url/sha256 entries here,
 // delete assets/libs/*.js, rerun this script, then run node tools/check.mjs and npm test.
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { pathToFileURL } from "node:url";
 
 export const OUT_DIR = "offline", LIB_DIR = "assets/libs", OUT_LIB_DIR = "offline/assets/libs";
+export const GALLERY_DIR = "assets/gallery", OUT_GALLERY_DIR = "offline/assets/gallery";
+export const galleryFiles = (dir) => existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".jpg")).sort() : [];
 export const LIBS = [
   { file: "skulpt.min.js", url: "https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js", sha256: "1a319d8eedf314dba5af2444313e3cf2ac072a335df0f5100277e8f49b64eae9" },
   { file: "skulpt-stdlib.js", url: "https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js", sha256: "e3ecccbc17c6164d19ed3c5561aaaeb752c38c8efa2d88b62b5fb7a7e1b086a7" },
@@ -45,6 +48,9 @@ async function main() {
     }
     writeFileSync(`${OUT_LIB_DIR}/${file}`, readFileSync(path));
   }
+  mkdirSync(OUT_GALLERY_DIR, { recursive: true });
+  for (const f of galleryFiles(OUT_GALLERY_DIR)) if (!existsSync(`${GALLERY_DIR}/${f}`)) rmSync(`${OUT_GALLERY_DIR}/${f}`);
+  for (const f of galleryFiles(GALLERY_DIR)) writeFileSync(`${OUT_GALLERY_DIR}/${f}`, readFileSync(`${GALLERY_DIR}/${f}`));
   writeFileSync(`${OUT_DIR}/app.html`, offlineHtml(readFileSync("app.html", "utf8")));
   console.log(`OK: ${OUT_DIR}/ regenerated; libraries verified.`);
 }

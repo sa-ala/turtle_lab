@@ -149,7 +149,7 @@ Suggested files:
 - [AGENTS.md](AGENTS.md): rules, recipes, and checklist for working in this repo
 - [SPEC.md](SPEC.md): how the app currently behaves
 - [docs/ROADMAP.md](docs/ROADMAP.md): planned features with acceptance criteria
-- Edit lessons, syntax help and examples with `node tools/content.mjs extract`, then edit `content/*.json`, then run `node tools/content.mjs inject`
+- Edit lessons, syntax help, examples and Gallery pieces with `node tools/content.mjs extract`, then edit `content/*.json`, then run `node tools/content.mjs inject`
 - Run `node tools/check.mjs` and `npm test` before opening a PR (first time: `npm ci && npm run test:install`; this dev tooling is never needed to run the site)
 
 ---
@@ -240,6 +240,8 @@ Turtle Lab can include lessons such as:
 12. Use variables
 13. Build functions
 14. Create a final project
+
+The **Gallery** tab shows 10 finished pieces, such as a blossom tree, a Koch snowflake and a city at night. Each one says which lessons it builds on, opens and runs with one click, and comes with ideas for remixing it.
 
 ---
 

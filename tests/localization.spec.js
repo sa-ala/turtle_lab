@@ -23,7 +23,7 @@ test("with Arabic selected, no English-only UI text remains (all tabs, running, 
   await openApp(page);
   await page.selectOption("#langSelect", "ar");
   const found = new Set(await englishOnly(page));
-  for (const tab of ["syntax", "challenge", "teacher", "badges", "projects"]) { await page.click(`.learn .tab[data-tab="${tab}"]`); (await englishOnly(page)).forEach((x) => found.add(x)); }
+  for (const tab of ["syntax", "challenge", "gallery", "teacher", "badges", "projects"]) { await page.click(`.learn .tab[data-tab="${tab}"]`); (await englishOnly(page)).forEach((x) => found.add(x)); }
   await page.click('.runTabs .tab[data-run-tab="errors"]'); (await englishOnly(page)).forEach((x) => found.add(x));
   await page.evaluate(() => { run(); });
   await expect(page.locator("#err")).toHaveText(await t(page, "runningStatus"));
