@@ -132,3 +132,20 @@ for (const hash of ["#gallery=nope", "#gallery=", "#gallery=G-KOCH-SNOWFLAKE", "
     await expect(page.locator("#replaceDialog")).not.toBeVisible();
   });
 }
+
+// Pieces call screen.tracer(n) to draw quickly; Step mode must still paint each move as its line runs.
+const redPixels = (page) => page.evaluate(() => [...document.querySelectorAll("#target canvas")].reduce((sum, c) => {
+  const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data; let n = 0;
+  for (let i = 0; i < d.length; i += 4) if (d[i] > 200 && d[i + 1] < 60 && d[i + 2] < 60 && d[i + 3] > 200) n++;
+  return sum + n;
+}, 0));
+test("Step mode paints each move even when the program calls screen.tracer(0)", async ({ page }) => {
+  await openApp(page);
+  await page.fill("#code", "import turtle\nt = turtle.Turtle()\nt.hideturtle()\nt.pencolor(\"red\")\nt.width(4)\nturtle.Screen().tracer(0)\nt.forward(100)\nt.left(90)\nt.forward(100)\n");
+  await page.selectOption("#runMode", "step");
+  await page.selectOption("#stepSpeed", "900");
+  await page.evaluate(() => { run(); });
+  await expect(page.locator("#rail .railLine.current")).toHaveText("8"); // line 7 (forward) has run
+  expect(await redPixels(page)).toBeGreaterThan(100);
+  await page.click("#stopTop");
+});
