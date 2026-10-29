@@ -10,7 +10,7 @@ approved roadmap or a guarantee of browser compatibility.
 | Attribute | Baseline |
 | --- | --- |
 | Review date | 2026-10-29 |
-| Source revision | `d7c74cb` plus F-023 PR 3 (Level 13 content, Game Maker badge, handler queue) |
+| Source revision | `c83587c` plus source/offline footer synchronization |
 | Primary sources | [index.html](index.html), [app.html](app.html) |
 | Supporting sources | [README.md](README.md), [LICENSE](LICENSE) |
 | Product | Turtle Lab |
@@ -105,7 +105,10 @@ opens the Gallery tab and loads the piece through the same protection, without
 running it. A linked lesson or
 language is saved like a normal choice. Links never carry code (decision D4).
 
-No in-app Home link back to the landing page is present. Learning-area tabs
+The app links back to the landing page from the header logo and the footer
+(`index.html`; the offline bundle points both at the published site instead).
+The footer also links to the GitHub repository (new tab, `rel="noopener
+noreferrer"`), without an author credit. Learning-area tabs
 and result tabs change CSS classes without changing the URL.
 
 ### 3.2 Landing-page inventory
@@ -140,7 +143,8 @@ they do not execute Python.
 
 | Area | Controls/content | Main DOM identifiers |
 | --- | --- | --- |
-| Header | High contrast, English/Arabic selector (F-019 removed the duplicate Run, Stop, Clear and Reset lesson code buttons) | `hc`, `langSelect` |
+| Header | Scrolls with the page (not sticky). Logo and title link to `index.html`. High contrast, English/Arabic selector (F-019 removed the duplicate Run, Stop, Clear and Reset lesson code buttons) | `homeLink`, `hc`, `langSelect` |
+| Footer | Turtle Lab home link (`index.html`), GitHub repository link; localized, hidden when printing | `footerNav`, `footerHome`, `footerRepo` |
 | Course sidebar | Course heading, collapse/expand, completed count, stars, progress bar, lesson selector, lesson buttons grouped under collapsible level headings showing done/total (F-019; only the current lesson's level opens by default, open state is not stored). Reset progress lives only under Teacher & Parent | `toggleLessons`, `progressText`, `starText`, `fill`, `lessonSelect`, `lessonList`, `levelBtn-N`, `levelItems-N` |
 | Editor header | Lesson number/title, level, concept (the Ctrl/⌘+Enter reminder moved to the Run button in F-020) | `lessonTitle`, `lessonLevel`, `lessonConcept` |
 | Lesson card (F-019, F-020) | "This lesson": goal, challenge, "☐ Mark challenge done" (amber; completes like the Challenges tab button; reads "✓ Done!" with `aria-pressed=true` once complete), a "Nice run! Did you finish the challenge?" nudge after a successful run until the lesson changes or is completed, a "More about this lesson" text link (opens the Lesson tab), and a ▾/▸ chevron toggle remembered in `tl.lessonCard.v1` | `lessonCard`, `lessonCardGoal`, `lessonCardChallenge`, `lessonCardNudge`, `lessonCardDone`, `lessonCardMore`, `lessonCardToggle`, `lessonCardBody` |
@@ -557,7 +561,7 @@ landing page loads no external scripts, fonts, or image files. Font names are
 CSS font stacks, not downloaded font dependencies.
 
 The generated offline bundle (`offline/app.html`, see §12.2) is identical to
-`app.html` apart from a banner, and finds the same files in
+`app.html` apart from a banner and the landing-page links (see §3.1), and finds the same files in
 `offline/assets/libs/`.
 
 Skulpt executes Python in the browser using `Sk.python3`,
@@ -1024,15 +1028,17 @@ before changing dimensions; early values are not always effective.
 
 | Width/state | Effective layout |
 | --- | --- |
-| Above 1180px | Sidebar `minmax(230px,18rem)`, editor `minmax(360px,1fr)`, drawing `minmax(380px,1fr)`; learning area under editor/drawing |
+| Above 1180px | Sidebar `minmax(230px,18rem)`, editor `minmax(360px,1fr)`, drawing `minmax(380px,1fr)`; learning area under editor/drawing; the sidebar spans both rows and ends level with the learning area |
 | Above 1180px, collapsed | Sidebar track 68px; editor/drawing retained |
 | 861-1180px | Sidebar `minmax(220px,280px)` plus one main column; drawing below editor in column 2; learning area spans both |
 | 861-1180px, collapsed | Sidebar track 68px plus main column |
-| <= 860px | One-column flow; static header; sidebar list max-height 260px; drawing/learning area in column 1; debug controls stack |
+| <= 860px | One-column flow; sidebar list max-height 260px; drawing/learning area in column 1; debug controls stack |
 
-The shell uses full available width and 10-18px clamped padding. Desktop
-sidebar height is `calc(100dvh - 128px)` capped at 860px; collapsed desktop
-sidebar is sticky at 96px. The editor viewport is fixed at 402px, with
+The shell uses full available width and 10-18px clamped padding. The header
+is static at every width. Above 1180px the sidebar stretches over the editor,
+drawing and learning-area rows and its lesson list (`contain: size`) scrolls
+inside it; at 861-1180px its height is `calc(100dvh - 128px)` capped at 860px.
+The collapsed desktop sidebar is sticky at 16px. The editor viewport is fixed at 402px, with
 16px monospace text, 24.8px line height, 15px top padding, and a 56px gutter
 allowance shared by text/gutter/highlights.
 
@@ -1041,7 +1047,7 @@ The drawing stage is `clamp(420px,58dvh,640px)` with a 420px minimum above
 panels have a 112px minimum and 230px maximum height, reduced to a 190px
 maximum on smaller screens. Learning panels scroll at a 430px maximum.
 
-Print styles hide header, grid workspace, tabs, and learning heading, then
+Print styles hide header, grid workspace, footer, tabs, and learning heading, then
 show the separate syntax sheet. Interactive screen and print layouts are
 different deliverables.
 
@@ -1095,7 +1101,7 @@ not 2–3 remix ideas) abort `inject` with `app.html` unchanged. The site never
 needs this tool.
 
 The only build-like step is `node tools/build-offline.mjs`, which generates
-`offline/`: `offline/app.html` (a copy of `app.html` with a banner),
+`offline/`: `offline/app.html` (a copy of `app.html` with a banner, its `index.html` links pointed at the published site),
 `offline/assets/libs/` (a copy of the vendored Skulpt 1.2.0 files and license
 from `assets/libs/`, SHA-256 verified), `offline/assets/gallery/` (a copy of
 the Gallery thumbnails), and `offline/README.txt`. The folder can be copied

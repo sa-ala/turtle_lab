@@ -242,3 +242,36 @@ test("F-020 AC7: file actions are quieter than Run and Stop (no shadow)", async 
   for (const id of ["resetBtn", "copyBtn", "pyBtn"]) expect(await page.locator("#" + id).evaluate((b) => getComputedStyle(b).boxShadow), id).toBe("none");
   expect(await page.locator("#runBtn").evaluate((b) => getComputedStyle(b).boxShadow)).not.toBe("none");
 });
+
+// Header, footer and sidebar height
+test("the header scrolls with the page and the logo links to the landing page", async ({ page }) => {
+  await openApp(page);
+  expect(await page.locator("header").evaluate((e) => getComputedStyle(e).position)).toBe("static");
+  await expect(page.locator("header a.brand")).toHaveAttribute("href", "index.html");
+});
+
+for (const path of ["/app.html", "/offline/app.html"]) for (const lang of ["en", "ar"]) {
+  test(`the footer links home and to GitHub without an author credit (${path}, ${lang})`, async ({ page }) => {
+    await openApp(page, path);
+    if (lang === "ar") await page.selectOption("#langSelect", "ar");
+    await expect(page.locator("#footerAuthor")).toHaveCount(0);
+    await expect(page.locator("#footerHome")).toHaveText(await t(page, "footerHome"));
+    await expect(page.locator("#footerHome")).toHaveAttribute("href", path === "/app.html" ? "index.html" : "https://sa-ala.github.io/turtle_lab/");
+    await expect(page.locator("#footerRepo")).toHaveText(await t(page, "footerRepo"));
+    await expect(page.locator("#footerRepo")).toHaveAttribute("href", "https://github.com/sa-ala/turtle_lab");
+    await expect(page.locator("#footerRepo")).toHaveAttribute("rel", "noopener noreferrer");
+    await expect(page.locator("#footerNav")).toHaveAttribute("aria-label", await t(page, "footerLabel"));
+  });
+}
+
+test("above 1180px the lessons sidebar ends level with the Learning Area and its list scrolls inside", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openApp(page);
+  const bottoms = () => page.evaluate(() => [".side", ".learn"].map((s) => Math.round(document.querySelector(s).getBoundingClientRect().bottom)));
+  let [side, learn] = await bottoms();
+  expect(side).toBe(learn);
+  for (let i = 1; i < 13; i++) if ((await page.locator(`#levelBtn-${i}`).getAttribute("aria-expanded")) !== "true") await page.click(`#levelBtn-${i}`);
+  [side, learn] = await bottoms();
+  expect(side).toBe(learn); // opening every level scrolls the list instead of growing the sidebar
+  expect(await page.locator("#lessonList").evaluate((e) => e.scrollHeight > e.clientHeight)).toBe(true);
+});
