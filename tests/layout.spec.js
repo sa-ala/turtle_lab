@@ -250,13 +250,13 @@ test("the header scrolls with the page and the logo links to the landing page", 
   await expect(page.locator("header a.brand")).toHaveAttribute("href", "index.html");
 });
 
-for (const lang of ["en", "ar"]) {
-  test(`the footer links home and to GitHub and names the author (${lang})`, async ({ page }) => {
-    await openApp(page);
+for (const path of ["/app.html", "/offline/app.html"]) for (const lang of ["en", "ar"]) {
+  test(`the footer links home and to GitHub without an author credit (${path}, ${lang})`, async ({ page }) => {
+    await openApp(page, path);
     if (lang === "ar") await page.selectOption("#langSelect", "ar");
-    await expect(page.locator("#footerAuthor")).toHaveText(await t(page, "footerAuthor"));
+    await expect(page.locator("#footerAuthor")).toHaveCount(0);
     await expect(page.locator("#footerHome")).toHaveText(await t(page, "footerHome"));
-    await expect(page.locator("#footerHome")).toHaveAttribute("href", "index.html");
+    await expect(page.locator("#footerHome")).toHaveAttribute("href", path === "/app.html" ? "index.html" : "https://sa-ala.github.io/turtle_lab/");
     await expect(page.locator("#footerRepo")).toHaveText(await t(page, "footerRepo"));
     await expect(page.locator("#footerRepo")).toHaveAttribute("href", "https://github.com/sa-ala/turtle_lab");
     await expect(page.locator("#footerRepo")).toHaveAttribute("rel", "noopener noreferrer");

@@ -10,7 +10,7 @@ approved roadmap or a guarantee of browser compatibility.
 | Attribute | Baseline |
 | --- | --- |
 | Review date | 2026-10-29 |
-| Source revision | `6240cd0` plus the app header, footer and full-height sidebar change |
+| Source revision | `c83587c` plus source/offline footer synchronization |
 | Primary sources | [index.html](index.html), [app.html](app.html) |
 | Supporting sources | [README.md](README.md), [LICENSE](LICENSE) |
 | Product | Turtle Lab |
@@ -108,7 +108,7 @@ language is saved like a normal choice. Links never carry code (decision D4).
 The app links back to the landing page from the header logo and the footer
 (`index.html`; the offline bundle points both at the published site instead).
 The footer also links to the GitHub repository (new tab, `rel="noopener
-noreferrer"`) and names the author. Learning-area tabs
+noreferrer"`), without an author credit. Learning-area tabs
 and result tabs change CSS classes without changing the URL.
 
 ### 3.2 Landing-page inventory
@@ -144,7 +144,7 @@ they do not execute Python.
 | Area | Controls/content | Main DOM identifiers |
 | --- | --- | --- |
 | Header | Scrolls with the page (not sticky). Logo and title link to `index.html`. High contrast, English/Arabic selector (F-019 removed the duplicate Run, Stop, Clear and Reset lesson code buttons) | `homeLink`, `hc`, `langSelect` |
-| Footer | Author credit, Turtle Lab home link (`index.html`), GitHub repository link; localized, hidden when printing | `footerAuthor`, `footerNav`, `footerHome`, `footerRepo` |
+| Footer | Turtle Lab home link (`index.html`), GitHub repository link; localized, hidden when printing | `footerNav`, `footerHome`, `footerRepo` |
 | Course sidebar | Course heading, collapse/expand, completed count, stars, progress bar, lesson selector, lesson buttons grouped under collapsible level headings showing done/total (F-019; only the current lesson's level opens by default, open state is not stored). Reset progress lives only under Teacher & Parent | `toggleLessons`, `progressText`, `starText`, `fill`, `lessonSelect`, `lessonList`, `levelBtn-N`, `levelItems-N` |
 | Editor header | Lesson number/title, level, concept (the Ctrl/⌘+Enter reminder moved to the Run button in F-020) | `lessonTitle`, `lessonLevel`, `lessonConcept` |
 | Lesson card (F-019, F-020) | "This lesson": goal, challenge, "☐ Mark challenge done" (amber; completes like the Challenges tab button; reads "✓ Done!" with `aria-pressed=true` once complete), a "Nice run! Did you finish the challenge?" nudge after a successful run until the lesson changes or is completed, a "More about this lesson" text link (opens the Lesson tab), and a ▾/▸ chevron toggle remembered in `tl.lessonCard.v1` | `lessonCard`, `lessonCardGoal`, `lessonCardChallenge`, `lessonCardNudge`, `lessonCardDone`, `lessonCardMore`, `lessonCardToggle`, `lessonCardBody` |
