@@ -9,8 +9,8 @@ approved roadmap or a guarantee of browser compatibility.
 
 | Attribute | Baseline |
 | --- | --- |
-| Review date | 2026-10-24 |
-| Source revision | `ac69e8a` plus F-021 (Gallery) |
+| Review date | 2026-10-29 |
+| Source revision | `c89899f` plus F-022 (canvas helper tools) |
 | Primary sources | [index.html](index.html), [app.html](app.html) |
 | Supporting sources | [README.md](README.md), [LICENSE](LICENSE) |
 | Product | Turtle Lab |
@@ -148,7 +148,7 @@ they do not execute Python.
 | Execution controls | Explanation/status banner (hidden for the Normal-mode idle hint, F-020); the step bar (`debugbar`) appears only while a Step-mode run is active, with Pause / Next step / Continue (F-010); Variables panel while paused; screen-reader step announcements | `debugInfo`, `runMode`, `stepSpeedControl`, `stepSpeed`, `stepControls`, `pauseBtn`, `nextBtn`, `continueBtn`, `varsPanel`, `varsList`, `stepState` |
 | Editor | Plain textarea, line-number gutter, current/error-line overlays, autosave status, cursor location | `code`, `rail`, `codeHighlights`, `highlightInner`, `saveStatus`, `cursor` |
 | Results below editor | Output and Errors tabs with separate content panels | `output`, `errors`, `out`, `err`; `[data-run-tab]` |
-| Drawing | Stage, Skulpt target, coordinate helper, zoom controls, Clear, Save PNG; green start arrow at the center pointing east, hidden once a run draws (F-019); "New output ↓" chip (F-019) shown when `print()` output lands while `#out` is off screen, with a dot on the Output tab | `stage`, `target`, `coordOverlay`, `coordToggle`, `zoomOut`, `zoomIn`, `zoomReset`, `zoomLabel`, `clearBtn`, `pngBtn`, `newOutput` |
+| Drawing | Stage, Skulpt target, coordinate helper, Pointer toggle and coordinates chip (F-022), collapsible Turtle state panel below the stage (F-022), zoom controls, Clear, Save PNG; green start arrow at the center pointing east, hidden once a run draws (F-019); "New output ↓" chip (F-019) shown when `print()` output lands while `#out` is off screen, with a dot on the Output tab | `stage`, `target`, `coordOverlay`, `coordToggle`, `pointerToggle`, `pointerCoords`, `turtlePanel`, `turtleTitle`, `turtleList`, `turtleNone`, `zoomOut`, `zoomIn`, `zoomReset`, `zoomLabel`, `clearBtn`, `pngBtn`, `newOutput` |
 | Learning area | Lesson, Syntax Help, Challenges, Gallery (F-021), Teacher & Parent, Badges, My Projects (F-012) | `[data-tab]`; `lesson`, `syntax`, `challenge`, `gallery`, `teacher`, `badges`, `projects`; `galleryTip` |
 | Print-only area | Syntax Cheat Sheet title and all reference commands/explanations | `printDocs` |
 | Notifications | Transient status messages | `toast` |
@@ -624,6 +624,21 @@ panel (`#varsPanel`, LTR) lists simple globals (`int`, `float`, `str`, `bool`,
 Dunder names, modules, functions and turtles are skipped, and Skulpt's
 `_$rw$` suffix for reserved words is removed.
 
+**Turtle panel (F-022).** Below the stage, a collapsible "🐢 Turtle" panel
+(`<details id="turtlePanel">`, closed by default, open state not stored) lists
+every Skulpt turtle held in a global variable (deduplicated by object, at most
+4, then "+N more"): position `(x, y)` rounded to 0.1, heading in degrees plus
+right/up/left/down for 0/90/180/270, pen down/up, and pen and fill colors with a
+swatch. Values are read directly from the turtle objects (`$xcor`, `$ycor`,
+`$heading`, `_down`, `_color`, `_fill`) without calling Python, and are
+built with DOM text nodes; swatches use `style.backgroundColor`, so an
+invalid color string is ignored. `renderTurtles()` runs at every Step-mode
+step (state before the highlighted line) and when the current run ends
+(success or error); while the panel is closed it only marks the state as
+live and renders when the panel is opened. `resetCanvas()` clears it, so a new run, Stop, Clear and
+lesson changes never show a previous run's turtle. Turtles used only through
+module functions (`turtle.forward()`) are not listed.
+
 There are no breakpoints, call-stack viewer, or local-variable inspection.
 Normal mode is unchanged: no instrumentation, and the controls never appear.
 
@@ -723,7 +738,19 @@ When enabled, it replaces the CSS grid with a device-pixel-ratio-aware overlay:
 
 The overlay redraws on zoom application, coordinate changes, contrast changes,
 and window resize. It uses target/stage dimensions and does not alter Python
-code or provide pointer coordinate readouts.
+code.
+
+**Pointer coordinates (F-022).** The "🖱️ Pointer" toggle (`#pointerToggle`,
+`aria-pressed`, saved in `tl.pointer.v1`, off by default) adds
+`#stage.pointer-on` (crosshair cursor, `touch-action: none`). While on,
+`pointermove`/`pointerdown` over the stage show `#pointerCoords`, an
+`aria-hidden` LTR chip reading `(x, y)` in whole turtle units, positioned
+next to the pointer (above the finger on touch) and clamped inside the stage.
+`stageToTurtle()` maps screen points with `canvas.width / rect.width` of
+Skulpt's stretched, zoom-scaled canvas, so it is correct at every zoom level;
+`setworldcoordinates()` is not taken into account. The chip hides on
+`pointerleave`/`pointercancel`, and on `pointerup` for touch. Updates are
+throttled to one per animation frame.
 
 ### 8.4 Copy and Python export
 
@@ -782,6 +809,7 @@ browser-dependent.
 | `tl.stepSpeed.v1` | `900`, `500`, or `200` | `500`; any other value falls back to `500` |
 | `tl.zoom.v1` | Numeric scale string | `1`; nonfinite/out-of-range values reset to 1, then rounded/clamped |
 | `tl.coords.v1` | `1` on / `0` off | Off unless exactly `1` |
+| `tl.pointer.v1` | `1` on / `0` off (F-022) | Off unless exactly `1` |
 | `tl.lessonCard.v1` | `open` / `closed` (F-019) | `open`; any other value falls back to open |
 
 All app reads and writes go through `store.get(key, fallback, validate)` and
@@ -964,7 +992,7 @@ Function/constant names are better long-term search anchors.
 | Localization and learning UI | `applyLang`, `buildLessons`, `buildExamples`, `buildDocs`, `loadLesson`, lines 1309-1315 |
 | Gallery (F-021) | `gallery`, `GALLERY_AR` (content); `galleryData`, `galleryIndex`, `remixHtml`, `buildGallery`, `openGallery`, `galleryClick`; thumbnails in `assets/gallery/` from `tools/gallery-thumbs.mjs` |
 | Saving/progression/badges | `save`, `cursor`, `progressUI`, `complete`, `badges`, `resetProgress`, lines 1316-1322; ids and migration: `V2_LESSON_IDS`, `lessonIndex`, `lessonId`, `migrateV2` |
-| Drawing/zoom/coordinates | `resetCanvas`, `clampZoom`, `applyZoom`, `drawCoordinateOverlay`, `applyCoordinates`, `clearDrawing`, lines 1323-1332 |
+| Drawing/zoom/coordinates | `resetCanvas`, `clampZoom`, `applyZoom`, `drawCoordinateOverlay`, `applyCoordinates`, `clearDrawing`, `stageToTurtle`, `applyPointer`, `togglePointer`, `renderTurtles`, `clearTurtles` (F-022), lines 1323-1332 |
 | Python lifecycle and errors | `output`, `builtinRead`, `nextFrame`, `run`, `friendly`, `stop`, `setRun`, lines 1333-1341 |
 | Export/integration/startup | `copyCode`, `py`, `imgFromSvg`, `png`, `bind`, `init`, lines 1342-1348 |
 | Offline bundle generation | `tools/build-offline.mjs` (`LIBS`, `offlineHtml`); output in `offline/` |

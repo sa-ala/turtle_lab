@@ -32,7 +32,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-019 | Lesson-first layout and control cleanup | P2 | M | GAP-27..31 | — | Done |
 | F-020 | Lesson card and editor toolbar clarity | P2 | M | F-019 | — | Done |
 | F-021 | Gallery of inspiring pieces | P2 | L | F-007, F-008, F-017 | — | Done |
-| F-022 | Canvas helper tools: pointer coordinates and turtle state | P2 | M | F-010, F-013 | 15 | Proposed |
+| F-022 | Canvas helper tools: pointer coordinates and turtle state | P2 | M | F-010, F-013 | 15 | Done |
 | F-023 | Interactive programs: `input()`, keys, clicks, timers, games level | P2 | L epic | F-005, F-010, F-017, F-018, F-021 | 04, 05, 08 | Proposed |
 
 Suggested order: F-003, F-004, F-006 (independent quick wins) → F-001 → F-002 → F-005 → then P2 by maintainer preference.
@@ -351,7 +351,7 @@ A Gallery tab in the learning area with 10 curated pieces (rainbow spiral, manda
 
 ## F-022 Canvas helper tools
 
-**Status: Proposed.** Full spec: [docs/specs/F-022-canvas-helpers.md](specs/F-022-canvas-helpers.md).
+**Status: Done.** Full spec: [docs/specs/F-022-canvas-helpers.md](specs/F-022-canvas-helpers.md). Open questions settled on the recommended options (2026-10-29): Pointer off by default; the Turtle panel is a collapsible section below the stage, updated after every run and at every step. Tests in `tests/canvas-helpers.spec.js`.
 
 A "Pointer" toggle shows the turtle coordinates `(x, y)` under the mouse or finger on the stage (zoom aware, LTR in Arabic). A "Turtle" panel next to the Variables panel shows each turtle's position, heading, pen state and colors after a run and at every step.
 
