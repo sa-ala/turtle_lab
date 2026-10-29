@@ -5,6 +5,7 @@
 //   node tools/gallery-thumbs.mjs g-mandala  only the named ids
 // Each piece runs through the app's own run() in Normal mode; the picture is the centered 320x320 safe box
 // (turtle coordinates -160..160), captured at 0.75x so the file is 240x240. Random pieces differ on every run.
+// Pieces that listen for keys, clicks or timers (F-023) are captured 2 s after their main program ends, then stopped.
 // Afterwards run: node tools/build-offline.mjs && node tools/check.mjs
 import { chromium } from "@playwright/test";
 import { readFileSync, mkdirSync } from "node:fs";
@@ -26,11 +27,15 @@ try {
   await page.waitForFunction(() => typeof pyState !== "undefined" && pyState === "ready", null, { timeout: 30_000 });
   for (const g of pieces) {
     await page.evaluate(async (code) => { E.code.value = code; await run(); }, g.code);
+    // F-023: interactive pieces keep listening after the main program; let timers draw, then capture without the focus ring
+    const listens = await page.evaluate(() => listening);
+    if (listens) { await page.waitForTimeout(2000); await page.evaluate(() => E.target.blur()); }
     const err = await page.evaluate(() => E.err.textContent);
-    if (err !== (await page.evaluate(() => T("successErr")))) throw new Error(`${g.id} did not run cleanly: ${err}`);
+    if (err !== (await page.evaluate((l) => T(l ? "listening" : "successErr"), listens))) throw new Error(`${g.id} did not run cleanly: ${err}`);
     const box = await page.locator("#target").boundingBox();
     const x = box.x + box.width / 2 - 160, y = box.y + box.height / 2 - 160;
     await page.screenshot({ path: `${GALLERY_DIR}/${g.id}.jpg`, type: "jpeg", quality: 80, clip: { x, y, width: 320, height: 320 } });
+    if (listens) await page.evaluate(() => stop());
     console.log(`wrote ${GALLERY_DIR}/${g.id}.jpg`);
   }
 } finally {

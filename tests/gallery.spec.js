@@ -1,17 +1,24 @@
 // Gallery of curated pieces (ROADMAP F-021, docs/specs/F-021-gallery.md).
 import { test, expect, openApp, t, expectRunSucceeded } from "./fixtures.js";
 
+const PIECES = 12;
+const LISTENS = new Set(["g-sketch-pad", "g-firefly-night"]); // F-023: keep listening until Stop
+
 const openTab = (page) => page.click('.learn .tab[data-tab="gallery"]');
 const piece = (page, i) => page.evaluate((n) => ({ ...gallery[n], ar: GALLERY_AR[n] }), i);
 const isIdle = (page) => page.evaluate(() => activeRun === null);
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < PIECES; i++) {
   test(`AC3: gallery piece ${i + 1} opens and runs successfully`, async ({ page }) => {
     await openApp(page);
     await openTab(page);
     const g = await piece(page, i);
     await page.locator("#gallery .gOpen").nth(i).click();
-    await expectRunSucceeded(page);
+    if (LISTENS.has(g.id)) {
+      await expect(page.locator("#err")).toHaveText(await t(page, "listening"));
+      await page.click("#stopTop");
+      await expect(page.locator("#runBtn")).toBeEnabled();
+    } else await expectRunSucceeded(page);
     await expect(page.locator("#code")).toHaveValue(g.code);
     await expect(page.locator("#galleryTip")).toBeHidden();
   });
@@ -27,8 +34,8 @@ test("AC1, AC2: the Gallery tab sits after Challenges and every card is complete
     if (lang === "ar") await page.selectOption("#langSelect", "ar");
     await expect(page.locator(".learn .tab[data-tab='gallery']")).toHaveText(await t(page, "galleryTab"));
     const cards = page.locator("#gallery .gPiece");
-    await expect(cards).toHaveCount(10);
-    for (let i = 0; i < 10; i++) {
+    await expect(cards).toHaveCount(PIECES);
+    for (let i = 0; i < PIECES; i++) {
       const g = await piece(page, i), card = cards.nth(i), name = lang === "ar" ? g.ar.name : g.name;
       await expect(card.locator("h3")).toHaveText(name);
       await expect(card.locator("p")).toHaveText(lang === "ar" ? g.ar.description : g.description);
@@ -52,7 +59,7 @@ test("thumbnails load from assets/gallery", async ({ page }) => {
   await openApp(page);
   await openTab(page);
   const imgs = page.locator("#gallery .gPiece img");
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < PIECES; i++) {
     await imgs.nth(i).scrollIntoViewIfNeeded();
     await expect.poll(() => imgs.nth(i).evaluate((el) => el.complete && el.naturalWidth)).toBe(240);
   }

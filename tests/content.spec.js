@@ -2,7 +2,7 @@
 // deliberately broken debugging lessons (indexes 12 and 13, AGENTS.md rule 8),
 // which are covered in app.spec.js.
 import { readFileSync } from "node:fs";
-import { test, openApp, runAndWait, selectLesson, expectRunSucceeded } from "./fixtures.js";
+import { test, openApp, runAndWait, selectLesson, expectRunSucceeded, finishInteractive } from "./fixtures.js";
 
 // Read the content arrays from app.html at collection time so each item becomes its own test.
 const app = readFileSync(new URL("../app.html", import.meta.url), "utf8");
@@ -16,8 +16,7 @@ test.describe("lesson starters run", () => {
     test(`lesson ${i + 1}: ${lesson.title}`, async ({ page }) => {
       await openApp(page);
       await selectLesson(page, i);
-      await runAndWait(page);
-      await expectRunSucceeded(page);
+      await finishInteractive(page); // F-023: answers input() and stops programs that keep listening
     });
   });
 });

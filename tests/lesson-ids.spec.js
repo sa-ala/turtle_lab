@@ -58,7 +58,7 @@ test("AC2: inserting a lesson mid-array does not change which lessons are comple
   await serveInsertedBuild(page);
   await seed(page, { "tl.lesson.v3": IDS[11], "tl.progress.v3": JSON.stringify([IDS[0], IDS[11], IDS[35]]) });
   await openApp(page);
-  await expect(page.locator("#lessonSelect option")).toHaveCount(48);
+  await expect(page.locator("#lessonSelect option")).toHaveCount(52);
   expect(await completeTitles(page)).toEqual([TITLES[0], TITLES[11], TITLES[35]]);
   await expect(page.locator("#lessonSelect")).toHaveValue("12"); // same lesson, new position
   await expect(page.locator("#lessonTitle")).toContainText(TITLES[11]);

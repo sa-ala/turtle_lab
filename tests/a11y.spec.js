@@ -94,12 +94,12 @@ test("course progress is exposed as a progressbar", async ({ page }) => {
   const bar = page.locator('[role="progressbar"]');
   await expect(bar).toHaveAttribute("aria-valuenow", "0");
   await expect(bar).toHaveAttribute("aria-valuemin", "0");
-  await expect(bar).toHaveAttribute("aria-valuemax", "47");
+  await expect(bar).toHaveAttribute("aria-valuemax", "51");
   await expect(bar).toHaveAttribute("aria-label", await t(page, "progressLabel"));
   await page.click('.learn .tab[data-tab="challenge"]');
   await page.click("#done");
   await expect(bar).toHaveAttribute("aria-valuenow", "1");
-  await expect(bar).toHaveAttribute("aria-valuetext", "1 of 47 lessons complete");
+  await expect(bar).toHaveAttribute("aria-valuetext", "1 of 51 lessons complete");
 });
 
 test("screen readers hear run start, success, error and stop", async ({ page }) => {

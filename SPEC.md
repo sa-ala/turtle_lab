@@ -10,7 +10,7 @@ approved roadmap or a guarantee of browser compatibility.
 | Attribute | Baseline |
 | --- | --- |
 | Review date | 2026-10-29 |
-| Source revision | `190e5f6` plus F-023 PR 2 (key, click and timer programs) |
+| Source revision | `d7c74cb` plus F-023 PR 3 (Level 13 content, Game Maker badge, handler queue) |
 | Primary sources | [index.html](index.html), [app.html](app.html) |
 | Supporting sources | [README.md](README.md), [LICENSE](LICENSE) |
 | Product | Turtle Lab |
@@ -64,7 +64,7 @@ roles, teacher accounts, permissions, classroom rosters, or separate dashboards.
 | ID | Rule |
 | --- | --- |
 | BR-01 | Learning activities run client-side without installing Python or using an application backend. |
-| BR-02 | All 47 lessons are freely selectable; no prerequisite lock or enforced sequence exists. |
+| BR-02 | All 51 lessons are freely selectable; no prerequisite lock or enforced sequence exists. |
 | BR-03 | Completion is self-reported using **I did it!** in Challenges. Running code, meeting a drawing goal, or passing a test is not required. |
 | BR-04 | Each distinct completed lesson contributes one star. Repeating completion does not add another star. |
 | BR-05 | Completion and preferences belong to the browser storage context, not a user account. |
@@ -286,7 +286,7 @@ examples or Try it buttons.
 
 ### 5.1 Data contracts
 
-`lessons` is an ordered array of **47** objects with these fields:
+`lessons` is an ordered array of **51** objects with these fields:
 
 | Field | Type | Purpose |
 | --- | --- | --- |
@@ -308,7 +308,7 @@ All baseline lessons have the same expected-result text: "Run the code and
 compare the drawing with the goal." All share three steps: run the starter;
 change one number, color, or command; run again and observe.
 
-`LESSON_AR` contains **47 index-aligned objects**, translating every lesson
+`LESSON_AR` contains **51 index-aligned objects**, translating every lesson
 field above except `id`, `level` and `starterCode`. `LEVEL_AR` translates the ten
 English level names. `lessonData(i)` merges the Arabic fields over the English
 base when Arabic is selected, with the base available as fallback.
@@ -389,6 +389,10 @@ programs, hints, teaching notes, and Arabic copy remain in the arrays above.
 | 45 | l45 | 12 | f-strings and Running Totals | `f"Side {i + 1}"` output and `total += 50` |
 | 46 | l46 | 12 | Recursion: Fractal Tree | Recursive `tree(length)` with a stop rule |
 | 47 | l47 | 12 | Capstone: Random Art Studio | Function, list, `random` and loop combined into confetti art |
+| 48 | l48 | 13 | Ask and Draw | `input()` for a color and `int(input())` for a size; filled square (F-023) |
+| 49 | l49 | 13 | Drive with Arrow Keys | `screen.onkey()` for the four arrows and `screen.listen()`; keeps listening until Stop |
+| 50 | l50 | 13 | Click to Draw | `screen.onscreenclick(go_here)` with `def go_here(x, y)`; dot at each click |
+| 51 | l51 | 13 | Mini Game: Catch the Dot | Arrow keys, `ontimer` countdown, `global` score, `random`, `distance()` |
 
 | Level | Exact English heading | Lessons |
 | --- | --- | --- |
@@ -404,6 +408,7 @@ programs, hints, teaching notes, and Arabic copy remain in the arrays above.
 | 10 | Level 10: Creative Projects | 36-38 |
 | 11 | Level 11: Randomness and Patterns | 39-42 |
 | 12 | Level 12: Reuse, Text, and Recursion | 43-47 |
+| 13 | Level 13: Make It Interactive | 48-51 |
 
 Lessons 13 and 14 (ids `l26`, `l27`) must initially fail: their invalid code is a deliberate
 teaching fixture, not a starter-code defect. Lesson 37's goal mentions ground,
@@ -411,7 +416,7 @@ sun, and house, but its starter only supplies the sun and house body; scene
 completion is left to the learner.
 Teacher notes no longer quote lesson numbers (F-018); the array order determines numbering.
 
-Lessons 39-47 (F-018 "Beyond the basics") are always visible and have no lock or badge. Skulpt 1.2.0 has no `turtle.bgcolor()`, so lessons 44 and 47 use `turtle.Screen().bgcolor()`. `input()` is not taught yet; since F-023 PR 1 the app answers it inline (§7.5), and the lesson arrives with F-023 PR 3. Step mode on lesson 46 runs hundreds of lines, so use Normal mode or Stop.
+Lessons 39-47 (F-018 "Beyond the basics") are always visible and have no lock or badge. Skulpt 1.2.0 has no `turtle.bgcolor()`, so lessons 44 and 47 use `turtle.Screen().bgcolor()`. Lessons 48-51 (F-023, "Make It Interactive") teach `input()` (§7.5) and key, click and timer events (§7.6); they always use a `Screen()` object because Skulpt has no module-level `turtle.onkey()`. Lessons 49-51 keep listening until Stop, so the starter test answers `input()` and stops listening programs (`finishInteractive` in `tests/fixtures.js`). Step mode on lesson 46 runs hundreds of lines, so use Normal mode or Stop.
 
 ### 5.3 Example library
 
@@ -465,7 +470,7 @@ not proof that every desktop Turtle API is supported in this browser runtime.
 
 ### 5.5 Gallery (F-021)
 
-`gallery` holds **10** curated pieces `{id, level, uses, name, description,
+`gallery` holds **12** curated pieces `{id, level, uses, name, description,
 remix, code}` and `GALLERY_AR` the index-aligned Arabic `{name, description,
 remix}`. `id` is permanent (`g-<slug>`) and used by `#gallery=`. `level` is the
 level number that makes a piece reachable, or `null` for "Beyond the lessons".
@@ -485,8 +490,10 @@ Python (English). The Gallery tab shows them in this order:
 | Koch Snowflake | `g-koch-snowflake` | After Level 12 | lesson 46 |
 | Sierpinski Triangle | `g-sierpinski` | After Level 12 | lessons 10, 46 |
 | Golden Galaxy | `g-golden-galaxy` | Beyond the lessons | lessons 41, 42 |
+| Sketch Pad | `g-sketch-pad` | After Level 13 | lessons 28, 49 |
+| Firefly Night | `g-firefly-night` | After Level 13 | lessons 39, 50, 51 |
 
-Every piece finishes in Normal mode within about 5 s and stays inside the
+Sketch Pad and Firefly Night (F-023) draw their first picture, then keep listening for keys, clicks and timers until Stop; their thumbnails are captured 2 s after the main program ends. Every other piece finishes in Normal mode within about 5 s and stays inside the
 centered 320×320 box (the minimum canvas). Every piece animates: each one calls
 `screen.tracer(n)`, with n from 2 to 80, so that it draws in about 2–5 s, and
 ends with `screen.update()` where n is large. In Step mode they still finish under the
@@ -515,10 +522,11 @@ those ids had when they were introduced.
 | Color Artist Badge | `7, 8, 9, 16, 19, 30, 31` | 8, 9, 10, 17, 20, 31, 32 |
 | Function Master Badge | `27, 28, 29` | 28, 29, 30 |
 | Turtle Creator Badge | `35, 36, 37` | 36, 37, 38 |
+| Game Maker Badge (🎮, F-023) | `47, 48, 49, 50` | 48, 49, 50, 51 |
 
 Earned badges use an `earned` class, a checkmark, and localized unlocked text.
 Locked badges show a generic completion prompt. Completing all valid lessons
-produces 47 stars and 100%; a run alone produces neither.
+produces 51 stars and 100%; a run alone produces neither.
 
 ## 7. Execution architecture
 
@@ -742,7 +750,11 @@ Skulpt 1.2.0 supports `screen.onkey`, `screen.listen`, `screen.onscreenclick`,
   `Sk.misceval.applyAsync`, which `installCallbackGuard()` wraps: a handler
   runs only while the current run is live and, for Python functions, only if
   its `func_globals` is the current run's `Sk.globals`, so handlers from a
-  stopped or earlier run never run (GAP-04). While listening, each handler
+  stopped or earlier run never run (GAP-04). Handlers run one at a time, in
+  order, like Python's own turtle (Skulpt alone would overlap them, so a
+  boundary or score check could interleave). A call is dropped while the same
+  handler is already waiting, so holding a key never builds up lag; timers and
+  other handlers are never dropped. While listening, each handler
   starts its own time limit (`Sk.execStart` is reset; the run's limit would
   otherwise end a game 45 s after Run), and the Turtle panel refreshes after
   it. In Step mode the main program is stepped as usual; handlers run at
@@ -1190,7 +1202,7 @@ for the limitations above.
 | --- | --- |
 | Landing navigation | Every internal anchor resolves; all app CTAs reach `app.html`; external references use correct URLs/new-tab isolation; preview CTA opens the Square example (covered by `tests/deep-links.spec.js`) |
 | Landing languages | Clean default Both; English/Arabic/Both visibility, root direction/language, pressed states, reload persistence, invalid preference normalization; inspect GAP-17/18 |
-| First app load / resume | Clean defaults, 47 selectable lessons, 12 headings, 13 examples, 25 docs, 10 gallery pieces; restore draft/lesson/preferences; drawing/results not persisted |
+| First app load / resume | Clean defaults, 51 selectable lessons, 13 headings, 7 badges, 13 examples, 25 docs, 12 gallery pieces; restore draft/lesson/preferences; drawing/results not persisted |
 | Lesson content | Matching titles/metadata/prose/starter on sidebar and selector changes; no automatic run/advance; complete lesson overlays in both languages |
 | Teaching errors | Lesson 13 missing colon and lesson 14 indentation fail intentionally; corrected versions draw the square |
 | Code editing | Immediate storage write, gutter line count, caret line/column, scroll alignment, four-space Tab replacement, reset behavior, no implicit outdent |
@@ -1204,7 +1216,7 @@ for the limitations above.
 | Drawing clear | Clears target/error text but preserves code, output, selection, progress, zoom and coordinates |
 | Zoom boundaries | Repeated decrement/increment clamps at 50%/250%, intermediate 10-point changes, reset 100%, persistence, centered overlay/drawing alignment |
 | Coordinates | Off/on state/ARIA, origin and sign conventions, 10/50/100 spacing, high contrast, zoom, resize, pixel ratios 1 and 2 |
-| Progress | Self-complete without running; no duplicate stars; all 47 => 47 stars/100%; each badge's OR condition, reset confirm/cancel, retained draft/preferences |
+| Progress | Self-complete without running; no duplicate stars; all 51 => 51 stars/100%; each badge's OR condition, reset confirm/cancel, retained draft/preferences |
 | Syntax search | Empty query, mixed case, whitespace trim, matching category/command/explanation, example-only text excluded, no-match text, Arabic query limitations |
 | Export | Exact draft in .py with English-derived filename; clipboard permitted/rejected/absent; PNG no-layer guard, canvas/SVG layers, grid/overlay contract, zoom and DPR |
 | Localization | LTR code/output in RTL layout, right gutter, translated lesson panels and controls, preserved draft, independent landing/app preferences, known untranslated strings |

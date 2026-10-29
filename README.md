@@ -24,6 +24,7 @@ Children can learn concepts such as:
 * Pen size
 * Variables
 * Functions
+* Interactive programs and small games (keyboard, mouse clicks, timers, and questions with `input()`)
 * Creative coding projects
 
 ---

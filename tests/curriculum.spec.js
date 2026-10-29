@@ -8,10 +8,10 @@ test("the Beyond-the-basics lessons are appended after the Final Project, with l
   await openApp(page);
   const info = await page.evaluate(() => ({ ids: lessons.map((l) => l.id), levels: lessons.map((l) => l.level) }));
   expect(info.ids[37]).toBe("l38-final-project");
-  expect(info.ids.slice(FIRST_NEW)).toEqual([
+  expect(info.ids.slice(FIRST_NEW, FIRST_NEW + 9)).toEqual([
     "l39-random-colors", "l40-a-grid-of-shapes", "l41-loop-through-a-list", "l42-counting-by-steps", "l43-functions-that-give-back",
     "l44-words-on-the-canvas", "l45-f-strings-and-running-totals", "l46-recursion-fractal-tree", "l47-random-art-studio"]);
-  expect(new Set(info.levels.slice(FIRST_NEW))).toEqual(new Set(["Level 11: Randomness and Patterns", "Level 12: Reuse, Text, and Recursion"]));
+  expect(new Set(info.levels.slice(FIRST_NEW, FIRST_NEW + 9))).toEqual(new Set(["Level 11: Randomness and Patterns", "Level 12: Reuse, Text, and Recursion"]));
 });
 
 test.describe("Step mode, new lessons", () => {

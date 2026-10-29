@@ -95,7 +95,7 @@ test("the confirmation dialog is localized in Arabic", async ({ page }) => {
   await expect(page.locator("#code")).toHaveValue(await starter(page, 0));
 });
 
-test("AC4: drafts for all 47 lessons stay well under 1 MB; a failing write shows Not saved", async ({ page }) => {
+test("AC4: drafts for all lessons stay well under 1 MB; a failing write shows Not saved", async ({ page }) => {
   await openApp(page);
   const size = await page.evaluate(() => {
     for (let i = 0; i < lessons.length; i++) { current = i; E.code.value = lessons[i].starterCode + "\n# typical learner change: bigger loops and colors\nfor i in range(36):\n    t.forward(100)\n    t.right(170)\n"; save(); }
