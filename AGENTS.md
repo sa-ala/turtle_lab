@@ -77,6 +77,7 @@ npm test
 - lesson-first layout: lesson card visible above the fold at 1440 and 1280 px in both languages, card "I did it!", one button per action, the New output notice, the card toggle, collapsible levels, Reset progress under Teacher & Parent, the start arrow, the F-020 card (Mark challenge done, run nudge, idle banner) and editor header bar (Run Mode in the Run group, step bar only during Step runs) (`tests/layout.spec.js`)
 - Gallery (F-021): every piece opens and runs, cards in both languages, overwrite dialog, lesson chips, Step tip and Stop, stop-then-run, `#gallery=` links, thumbnails (`tests/gallery.spec.js`)
 - canvas helpers (F-022): Pointer coordinates at three zoom levels, chip kept inside the stage, LTR in Arabic, persistence, and the Turtle panel after runs, at every step, with several or no turtles, never stale (`tests/canvas-helpers.spec.js`)
+- inline `input()` (F-023): answer and echo, several inputs, Stop and lesson change while waiting, Step mode, time limit excludes waiting, Arabic, no HTML, `window.prompt` never used (`tests/input.spec.js`)
 - the offline bundle running with no external requests, including Gallery thumbnails
 - Python loading: local files only, CDN fallback with a real SRI check, tampered CDN file rejected, loading state, failure and Retry (`tests/loader.spec.js`)
 
