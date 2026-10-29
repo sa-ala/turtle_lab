@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Proposed |
+| Status | Done |
 | Priority | P2 |
 | Size | M |
 | Depends on | F-010 (Variables panel), F-013 (a11y baseline) |
@@ -27,7 +27,7 @@ Positions and angles are the main stumbling block in the early levels. For examp
 
 **Pointer coordinates.** A new toggle button "📍 Pointer" sits next to the XY button in the canvas toolbar. When it is on and the pointer moves over the stage, a small chip near the pointer shows `(x, y)`, rounded to whole units. The chip flips to stay inside the stage near its edges. It hides when the pointer leaves, and on touch it shows while the finger is down. The chip text is always LTR, even in Arabic. It works whether XY is on or off. With the keyboard, the readout is not needed: the turtle state panel provides the same information.
 
-**Turtle state.** A "Turtle" block appears under the Variables panel, which shows in Step mode and after any run:
+**Turtle state.** A collapsible "🐢 Turtle" section below the stage (closed by default) shows, after any run and at every step in Step mode:
 
 | Field | Shown as |
 | --- | --- |
@@ -61,9 +61,9 @@ RTL: the panel follows the page direction, but values (coordinates, colors, degr
 ## Technical design
 - **Mapping:** add `stageToTurtle(clientX, clientY)`. It uses the target's bounding rectangle, so the zoom transform is already applied, and the Skulpt width and height: `x = (px - rect.left - rect.width/2) / zoom`, `y = (rect.top + rect.height/2 - py) / zoom`. It reuses the size and zoom logic of `drawCoordinateOverlay()` / `applyZoom()` rather than duplicating constants.
 - **Pointer chip:** a new `<output id="pointerCoords" aria-hidden="true">` inside `#stage`. It is visual only and not announced on every move, which would be noisy. A new button `#pointerToggle` with `aria-pressed`. The chip is positioned with pointer events (`pointermove`, `pointerleave`, `pointerdown`), throttled with `requestAnimationFrame`. Stage clicks are not captured, so F-023 event programs still receive them.
-- **Turtle state:** add `renderTurtles()`, called wherever `renderVars()` runs (each step suspension, run end, Stop). It scans `Sk.globals` for values whose `tp$name` is `Turtle` and reads `position()`, `heading()`, `isdown()`, `pencolor()` and `fillcolor()` with `Sk.misceval.callsimArray` in try/catch. These calls are read-only queries and must not queue animation frames; verify this during implementation. All values go through `esc()`. The new markup is `#turtlePanel`, `#turtleList` and `#turtleNone` inside or next to `#varsPanel`.
+- **Turtle state:** add `renderTurtles()`, called wherever `renderVars()` runs (each step suspension, run end, Stop). It scans `Sk.globals` for values whose `tp$name` is `Turtle` and reads `position()`, `heading()`, `isdown()`, `pencolor()` and `fillcolor()` with `Sk.misceval.callsimArray` in try/catch. As implemented, the panel reads the same state straight from the JS turtle object (`$xcor`, `$ycor`, `$heading`, `_down`, `_color`, `_fill`), so it makes no Python calls and queues no animation. All values go through `esc()`. The new markup is `#turtlePanel`, `#turtleList` and `#turtleNone` inside or next to `#varsPanel`.
 - **Strings:** the keys above go in `I18N` en/ar and are applied in `applyLang()`.
-- **Storage:** the pointer toggle persists like XY. Add `K.pointer = "tl.pointer.v1"`, a boolean with validator `typeof v === "boolean"` and default `false`.
+- **Storage:** the pointer toggle persists like XY: `K.pointer = "tl.pointer.v1"`, `1` on / `0` off, off unless exactly `1`.
 - **Run/step impact:** read-only. `renderTurtles()` runs only for the current `runToken`. There are no new timers.
 - **Dependencies:** none.
 

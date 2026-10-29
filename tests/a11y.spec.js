@@ -151,3 +151,22 @@ test("prefers-reduced-motion: no turtle animation, and code still runs", async (
   expect(await page.evaluate(() => Sk.TurtleGraphics.animate)).toBe(false);
   expect(fast).toBeLessThan(5000);
 });
+
+for (const lang of ["en", "ar"]) {
+  test(`axe: Pointer chip and Turtle panel (${lang}, normal and high contrast) - F-022`, async ({ page }) => {
+    await openApp(page);
+    if (lang === "ar") await page.selectOption("#langSelect", "ar");
+    await page.click("#pointerToggle");
+    await page.click("#turtleTitle");
+    await page.fill("#code", "import turtle\nt = turtle.Turtle()\nt.color('red', 'yellow')\nt.forward(50)\n");
+    await runAndWait(page);
+    const s = await page.locator("#stage").boundingBox();
+    await page.mouse.move(s.x + s.width / 2, s.y + s.height / 2);
+    await expect(page.locator("#pointerCoords")).toBeVisible();
+    await expect(page.locator("#turtleList .tName")).toHaveText("t");
+    expect(await seriousViolations(page), "normal").toEqual([]);
+    await page.click("#hc");
+    await page.mouse.move(s.x + s.width / 2 + 20, s.y + s.height / 2);
+    expect(await seriousViolations(page), "high contrast").toEqual([]);
+  });
+}
