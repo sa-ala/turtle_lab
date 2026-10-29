@@ -10,7 +10,7 @@ approved roadmap or a guarantee of browser compatibility.
 | Attribute | Baseline |
 | --- | --- |
 | Review date | 2026-10-29 |
-| Source revision | `2cb4533` plus F-023 PR 1 (inline `input()`) |
+| Source revision | `190e5f6` plus F-023 PR 2 (key, click and timer programs) |
 | Primary sources | [index.html](index.html), [app.html](app.html) |
 | Supporting sources | [README.md](README.md), [LICENSE](LICENSE) |
 | Product | Turtle Lab |
@@ -570,6 +570,7 @@ Pyodide, or a Web Worker execution service.
 | Standard-library reads | From `Sk.builtinFiles.files`; missing paths throw `File not found: ...` |
 | Output | Append text to `out.textContent` |
 | Input (F-023) | `inputfun` returns a promise from `askInput(token)`; never the browser `prompt()` (§7.5) |
+| Handler errors (F-023) | `uncaughtException: callbackError` (§7.6) |
 
 These are configured limits, not verified wall-clock guarantees.
 
@@ -717,6 +718,45 @@ waiting (`inputWaiting`):
 - Stop, and anything that stops a run first (lesson, example, Gallery piece,
   Reset lesson code, Try it, language), rejects the promise through
   `activeInputReject` and hides the row. A stale token rejects at once.
+
+### 7.6 Key, click and timer programs (F-023)
+
+Skulpt 1.2.0 supports `screen.onkey`, `screen.listen`, `screen.onscreenclick`,
+`screen.onclick`, `screen.ontimer`, and turtle `onclick` / `onrelease` /
+`ondrag` (module-level `turtle.onkey()` and friends do not exist; use a
+`Screen()` object). `turtle.done()` / `mainloop()` return at once.
+
+- **Listening.** When the main program finishes for the current token and
+  `turtleEventsActive()` finds a key handler, a pending `ontimer`, or any
+  screen or global-turtle mouse handler, `startListening()` keeps the run
+  alive: `activeRun` stays set (so every F-005 stop-first path and the
+  one-run-at-a-time guard apply), Stop stays enabled and Run disabled, the
+  banner and Errors text say "Listening for keys and clicks… press Stop to
+  end.", and the step bar is hidden. `#target` gets `tabindex="0"`,
+  `role="application"` and the localized label "Drawing area, listening for
+  keys", with a focus ring. If `listen()` was called it takes focus. Skulpt's
+  key listeners sit on `#target`, so keys reach the program only while the
+  drawing has focus; arrow keys and space do not scroll the page then.
+  Clicking the drawing focuses it.
+- **Handlers.** Skulpt calls every Python handler through
+  `Sk.misceval.applyAsync`, which `installCallbackGuard()` wraps: a handler
+  runs only while the current run is live and, for Python functions, only if
+  its `func_globals` is the current run's `Sk.globals`, so handlers from a
+  stopped or earlier run never run (GAP-04). While listening, each handler
+  starts its own time limit (`Sk.execStart` is reset; the run's limit would
+  otherwise end a game 45 s after Run), and the Turtle panel refreshes after
+  it. In Step mode the main program is stepped as usual; handlers run at
+  normal speed (`__tl_step__` returns at once while listening, without
+  counting toward the step limit), and the banner adds "Step mode steps
+  through your main program; key and click handlers run at normal speed."
+- **Ending.** Stop and every stop-first action call `clearTurtleEvents()`
+  (remove the screen's key listeners and key-repeat timers, cancel
+  `ontimer`, reset screen and global-turtle mouse managers) and
+  `endListening()` (remove the focus attributes). `run()` also calls
+  `clearTurtleEvents()` for the previous program before configuring Skulpt.
+  An error inside a handler goes to `callbackError()`, which ends the run like
+  Stop but keeps the drawing and shows the friendly error on the handler's
+  line. There is no idle auto-stop.
 
 ## 8. Drawing, coordinates, and exports
 
@@ -1105,7 +1145,7 @@ filing or implementing a fix.
 | GAP-01 | **Fixed by F-007 and F-012.** Drafts are kept per lesson; examples, Try it and Reset lesson code ask before replacing edited code; named projects can be saved | There is still no undo history beyond the editor's own Ctrl+Z |
 | GAP-02 | **Fixed by F-004.** Empty drafts are preserved; lesson, progress, mode, speed, zoom and language are validated on read (§9) | Covered by `tests/storage.spec.js` |
 | GAP-03 | **Fixed by F-004.** Storage failures are caught; the app keeps working, warns once, and shows "Not saved" (§9) | No retry or export fallback; see F-016 for progress export |
-| GAP-04 | **Mostly fixed by F-005.** `run()` ignores calls while a run is active (keyboard included). Remaining: Stop is still cooperative (no worker termination) and Skulpt state is global. In testing, a stopped program printed nothing after a new run started, but isolation is not guaranteed | True isolation would need a worker or per-run interpreter |
+| GAP-04 | **Mostly fixed by F-005 and F-023.** `run()` ignores calls while a run is active (keyboard included). Turtle event handlers are removed on Stop and before each run, and the `applyAsync` guard runs only the current run's handlers (§7.6). Remaining: Stop is still cooperative (no worker termination) and Skulpt state is global. In testing, a stopped program printed nothing after a new run started, but isolation is not guaranteed | True isolation would need a worker or per-run interpreter |
 | GAP-05 | **Partly fixed by F-005.** Lesson switching, examples, Reset lesson code, Try it and language changes stop an active run first. Editing and Clear remain usable during a run by design | Revisit with F-010 if the debugger needs a locked editor |
 | GAP-06 | **Fixed by F-005.** Stop rejects the pending step suspension, so the stopped run settles and no timer or promise is left behind | Covered by `tests/run-lifecycle.spec.js` |
 | GAP-07 | **Fixed by F-005.** Stop's delayed target reset only runs if no newer run has started | Covered by `tests/run-lifecycle.spec.js` |

@@ -78,6 +78,7 @@ npm test
 - Gallery (F-021): every piece opens and runs, cards in both languages, overwrite dialog, lesson chips, Step tip and Stop, stop-then-run, `#gallery=` links, thumbnails (`tests/gallery.spec.js`)
 - canvas helpers (F-022): Pointer coordinates at three zoom levels, chip kept inside the stage, LTR in Arabic, persistence, and the Turtle panel after runs, at every step, with several or no turtles, never stale (`tests/canvas-helpers.spec.js`)
 - inline `input()` (F-023): answer and echo, several inputs, Stop and lesson change while waiting, Step mode, time limit excludes waiting, Arabic, no HTML, `window.prompt` never used (`tests/input.spec.js`)
+- key, click and timer programs (F-023): listening state, keys only with the drawing focused, Stop and context changes remove handlers and timers, no handler from an earlier run fires, handler errors, Step mode, per-handler time limit (`tests/events.spec.js`)
 - the offline bundle running with no external requests, including Gallery thumbnails
 - Python loading: local files only, CDN fallback with a real SRI check, tampered CDN file rejected, loading state, failure and Retry (`tests/loader.spec.js`)
 
