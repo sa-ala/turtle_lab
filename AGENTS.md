@@ -79,6 +79,7 @@ npm test
 - canvas helpers (F-022): Pointer coordinates at three zoom levels, chip kept inside the stage, LTR in Arabic, persistence, and the Turtle panel after runs, at every step, with several or no turtles, never stale (`tests/canvas-helpers.spec.js`)
 - inline `input()` (F-023): answer and echo, several inputs, Stop and lesson change while waiting, Step mode, time limit excludes waiting, Arabic, no HTML, `window.prompt` never used (`tests/input.spec.js`)
 - key, click and timer programs (F-023): listening state, keys only with the drawing focused, Stop and context changes remove handlers and timers, no handler from an earlier run fires, handler errors, Step mode, per-handler time limit (`tests/events.spec.js`)
+- Level 13 (F-023): every new lesson in Normal and Step mode with scripted answers, keys and clicks, the Game Maker badge, and the interactive Gallery pieces (`tests/interactive-content.spec.js`)
 - the offline bundle running with no external requests, including Gallery thumbnails
 - Python loading: local files only, CDN fallback with a real SRI check, tampered CDN file rejected, loading state, failure and Retry (`tests/loader.spec.js`)
 
@@ -125,7 +126,7 @@ Key symbols: `lessons`, `LESSON_AR`, `LEVEL_AR`, `docs`, `extraDocs`, `examples`
 2. Using `tools/content.mjs` (§4), add the lesson object to `lessons` with all 13 fields (`SPEC.md §5.1`), add the Arabic object to `LESSON_AR` at the **same index**, and add any new level name to `LEVEL_AR`.
 3. Run the starter code in both Normal and Step mode. It must succeed (unless it is a deliberate debugging lesson, documented as such).
 4. Decide whether a badge rule in `badges()` should include the new lesson's id. Tests that select lessons by position (for example `tests/app.spec.js` for lessons 12, 13 and 14) may need their position updated.
-5. Update `SPEC.md` §5.2 catalog, counts (38 → N) everywhere, and §6 if badges changed.
+5. Update `SPEC.md` §5.2 catalog, counts (51 → N) everywhere, and §6 if badges changed. An interactive starter (`input()` or event handlers) is answered or stopped by `finishInteractive()` in `tests/fixtures.js`.
 
 ### Add an example or a syntax-help entry
 Append to `examples` (`{name, code}`) or `extraDocs` (`{category, command, explanation, example}`) using the edit script above, **and** append the Arabic counterpart at the same index: `EXAMPLE_NAMES_AR` (a name) or `DOCS_AR` (`{category, explanation}`). The command and code stay Python (English). `check.mjs` fails if they are misaligned. The example must run in Skulpt. Update counts in `SPEC.md` §5.3/§5.4 and §14.

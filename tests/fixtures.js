@@ -73,6 +73,33 @@ export async function selectLesson(page, index) {
   await expect(page.locator("#lessonSelect")).toHaveValue(String(index));
 }
 
+// F-023: run the editor code; answer every input() with the given answers, and if the program keeps listening for
+// keys, clicks or timers, check it is listening without errors and Stop it. Otherwise expect a normal success.
+export async function finishInteractive(page, answers = ["blue", "80"]) {
+  await page.evaluate(() => { window.__runSettled = run(); });
+  for (;;) {
+    await page.waitForFunction(() => activeRun === null || listening || inputWaiting, null, { timeout: 30_000 });
+    const state = await page.evaluate(() => (inputWaiting ? "input" : listening ? "listening" : "done"));
+    if (state === "input") {
+      const answer = String(answers.shift() ?? "1"), echoed = await page.evaluate(() => E.out.textContent.length);
+      await page.fill("#inputField", answer);
+      await page.press("#inputField", "Enter");
+      // the next input() can start at once, so wait for the echo rather than for the field to close
+      await page.waitForFunction(([a, n]) => E.out.textContent.slice(n).includes(a + "\n"), [answer, echoed]);
+      continue;
+    }
+    if (state === "listening") {
+      await expect(page.locator("#err")).toHaveText(await t(page, "listening"));
+      await page.click("#stopTop");
+      await expect(page.locator("#runBtn")).toBeEnabled();
+      return "listening";
+    }
+    await page.evaluate(() => window.__runSettled);
+    await expectRunSucceeded(page);
+    return "done";
+  }
+}
+
 export async function expectRunSucceeded(page) {
   await expect(page.locator("#out")).toContainText(await t(page, "success"));
   await expect(page.locator("#err")).toHaveText(await t(page, "successErr"));

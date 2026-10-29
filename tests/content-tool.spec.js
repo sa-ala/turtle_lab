@@ -66,7 +66,7 @@ test("V2_LESSON_IDS is not exported (it is frozen)", () => {
 
 const BROKEN = [
   ["invalid JSON", (w) => w.put("lessons.json", '[{"id": "l1-x",]'), /lessons\.json is not valid JSON/],
-  ["Arabic lessons misaligned", (w) => { const a = w.json("lessons.ar.json"); a.pop(); w.put("lessons.ar.json", a); }, /lessons\.ar\.json has 46 entries but lessons\.json has 47/],
+  ["Arabic lessons misaligned", (w) => { const a = w.json("lessons.ar.json"); a.pop(); w.put("lessons.ar.json", a); }, /lessons\.ar\.json has 50 entries but lessons\.json has 51/],
   ["Arabic syntax help misaligned", (w) => { const a = w.json("docs.ar.json"); a.push({ category: "x", explanation: "y" }); w.put("docs.ar.json", a); }, /docs\.ar\.json has 26 entries/],
   ["Arabic example names misaligned", (w) => { const a = w.json("examples.names.ar.json"); a.splice(2, 1); w.put("examples.names.ar.json", a); }, /examples\.names\.ar\.json has 12 entries but examples\.json has 13/],
   ["a new example without an Arabic name", (w) => { const a = w.json("examples.json"); a.push({ name: "Hexagon", code: "import turtle" }); w.put("examples.json", a); }, /index-aligned/],
@@ -75,7 +75,7 @@ const BROKEN = [
   ["a missing lesson field", (w) => { const a = w.json("lessons.json"); delete a[5].starterCode; w.put("lessons.json", a); }, /lessons\.json\[5\] is missing "starterCode"/],
   ["a level with no Arabic translation", (w) => { const a = w.json("lessons.json"); a[0].level = "Level 99: New"; w.put("lessons.json", a); }, /no Arabic for level "Level 99: New"/],
   // F-021 gallery
-  ["Arabic gallery misaligned", (w) => { const a = w.json("gallery.ar.json"); a.pop(); w.put("gallery.ar.json", a); }, /gallery\.ar\.json has 9 entries but gallery\.json has 10/],
+  ["Arabic gallery misaligned", (w) => { const a = w.json("gallery.ar.json"); a.pop(); w.put("gallery.ar.json", a); }, /gallery\.ar\.json has 11 entries but gallery\.json has 12/],
   ["a duplicate gallery id", (w) => { const a = w.json("gallery.json"); a[1].id = a[0].id; w.put("gallery.json", a); }, /gallery\.json\[1\] reuses id "g-rainbow-spiral"/],
   ["a malformed gallery id", (w) => { const a = w.json("gallery.json"); a[2].id = "Mandala"; w.put("gallery.json", a); }, /must look like "g-short-name"/],
   ["a gallery piece using an unknown lesson", (w) => { const a = w.json("gallery.json"); a[0].uses.push("l99-nope"); w.put("gallery.json", a); }, /unknown lesson id "l99-nope"/],

@@ -169,3 +169,31 @@ test("AC8: listening text is Arabic in Arabic mode", async ({ page }) => {
   await expect.poll(() => count(page, "up")).toBe(1);
   await page.click("#stopTop");
 });
+
+test("handlers run one at a time, and a held key does not pile up calls", async ({ page }) => {
+  await openApp(page);
+  await startListening(page, `import turtle
+t = turtle.Turtle()
+t.speed(1)
+screen = turtle.Screen()
+busy = False
+calls = 0
+def up():
+    global busy, calls
+    if busy:
+        print('overlap')
+    busy = True
+    calls = calls + 1
+    t.forward(30)
+    busy = False
+screen.onkey(up, 'Up')
+screen.listen()
+`);
+  for (let i = 0; i < 8; i++) await sendKey(page, "ArrowUp"); // eight presses while the first move is still animating
+  await page.waitForTimeout(3000);
+  expect(await count(page, "overlap")).toBe(0);
+  const calls = await page.evaluate(() => Sk.globals.calls.v);
+  expect(calls).toBeGreaterThanOrEqual(1);
+  expect(calls).toBeLessThanOrEqual(2); // the running call plus at most one waiting copy
+  await page.click("#stopTop");
+});

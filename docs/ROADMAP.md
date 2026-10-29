@@ -33,7 +33,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-020 | Lesson card and editor toolbar clarity | P2 | M | F-019 | — | Done |
 | F-021 | Gallery of inspiring pieces | P2 | L | F-007, F-008, F-017 | — | Done |
 | F-022 | Canvas helper tools: pointer coordinates and turtle state | P2 | M | F-010, F-013 | 15 | Done |
-| F-023 | Interactive programs: `input()`, keys, clicks, timers, games level | P2 | L epic | F-005, F-010, F-017, F-018, F-021 | 04, 05, 08 | In progress (PR 1-2 done) |
+| F-023 | Interactive programs: `input()`, keys, clicks, timers, games level | P2 | L epic | F-005, F-010, F-017, F-018, F-021 | 04, 05, 08 | Done |
 
 Suggested order: F-003, F-004, F-006 (independent quick wins) → F-001 → F-002 → F-005 → then P2 by maintainer preference.
 
@@ -313,7 +313,7 @@ Promote the AGENTS.md edit recipe into `tools/content.mjs` with commands `extrac
 
 ## F-018 Curriculum v2: ordering fixes and "Beyond the basics" track
 
-**Status: Done** (maintainer approved 2026-10-23). Lessons 39-47 added; the `input()` lesson is deferred until the app has a non-blocking input UI. Full spec: [docs/specs/F-018-curriculum-v2.md](specs/F-018-curriculum-v2.md).
+**Status: Done** (maintainer approved 2026-10-23). Lessons 39-47 added; the `input()` lesson was deferred until the app had a non-blocking input UI, and arrived with F-023 (lesson 48). Full spec: [docs/specs/F-018-curriculum-v2.md](specs/F-018-curriculum-v2.md).
 
 Move the two debug lessons next to the first loop lessons, introduce `speed()`, `circle()`, `len()` and `%` before first use, fix mismatched teacher-note lesson numbers, and add an optional advanced track (`input`, `random`, nested loops, `return`, recursion).
 
@@ -361,6 +361,6 @@ A "Pointer" toggle shows the turtle coordinates `(x, y)` under the mouse or fing
 
 ## F-023 Interactive programs
 
-**Status: In progress.** PR 1 (inline `input()`) done, tests in `tests/input.spec.js`. PR 2 (listening state for key, click and timer programs) done, tests in `tests/events.spec.js`. Open questions settled (2026-10-29): handlers run at normal speed in Step mode with a tip; the level awards a "Game Maker" badge; no idle auto-stop. Full spec: [docs/specs/F-023-interactive-programs.md](specs/F-023-interactive-programs.md). Three PRs: (1) non-blocking inline `input()`, which unblocks the `input()` lesson deferred by F-018; (2) a "listening" run state for `onkey` / `onscreenclick` / `ontimer` programs, with every handler and timer removed on Stop or any context change; (3) Level 13 "Make it interactive" (4 lessons) and 1–2 Gallery game pieces.
+**Status: Done.** PR 3 (Level 13 "Make It Interactive": lessons 48-51, the Game Maker badge, Gallery pieces Sketch Pad and Firefly Night, and handlers now run one at a time) done, tests in `tests/interactive-content.spec.js`. PR 1 (inline `input()`) done, tests in `tests/input.spec.js`. PR 2 (listening state for key, click and timer programs) done, tests in `tests/events.spec.js`. Open questions settled (2026-10-29): handlers run at normal speed in Step mode with a tip; the level awards a "Game Maker" badge; no idle auto-stop. Full spec: [docs/specs/F-023-interactive-programs.md](specs/F-023-interactive-programs.md). Three PRs: (1) non-blocking inline `input()`, which unblocks the `input()` lesson deferred by F-018; (2) a "listening" run state for `onkey` / `onscreenclick` / `ontimer` programs, with every handler and timer removed on Stop or any context change; (3) Level 13 "Make it interactive" (4 lessons) and 1–2 Gallery game pieces.
 
 All of these APIs exist in the vendored Skulpt 1.2.0 (`textinput`/`numinput` do not). **Acceptance criteria.** `window.prompt` is never used; handlers from a stopped or earlier run never fire (GAP-04); keys reach the program only while the stage has focus; new starters and pieces run in both modes and offline; a11y and localization tests stay green. Open questions: handlers in Step mode, a badge for the level, idle auto-stop.

@@ -91,9 +91,9 @@ test("More about this lesson opens the Lesson tab in the Learning Area", async (
 test("AC5: only the current level is open; headings show done/total and aria-expanded", async ({ page }) => {
   await openApp(page);
   const groups = page.locator("#lessonList .levelGroup");
-  await expect(groups).toHaveCount(12);
+  await expect(groups).toHaveCount(13);
   await expect(page.locator("#levelBtn-0")).toHaveAttribute("aria-expanded", "true");
-  for (let k = 1; k < 12; k++) await expect(page.locator(`#levelBtn-${k}`)).toHaveAttribute("aria-expanded", "false");
+  for (let k = 1; k < 13; k++) await expect(page.locator(`#levelBtn-${k}`)).toHaveAttribute("aria-expanded", "false");
   await expect(page.locator('#lessonList .lesson[data-i="0"]')).toBeVisible();
   await expect(page.locator('#lessonList .lesson[data-i="3"]')).toBeHidden();
   await expect(page.locator("#levelBtn-0 .lvCount")).toHaveText(await page.evaluate(() => T("levelProgress")(0, 3)));
