@@ -170,3 +170,17 @@ for (const lang of ["en", "ar"]) {
     expect(await seriousViolations(page), "high contrast").toEqual([]);
   });
 }
+
+for (const lang of ["en", "ar"]) {
+  test(`axe: waiting for an input() answer (${lang}, normal and high contrast) - F-023`, async ({ page }) => {
+    await openApp(page);
+    if (lang === "ar") await page.selectOption("#langSelect", "ar");
+    await page.fill("#code", "name = input('Name? ')\nprint(name)\n");
+    await page.evaluate(() => { run(); });
+    await expect(page.locator("#inputRow")).toBeVisible();
+    expect(await seriousViolations(page), "normal").toEqual([]);
+    await page.click("#hc");
+    expect(await seriousViolations(page), "high contrast").toEqual([]);
+    await page.click("#stopTop");
+  });
+}

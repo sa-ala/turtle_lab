@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Proposed |
+| Status | In progress (PR 1 done) |
 | Priority | P2 |
 | Size | L (epic, 3 PRs) |
 | Depends on | F-005 (run lifecycle), F-010 (step debugger), F-017 (content tool), F-018 (deferred `input()` lesson), F-021 (Gallery) |
@@ -59,7 +59,7 @@ The level name goes in `LEVEL_AR` as "اجعلها تفاعلية". Each lesson 
 RTL: the input field is `dir="auto"`, so Arabic answers display correctly, and the echoed text is plain `textContent`. High contrast: the input field and the stage focus ring use `body.hc` tokens. Below 860 px the input field is full width.
 
 ## Technical design
-- **PR 1:** in `run()`, pass `inputfun` and `inputfunTakesPrompt: true` to `Sk.configure`. The function captures `token`, renders the field with DOM APIs (no `innerHTML` of the prompt text) and returns a Promise. Submit resolves it. Stop or a stale token rejects it, using the same pattern as `activeStepReject`. Its reject handle is stored as `activeInputReject` and cleared on every exit path. Extend `setRun()` with a "waiting for input" sub-state that disables Pause/Next.
+- **PR 1 (done):** in `run()`, pass `inputfun` to `Sk.configure`. As implemented, `inputfunTakesPrompt` stays off, so Skulpt prints the prompt through `sys.stdout` like `print`. The time spent waiting is added to `Sk.execStart`, so it does not count toward `execLimit`. The `input()` lesson moves to PR 3 with the rest of Level 13. The function captures `token`, renders the field with DOM APIs (no `innerHTML` of the prompt text) and returns a Promise. Submit resolves it. Stop or a stale token rejects it, using the same pattern as `activeStepReject`. Its reject handle is stored as `activeInputReject` and cleared on every exit path. Extend `setRun()` with a "waiting for input" sub-state that disables Pause/Next.
 - **PR 2:** after `Sk.misceval.asyncToPromise` resolves for the current token, check whether the turtle screen has key, mouse or timer listeners. Prefer Skulpt's own bookkeeping: `_keyListeners`, `getManager(...)` and the timer ids seen in the stdlib. If any exist, enter `runState = "listening"` instead of finishing. `stop()` and every F-005 stop-first entry point call `endListening()`. It clears key and mouse managers, cancels the timers, removes the stage key-forwarding listeners, and restores the controls, guarded by `runToken`. Before each new run, call `Sk.TurtleGraphics.reset()` (or the equivalent) so no listener survives into it (GAP-04). Handler invocations go through the existing `interruptHandler`, so Stop also ends a long handler. In Step mode, handlers bypass the step builtin: either the generated handler code is not instrumented, or it short-circuits when `runState === "listening"`. Verify this against GAP-08 during implementation.
 - **Stage focus:** `#stage` gets `tabindex="-1"`, which becomes `0` while listening, plus a localized `aria-label`. Key events on the stage are forwarded to Skulpt's listeners only while it has focus.
 - **PR 3:** lessons are added with `tools/content.mjs`, using the next unused ids (`l48-…` onward), `LESSON_AR`, `LEVEL_AR`, and possibly a badge (open question). Gallery pieces are added through the F-021 recipe. Starter code must work in Normal and Step mode. The `input()` lesson must not block the automated "every starter runs" test: the test answers the field.

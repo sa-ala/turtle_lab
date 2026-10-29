@@ -10,7 +10,7 @@ approved roadmap or a guarantee of browser compatibility.
 | Attribute | Baseline |
 | --- | --- |
 | Review date | 2026-10-29 |
-| Source revision | `c89899f` plus F-022 (canvas helper tools) |
+| Source revision | `2cb4533` plus F-023 PR 1 (inline `input()`) |
 | Primary sources | [index.html](index.html), [app.html](app.html) |
 | Supporting sources | [README.md](README.md), [LICENSE](LICENSE) |
 | Product | Turtle Lab |
@@ -147,7 +147,7 @@ they do not execute Python.
 | Editor actions (F-020 header bar) | Run group: Run (tooltip and `aria-keyshortcuts` for Ctrl/⌘+Enter), Stop, the Run Mode selector (visually hidden label, 🐢 icon), the Step speed selector in Step mode only, and a "Ctrl+Enter to run" hint in Normal mode. File group, quieter (no shadow): Reset lesson code, Copy code, Export .py, example selector | `runBtn`, `stopTop`, `runMode`, `runModeLabel`, `stepSpeedControl`, `stepSpeed`, `runHint`, `resetBtn`, `copyBtn`, `pyBtn`, `examples` |
 | Execution controls | Explanation/status banner (hidden for the Normal-mode idle hint, F-020); the step bar (`debugbar`) appears only while a Step-mode run is active, with Pause / Next step / Continue (F-010); Variables panel while paused; screen-reader step announcements | `debugInfo`, `runMode`, `stepSpeedControl`, `stepSpeed`, `stepControls`, `pauseBtn`, `nextBtn`, `continueBtn`, `varsPanel`, `varsList`, `stepState` |
 | Editor | Plain textarea, line-number gutter, current/error-line overlays, autosave status, cursor location | `code`, `rail`, `codeHighlights`, `highlightInner`, `saveStatus`, `cursor` |
-| Results below editor | Output and Errors tabs with separate content panels | `output`, `errors`, `out`, `err`; `[data-run-tab]` |
+| Results below editor | Output and Errors tabs with separate content panels; while a program waits in `input()`, an answer row (label, text field, Enter button) under the output (F-023) | `output`, `errors`, `out`, `err`, `inputRow`, `inputLabel`, `inputField`, `inputSubmit`; `[data-run-tab]` |
 | Drawing | Stage, Skulpt target, coordinate helper, Pointer toggle and coordinates chip (F-022), collapsible Turtle state panel below the stage (F-022), zoom controls, Clear, Save PNG; green start arrow at the center pointing east, hidden once a run draws (F-019); "New output ↓" chip (F-019) shown when `print()` output lands while `#out` is off screen, with a dot on the Output tab | `stage`, `target`, `coordOverlay`, `coordToggle`, `pointerToggle`, `pointerCoords`, `turtlePanel`, `turtleTitle`, `turtleList`, `turtleNone`, `zoomOut`, `zoomIn`, `zoomReset`, `zoomLabel`, `clearBtn`, `pngBtn`, `newOutput` |
 | Learning area | Lesson, Syntax Help, Challenges, Gallery (F-021), Teacher & Parent, Badges, My Projects (F-012) | `[data-tab]`; `lesson`, `syntax`, `challenge`, `gallery`, `teacher`, `badges`, `projects`; `galleryTip` |
 | Print-only area | Syntax Cheat Sheet title and all reference commands/explanations | `printDocs` |
@@ -411,7 +411,7 @@ sun, and house, but its starter only supplies the sun and house body; scene
 completion is left to the learner.
 Teacher notes no longer quote lesson numbers (F-018); the array order determines numbering.
 
-Lessons 39-47 (F-018 "Beyond the basics") are always visible and have no lock or badge. Skulpt 1.2.0 has no `turtle.bgcolor()`, so lessons 44 and 47 use `turtle.Screen().bgcolor()`. `input()` is deliberately not taught: the app configures no input handler, so Skulpt would fall back to a blocking browser prompt dialog. Step mode on lesson 46 runs hundreds of lines, so use Normal mode or Stop.
+Lessons 39-47 (F-018 "Beyond the basics") are always visible and have no lock or badge. Skulpt 1.2.0 has no `turtle.bgcolor()`, so lessons 44 and 47 use `turtle.Screen().bgcolor()`. `input()` is not taught yet; since F-023 PR 1 the app answers it inline (§7.5), and the lesson arrives with F-023 PR 3. Step mode on lesson 46 runs hundreds of lines, so use Normal mode or Stop.
 
 ### 5.3 Example library
 
@@ -569,6 +569,7 @@ Pyodide, or a Web Worker execution service.
 | Turtle animation | `animate: true` |
 | Standard-library reads | From `Sk.builtinFiles.files`; missing paths throw `File not found: ...` |
 | Output | Append text to `out.textContent` |
+| Input (F-023) | `inputfun` returns a promise from `askInput(token)`; never the browser `prompt()` (§7.5) |
 
 These are configured limits, not verified wall-clock guarantees.
 
@@ -695,6 +696,27 @@ previous non-blank line: a block header (`for`, `while`, `if`, `elif`, `else`,
 `def`, `class`, `try`, `except`, `finally`, `with`) without a trailing colon
 gives the colon guidance, and a line not indented past a preceding line that
 ends with a colon gives the indentation guidance (GAP-25, fixed by F-006).
+
+### 7.5 Answering input() (F-023)
+
+`input(prompt)` prints the prompt through `sys.stdout` (so it lands in the
+Output panel like `print`), then Skulpt calls `inputfun`, which returns a
+promise from `askInput(token)`; Skulpt suspends until it settles. While
+waiting (`inputWaiting`):
+
+- The Output tab is shown and `#inputRow` appears under the output with a
+  labelled field (`dir="auto"`, so Arabic answers display correctly) and an
+  Enter button. The field takes focus. The status banner and the polite live
+  region say "Waiting for your answer…".
+- Stop stays enabled and Run stays disabled. In Step mode the highlighted
+  line stays on the `input()` line, and Pause and Next step are disabled.
+- Enter or the button submits: the answer is echoed into the output as text
+  followed by a newline, the row hides (focus moves to Stop), and the program
+  continues. `Sk.execStart` is moved forward by the waiting time, so time
+  spent typing does not count toward the run's time limit.
+- Stop, and anything that stops a run first (lesson, example, Gallery piece,
+  Reset lesson code, Try it, language), rejects the promise through
+  `activeInputReject` and hides the row. A stale token rejects at once.
 
 ## 8. Drawing, coordinates, and exports
 
