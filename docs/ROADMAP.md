@@ -32,6 +32,8 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-019 | Lesson-first layout and control cleanup | P2 | M | GAP-27..31 | — | Done |
 | F-020 | Lesson card and editor toolbar clarity | P2 | M | F-019 | — | Done |
 | F-021 | Gallery of inspiring pieces | P2 | L | F-007, F-008, F-017 | — | Done |
+| F-022 | Canvas helper tools: pointer coordinates and turtle state | P2 | M | F-010, F-013 | 15 | Proposed |
+| F-023 | Interactive programs: `input()`, keys, clicks, timers, games level | P2 | L epic | F-005, F-010, F-017, F-018, F-021 | 04, 05, 08 | Proposed |
 
 Suggested order: F-003, F-004, F-006 (independent quick wins) → F-001 → F-002 → F-005 → then P2 by maintainer preference.
 
@@ -344,3 +346,21 @@ Put the lesson goal, challenge and "I did it!" above the fold in a lesson card, 
 A Gallery tab in the learning area with 10 curated pieces (rainbow spiral, mandala, starry night, city at night, blossom tree, Koch snowflake, Sierpinski triangle, golden galaxy, and more). Each card shows a thumbnail, the level that makes it reachable, links to the lessons that teach its concepts, Open and run, and remix ideas. All pieces are verified in Skulpt 1.2.0 and finish in 5 s or less.
 
 **Acceptance criteria.** Every piece runs; opening a piece uses the F-007 overwrite dialog; lesson links work; `#gallery=<id>` deep link; works offline; a11y and localization tests stay green in both languages.
+
+---
+
+## F-022 Canvas helper tools
+
+**Status: Proposed.** Full spec: [docs/specs/F-022-canvas-helpers.md](specs/F-022-canvas-helpers.md).
+
+A "Pointer" toggle shows the turtle coordinates `(x, y)` under the mouse or finger on the stage (zoom aware, LTR in Arabic). A "Turtle" panel next to the Variables panel shows each turtle's position, heading, pen state and colors after a run and at every step.
+
+**Acceptance criteria.** Pointer readout is correct within ±1 unit at 50/100/200% zoom; the toggle persists (`tl.pointer.v1`); the turtle panel matches the program state in Normal and Step mode and never shows a stale run; a11y and localization tests stay green. Open questions: default off; panel also after Normal runs.
+
+---
+
+## F-023 Interactive programs
+
+**Status: Proposed.** Full spec: [docs/specs/F-023-interactive-programs.md](specs/F-023-interactive-programs.md). Three PRs: (1) non-blocking inline `input()`, which unblocks the `input()` lesson deferred by F-018; (2) a "listening" run state for `onkey` / `onscreenclick` / `ontimer` programs, with every handler and timer removed on Stop or any context change; (3) Level 13 "Make it interactive" (4 lessons) and 1–2 Gallery game pieces.
+
+All of these APIs exist in the vendored Skulpt 1.2.0 (`textinput`/`numinput` do not). **Acceptance criteria.** `window.prompt` is never used; handlers from a stopped or earlier run never fire (GAP-04); keys reach the program only while the stage has focus; new starters and pieces run in both modes and offline; a11y and localization tests stay green. Open questions: handlers in Step mode, a badge for the level, idle auto-stop.
