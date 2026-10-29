@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | In progress (PR 1 done) |
+| Status | In progress (PR 1-2 done) |
 | Priority | P2 |
 | Size | L (epic, 3 PRs) |
 | Depends on | F-005 (run lifecycle), F-010 (step debugger), F-017 (content tool), F-018 (deferred `input()` lesson), F-021 (Gallery) |
@@ -35,7 +35,7 @@ Every program in Turtle Lab today runs from top to bottom and ends. Kids aged 10
 - If `listen()` was called, keyboard focus moves to the stage. The stage gets a visible focus ring and the accessible name "Drawing area, listening for keys". Clicking the stage also focuses it. Keys go to the program only while the stage has focus, so typing in the editor never moves the turtle. The browser's own handling of arrow keys and space is suppressed only while the stage has focus.
 - Handler errors are shown like normal run errors, and the run ends.
 - Stop, a new run, choosing a lesson, example or Gallery piece, Reset lesson code, Try it, and a language change all end the listening state first. The F-005 rules are extended to listeners.
-- Step mode: the main body is stepped as usual. Handlers then run unstepped, at normal speed, with a one-time tip: "Step mode steps through your main program; key and click handlers run at normal speed."
+- Step mode: the main body is stepped as usual. Handlers then run unstepped, at normal speed, with a tip in the status banner: "Step mode steps through your main program; key and click handlers run at normal speed."
 
 **PR 3, content.** A new level (13) "Make it interactive", with 4 lessons:
 1. Ask and draw: `input()` sets a size and color.
@@ -60,7 +60,7 @@ RTL: the input field is `dir="auto"`, so Arabic answers display correctly, and t
 
 ## Technical design
 - **PR 1 (done):** in `run()`, pass `inputfun` to `Sk.configure`. As implemented, `inputfunTakesPrompt` stays off, so Skulpt prints the prompt through `sys.stdout` like `print`. The time spent waiting is added to `Sk.execStart`, so it does not count toward `execLimit`. The `input()` lesson moves to PR 3 with the rest of Level 13. The function captures `token`, renders the field with DOM APIs (no `innerHTML` of the prompt text) and returns a Promise. Submit resolves it. Stop or a stale token rejects it, using the same pattern as `activeStepReject`. Its reject handle is stored as `activeInputReject` and cleared on every exit path. Extend `setRun()` with a "waiting for input" sub-state that disables Pause/Next.
-- **PR 2:** after `Sk.misceval.asyncToPromise` resolves for the current token, check whether the turtle screen has key, mouse or timer listeners. Prefer Skulpt's own bookkeeping: `_keyListeners`, `getManager(...)` and the timer ids seen in the stdlib. If any exist, enter `runState = "listening"` instead of finishing. `stop()` and every F-005 stop-first entry point call `endListening()`. It clears key and mouse managers, cancels the timers, removes the stage key-forwarding listeners, and restores the controls, guarded by `runToken`. Before each new run, call `Sk.TurtleGraphics.reset()` (or the equivalent) so no listener survives into it (GAP-04). Handler invocations go through the existing `interruptHandler`, so Stop also ends a long handler. In Step mode, handlers bypass the step builtin: either the generated handler code is not instrumented, or it short-circuits when `runState === "listening"`. Verify this against GAP-08 during implementation.
+- **PR 2 (done; as built, see SPEC.md §7.6):** instead of `Sk.TurtleGraphics.reset()`, which would also cancel animations, `clearTurtleEvents()` removes only the event sources, and a guard around `Sk.misceval.applyAsync` runs only the current run's handlers (matched by `func_globals`). `execLimit` does apply to callbacks, counted from the start of the run, so each handler now starts its own limit while listening. Original plan: after `Sk.misceval.asyncToPromise` resolves for the current token, check whether the turtle screen has key, mouse or timer listeners. Prefer Skulpt's own bookkeeping: `_keyListeners`, `getManager(...)` and the timer ids seen in the stdlib. If any exist, enter `runState = "listening"` instead of finishing. `stop()` and every F-005 stop-first entry point call `endListening()`. It clears key and mouse managers, cancels the timers, removes the stage key-forwarding listeners, and restores the controls, guarded by `runToken`. Before each new run, call `Sk.TurtleGraphics.reset()` (or the equivalent) so no listener survives into it (GAP-04). Handler invocations go through the existing `interruptHandler`, so Stop also ends a long handler. In Step mode, handlers bypass the step builtin: either the generated handler code is not instrumented, or it short-circuits when `runState === "listening"`. Verify this against GAP-08 during implementation.
 - **Stage focus:** `#stage` gets `tabindex="-1"`, which becomes `0` while listening, plus a localized `aria-label`. Key events on the stage are forwarded to Skulpt's listeners only while it has focus.
 - **PR 3:** lessons are added with `tools/content.mjs`, using the next unused ids (`l48-…` onward), `LESSON_AR`, `LEVEL_AR`, and possibly a badge (open question). Gallery pieces are added through the F-021 recipe. Starter code must work in Normal and Step mode. The `input()` lesson must not block the automated "every starter runs" test: the test answers the field.
 - **Storage:** none.
@@ -92,6 +92,7 @@ RTL: the input field is `dir="auto"`, so Arabic answers display correctly, and t
 - [ ] docs/ROADMAP.md status, and the F-018 note about the deferred `input()` lesson
 
 ## Open questions
-1. Event programs in Step mode: run handlers unstepped with a tip, or refuse to enter listening in Step mode? **Recommended: unstepped with a tip.**
-2. Does the new level award a badge? **Recommended: yes, "Game Maker", following the existing badge rules.**
-3. Should listening end automatically after some idle time, so a forgotten tab is not left running? **Recommended: no.** Stop is always visible, and timers run under `execLimit`. Confirm during implementation whether `execLimit` applies to callbacks.
+All settled by the maintainer (2026-10-29):
+1. Event programs in Step mode: **handlers run unstepped, with a tip.**
+2. The new level awards a badge: **yes, "Game Maker", following the existing badge rules** (PR 3).
+3. No idle auto-stop. `execLimit` does apply to callbacks (counted from the start of the run), so each handler starts its own limit while listening.

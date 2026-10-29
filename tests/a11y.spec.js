@@ -184,3 +184,17 @@ for (const lang of ["en", "ar"]) {
     await page.click("#stopTop");
   });
 }
+
+for (const lang of ["en", "ar"]) {
+  test(`axe: a program listening for keys (${lang}, normal and high contrast) - F-023`, async ({ page }) => {
+    await openApp(page);
+    if (lang === "ar") await page.selectOption("#langSelect", "ar");
+    await page.fill("#code", "import turtle\nscreen = turtle.Screen()\nscreen.onkey(lambda: print('up'), 'Up')\nscreen.listen()\n");
+    await page.evaluate(() => run());
+    await expect(page.locator("#target")).toBeFocused();
+    expect(await seriousViolations(page), "normal").toEqual([]);
+    await page.click("#hc");
+    expect(await seriousViolations(page), "high contrast").toEqual([]);
+    await page.click("#stopTop");
+  });
+}
