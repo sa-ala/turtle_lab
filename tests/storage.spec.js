@@ -78,6 +78,7 @@ test("malformed values for every key fall back to defaults without errors (AC2)"
     "tl.stepSpeed.v1": "1",
     "tl.zoom.v1": "NaN",
     "tl.coords.v1": "x",
+    "tl.pointer.v1": "yes",
     "tl.lessonCard.v1": "sometimes",
   });
   await expect(page.locator("#lessonSelect")).toHaveValue("0");
@@ -91,6 +92,7 @@ test("malformed values for every key fall back to defaults without errors (AC2)"
   await expect(page.locator("#stepSpeed")).toHaveValue("500");
   await expect(page.locator("#zoomLabel")).toHaveText("100%");
   await expect(page.locator("#coordToggle")).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("#pointerToggle")).toHaveAttribute("aria-pressed", "false"); // F-022
   await expect(page.locator("#lessonCardBody")).toBeVisible(); // F-019: malformed card state means open
   await runAndWait(page);
   await expectRunSucceeded(page);
