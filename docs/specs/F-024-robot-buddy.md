@@ -17,6 +17,7 @@ A first-time learner opens `app.html` and sees the full workspace at once: cours
 - A short, skippable **welcome tour** on the first visit that introduces the main areas. The robot hops next to each one.
 - **Contextual tips and celebrations** after the tour: first run, first error, lesson completed, badge earned, new level, and an occasional idle nudge.
 - Learners can **customize** the robot's name, body color and parts. **Badges unlock extra parts.** The choices are saved locally like progress.
+- Learners can **drag the robot** anywhere in the app (mouse, pen or touch), or move it with the keyboard. Its new spot becomes its home and is remembered.
 - Full parity with the rest of the app: English and Arabic (RTL), high contrast, reduced motion, keyboard and screen reader, < 860 px, offline, print.
 
 ## Non-goals
@@ -25,7 +26,7 @@ A first-time learner opens `app.html` and sees the full workspace at once: cours
 - No landing-page robot (possible follow-up).
 - No accounts, sync or sharing of the robot. The name stays in local storage (rule 5).
 - No change to lessons, badge rules, progress semantics, run lifecycle or Step-mode behavior.
-- No free roaming. The robot only moves when it has something to say.
+- No free roaming. The robot moves by itself only when it has something to say; otherwise it stays where the learner put it.
 
 ## User experience
 
@@ -37,8 +38,17 @@ A first-time learner opens `app.html` and sees the full workspace at once: cours
 - **High contrast**: solid dark outline, the bubble uses the high-contrast palette, no reliance on color alone.
 - **Print**: the dock, bubble and menu are hidden.
 
+### Moving the robot yourself
+- **Drag**: press on the robot and drag it (mouse, pen or touch). It follows the pointer with a little "carried" pose (legs dangling) and lands with a small bounce where it is dropped. A press that moves less than 6 px is a click and opens the menu as before.
+- **Home**: the drop point becomes the robot's new **home**. Hops return there, and the welcome tour and tips start from there. The position persists across reloads.
+- **Stays visible**: the robot is kept fully inside the window while dragging and after a resize or zoom. The position is stored as a fraction of the window (`x`, `y` from 0 to 1), so it adapts to other window sizes. Switching language does not move a custom position. Only the default corner mirrors.
+- **Keyboard alternative** (WCAG 2.5.7): **Move robot** in the robot menu enters move mode. Arrow keys move it 16 px (Shift + arrow: 64 px), and Enter or Esc finish. The bubble shows "Use the arrow keys to move me. Press Enter when done.", and a screen-reader announcement confirms "Robot moved".
+- **Return to corner** in the robot menu clears the custom position. It appears only when a custom position is set.
+- Dragging is disabled during the welcome tour and while the robot is hopping. If a tip arrives during a drag, it waits until the drop.
+- **Reduced motion**: dragging still works, without the landing bounce.
+
 ### Hopping and the speech bubble
-- When the robot speaks about a control, it **hops** next to it with a short CSS transform animation (Run button, lesson card, error line, Badges tab, …). If the control is off screen, it scrolls into view first. A speech bubble with an arrow points at the control. When the bubble closes, the robot returns to its dock.
+- When the robot speaks about a control, it **hops** next to it with a short CSS transform animation (Run button, lesson card, error line, Badges tab, …). If the control is off screen, it scrolls into view first. A speech bubble with an arrow points at the control. When the bubble closes, the robot returns to its home (the corner dock or the spot the learner chose).
 - The robot **never hops** while a program runs, is paused in Step mode, waits for `input()`, or listens for keys and clicks (F-023). Tips that arrive then wait until the run settles. Celebrations during those states show in the bubble at the dock without hopping.
 - It never covers the editor while the editor has focus. In that case it speaks from the dock.
 - The bubble closes with its ✕ button, Esc, or by itself after 8 s for tips. Tour steps stay until the learner acts.
@@ -48,6 +58,8 @@ A first-time learner opens `app.html` and sees the full workspace at once: cours
 Clicking the robot (or pressing Enter or Space when it has focus) opens a small menu:
 - **Customize…**: opens the Customize dialog.
 - **Replay tour**
+- **Move robot**: keyboard move mode (see above).
+- **Return to corner**: shown only when the learner has moved the robot.
 - **Quiet mode** (toggle, `aria-pressed`): no idle nudges, no one-time tips, no hopping. Celebrations still show as a bubble at the dock.
 - **Hide robot**: the robot collapses to a small 🤖 tab at the dock edge. Clicking the tab brings it back. While hidden, the robot says nothing.
 
@@ -116,6 +128,10 @@ A "🤖 Robot buddy: On / Off" switch for classrooms. Off sets `hidden` and `qui
 | `buddyHide` | Hide robot | إخفاء الروبوت |
 | `buddyShow` | Show robot | إظهار الروبوت |
 | `buddyClose` | Close | إغلاق |
+| `buddyMove` | Move robot | تحريك الروبوت |
+| `buddyMoveHelp` | Use the arrow keys to move me. Press Enter when done. | استخدم مفاتيح الأسهم لتحريكي. اضغط Enter عند الانتهاء. |
+| `buddyMoved` | Robot moved | تم تحريك الروبوت |
+| `buddyCorner` | Return to corner | أعِده إلى الزاوية |
 | `buddyDialogTitle` | Customize your robot | خصّص روبوتك |
 | `buddyName` | Name | الاسم |
 | `buddyColor` | Body color | لون الجسم |
@@ -159,14 +175,15 @@ Final wording may be polished in each PR. Every key keeps `en`/`ar` parity (`che
 - **CSS**: one commented block appended at the end of `<style>` with keyframes (`buddyBob`, `buddyBlink`, `buddyWave`, `buddyBounce`, `buddyTilt`), hop transitions, `[dir="rtl"]` dock side, `body.hc` outline and bubble colors, the 860 and 1180 px rules, `prefers-reduced-motion`, and `@media print { display:none }`. Z-order: dock < toast < dialogs.
 - **Script** (compact style):
   - `K.buddy:"tl.buddy.v1"`. `BUDDY_DEFAULT`, `BUDDY_PARTS` (base and unlockable items, each with the badge index that unlocks it).
-  - `loadBuddy()` uses `store.get(K.buddy, null)`, then `sanitizeBuddy()` checks each field: `name` is a string, trimmed, control characters stripped, at most 20 characters, else `""` (the localized default is drawn); `color` / `antenna` / `eyes` / `accessory` must be a known id, else the default; `quiet` / `hidden` / `toured` are booleans; `seen` is an array of known tip ids, de-duplicated. `saveBuddy()` uses `store.set`.
+  - `loadBuddy()` uses `store.get(K.buddy, null)`, then `sanitizeBuddy()` checks each field: `name` is a string, trimmed, control characters stripped, at most 20 characters, else `""` (the localized default is drawn); `color` / `antenna` / `eyes` / `accessory` must be a known id, else the default; `quiet` / `hidden` / `toured` are booleans; `seen` is an array of known tip ids, de-duplicated; `pos` is `null` (default corner) or `{x, y}` with finite numbers clamped to 0–1, else `null`. `saveBuddy()` uses `store.set`.
   - `badgeData()`: extracted from `badges()` and returns `[icon, name, earned]`. `badges()` renders from it, and `unlocked(itemId)` reads it. No change to badge rules.
   - `effectiveBuddy()` replaces locked choices with the defaults for drawing only.
   - `buddySay(text, {target, mood, actions, sticky})`, `buddyHop(el)`, `buddyHome()`, `buddyBusy()` (true while running, paused, waiting for input, listening, or a dialog is open). A small queue holds tips until `buddyBusy()` is false.
   - PR 2: `TOUR` (step → target id, string key), `startTour(replay)`, `tourStep(n)`, `endTour()`.
   - PR 3: `buddyEvent(name, data)`, called from the run settle path in `run()` (success or error, only for the current `runToken`), `complete(i)` (compares `badgeData()` before and after to find new badges), `loadLesson()` (first visit to a level), and an idle timer reset on `input` / `keydown` / `pointerdown` and paused while `buddyBusy()`.
+  - Dragging: `pointerdown` / `pointermove` / `pointerup` on `#buddy` with `setPointerCapture` and `touch-action: none`, a 6 px click threshold, `buddyPlace(pos)` (fraction to clamped pixels), `buddyMoveMode()` for the keyboard, and a `resize` listener that re-clamps. Saving happens on drop, not on every move.
   - `bind()`: robot, tab, menu items, dialog Save/Cancel, Esc. `applyLang()`: all labels, plus a re-render of an open bubble or dialog. `init()`: `loadBuddy()`, render, and schedule the tour once `pyState`/lesson is ready (PR 2).
-- **Storage**: new key `tl.buddy.v1`, JSON `{name, color, antenna, eyes, accessory, quiet, hidden, toured, seen}`. It is new, so there is no migration. Invalid fields fall back one by one, so a single bad field never resets the rest. If storage is blocked, the robot uses the defaults and the tour may reappear each visit, which is acceptable.
+- **Storage**: new key `tl.buddy.v1`, JSON `{name, color, antenna, eyes, accessory, quiet, hidden, toured, seen, pos}`. It is new, so there is no migration. Invalid fields fall back one by one, so a single bad field never resets the rest. If storage is blocked, the robot uses the defaults and the tour may reappear each visit, which is acceptable.
 - **Run/step impact**: none on program semantics. The robot only observes run results and never touches `runToken`, `setRun()`, timers or handlers. Its idle timer is its own and is cleared on page hide.
 - **Dependencies**: none. No assets, so the offline bundle needs only the regenerated `offline/app.html`.
 
@@ -178,14 +195,15 @@ Final wording may be polished in each PR. Every key keeps `en`/`ar` parity (`che
 5. Malformed `tl.buddy.v1` (bad JSON, wrong types, unknown ids, a 500-character name) never throws. Each bad field falls back to its default.
 6. (PR 2) A first visit shows the 8-step tour in the current language. Back, Next and Skip work. Finishing or skipping persists, and the tour doesn't return after a reload. Replay restarts it. A deep link still opens its target, and the tour starts afterwards. The tour works at 800 px width.
 7. (PR 3) The first successful run, the first error (the robot points at the error line), lesson completion, a new badge and the first lesson of a new level each show the right bubble once (celebrations every time). No hop happens during a Normal or Step run, an `input()` wait or a listening program. An idle nudge appears after 3 min idle and at most once per 5 min.
-8. Quiet mode stops idle nudges, one-time tips and hopping, but keeps the celebrations. Hide removes the robot until it is shown again. Both persist. The Teacher & Parent switch turns the robot off and on.
-9. Reduced motion shows no bobbing or flying. High contrast is legible in both languages. The print preview has no robot.
-10. axe reports no serious or critical issues with the robot, menu, bubble, dialog and tour open, in both languages. There is no English-only text in Arabic mode.
-11. No network requests. `offline/app.html` shows the robot. `check.mjs` prints OK.
+8. Dragging the robot with the mouse or touch moves it, and it stays where dropped after a reload. A short press without movement still opens the menu. After the window shrinks, the robot is still fully visible. Move robot plus the arrow keys moves it, and Enter finishes. Return to corner restores the default corner (bottom-left in Arabic). Hops return to the chosen spot. Malformed `pos` values fall back to the corner.
+9. Quiet mode stops idle nudges, one-time tips and hopping, but keeps the celebrations. Hide removes the robot until it is shown again. Both persist. The Teacher & Parent switch turns the robot off and on.
+10. Reduced motion shows no bobbing or flying. High contrast is legible in both languages. The print preview has no robot.
+11. axe reports no serious or critical issues with the robot, menu, bubble, dialog and tour open, in both languages. There is no English-only text in Arabic mode.
+12. No network requests. `offline/app.html` shows the robot. `check.mjs` prints OK.
 
 ## Test plan
 - **Fixture**: `tests/fixtures.js` seeds `tl.buddy.v1 = {"toured":true,"quiet":true}` with `addInitScript` (in a try, so blocked-storage tests still work) through a `buddy` option, default on. `tests/buddy.spec.js` opts out to test real first visits. Existing specs are unaffected.
-- **New `tests/buddy.spec.js`**: dock side per language, menu (mouse and keyboard), customize and persist, name escaping and fallback, locked/unlocked parts and the reset behavior, Hide/Show and Quiet persistence, the Teacher switch. PR 2: tour steps, Skip, Replay, deep link, 800 px. PR 3: each event, no hop while busy (Step run, `input()` wait), idle nudge with `page.clock`, Quiet mode.
+- **New `tests/buddy.spec.js`**: dock side per language, menu (mouse and keyboard), customize and persist, name escaping and fallback, locked/unlocked parts and the reset behavior, Hide/Show and Quiet persistence, the Teacher switch, drag (mouse and touch) with persistence, the click-vs-drag threshold, clamping after a viewport resize, keyboard move mode, Return to corner, hops returning to the custom home. PR 2: tour steps, Skip, Replay, deep link, 800 px. PR 3: each event, no hop while busy (Step run, `input()` wait), idle nudge with `page.clock`, Quiet mode.
 - **`tests/storage.spec.js`**: malformed `tl.buddy.v1` cases.
 - **`tests/a11y.spec.js`**: axe with the menu, dialog and tour bubble open in both languages, the accessible name of the robot button, `aria-pressed` on Quiet.
 - **`tests/localization.spec.js`**: the robot UI in Arabic mode.
@@ -199,7 +217,7 @@ Final wording may be polished in each PR. Every key keeps `en`/`ar` parity (`che
 - [ ] docs/ROADMAP.md status
 
 ## Delivery
-1. **PR 1 `feat/F-024-buddy-character`**: robot, dock, moods, menu, Customize dialog, badge unlocks, Quiet, Hide, Teacher switch, storage, fixture seeding.
+1. **PR 1 `feat/F-024-buddy-character`**: robot, dock, moods, menu, drag and keyboard move, Customize dialog, badge unlocks, Quiet, Hide, Teacher switch, storage, fixture seeding.
 2. **PR 2 `feat/F-024-welcome-tour`**: the tour, `buddySay` hopping to targets, Replay.
 3. **PR 3 `feat/F-024-event-tips`**: event hooks, idle nudges, the busy queue.
 
@@ -207,6 +225,7 @@ Each PR is based on `main`. Each runs `node tools/build-offline.mjs`, `node tool
 
 ## Open questions
 1. ~~Default name~~ **Decided** (maintainer, 2026-11-24): **Robo / روبو**.
-2. Teacher & Parent "Robot buddy On/Off" switch? (Recommended: yes, in PR 1.)
+2. ~~Teacher & Parent switch~~ **Decided** (maintainer, 2026-11-24): yes, a "Robot buddy On/Off" switch, in PR 1.
 3. Should the robot ever show on the landing page? (Recommended: no, out of scope here.)
 4. Idle nudge timing of 3 min idle and at most once per 5 min? (Recommended as written.)
+5. ~~Manual positioning~~ **Decided** (maintainer, 2026-11-24): kids can drag the robot anywhere (keyboard alternative included), and the spot is remembered.
