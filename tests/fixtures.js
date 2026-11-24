@@ -32,8 +32,12 @@ export const test = base.extend({
   problems: async ({}, use) => { await use([]); },
   // Console errors matching this RegExp are expected by the test (e.g. a deliberately missing file); set with test.use().
   ignoreConsole: [null, { option: true }],
+  // F-024: the robot buddy's stored state at first load. By default it has finished its welcome tour and is quiet, so it
+  // never talks over other tests; tests/buddy.spec.js sets this to null to start from a real first visit.
+  buddy: [{ toured: true, quiet: true }, { option: true }],
 
-  page: async ({ page, blocked, problems, ignoreConsole }, use) => {
+  page: async ({ page, blocked, problems, ignoreConsole, buddy }, use) => {
+    if (buddy) await page.addInitScript((v) => { try { if (localStorage.getItem("tl.buddy.v1") === null) localStorage.setItem("tl.buddy.v1", v); } catch {} }, JSON.stringify(buddy));
     await page.route("**/*", async (route) => {
       const url = new URL(route.request().url());
       if (url.origin === ORIGIN) {

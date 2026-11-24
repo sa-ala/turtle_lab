@@ -51,6 +51,7 @@ test("AC2: the chip stays inside the stage at every corner and hides on leave", 
   await openApp(page);
   await page.click("#pointerToggle");
   const s = await page.locator("#stage").boundingBox();
+  await page.evaluate(() => buddyHide(true)); // F-024: the robot buddy's dock covers the stage's bottom-right corner at this width
   for (const [x, y] of [[s.x + 14, s.y + 14], [s.x + s.width - 14, s.y + 14], [s.x + 14, s.y + s.height - 14], [s.x + s.width - 14, s.y + s.height - 14]]) { // inside the 20 px rounded corners
     await page.mouse.move(x, y);
     await expect(page.locator("#pointerCoords")).toBeVisible();

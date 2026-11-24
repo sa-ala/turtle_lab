@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Approved |
+| Status | In progress (PR 1 done) |
 | Priority | P2 |
 | Size | L epic (3 PRs) |
 | Depends on | F-013 (a11y baseline), F-014 (localization), F-019 / F-020 (lesson-first layout, card and editor header bar) |
@@ -33,7 +33,7 @@ A first-time learner opens `app.html` and sees the full workspace at once: cours
 ### The robot and its dock
 - A ~72 px robot (~56 px below 860 px) sits in a fixed dock at the **bottom-right** (LTR) or **bottom-left** (RTL), above the footer and below the toast. It never shifts the page layout.
 - Default look: round head, two round eyes, a bulb antenna and a teal body. Default name **Robo / روبو**.
-- Idle animation: a slow bob, a blink every few seconds and a soft antenna glow. Moods: *wave* (hello, tour start), *happy bounce* (celebrations), *head tilt* (error or thinking).
+- Idle animation: a blink every few seconds and a small bob every other blink. Both are short, timer-driven animations: an always-running CSS animation made every page slow to respond under load (found in PR 1), so there is no continuous bob and no antenna glow. Moods: *wave* (hello, tour start), *happy bounce* (celebrations), *head tilt* (error or thinking).
 - **Reduced motion** (`prefers-reduced-motion: reduce`): no bob, no bounce and no flying. The robot fades out and back in at its new position, and blinking stays.
 - **High contrast**: solid dark outline, the bubble uses the high-contrast palette, no reliance on color alone.
 - **Print**: the dock, bubble and menu are hidden.
@@ -57,10 +57,10 @@ A first-time learner opens `app.html` and sees the full workspace at once: cours
 ### Robot menu
 Clicking the robot (or pressing Enter or Space when it has focus) opens a small menu:
 - **Customize…**: opens the Customize dialog.
-- **Replay tour**
+- **Replay tour** (added with the tour in PR 2)
 - **Move robot**: keyboard move mode (see above).
 - **Return to corner**: shown only when the learner has moved the robot.
-- **Quiet mode** (toggle, `aria-pressed`): no idle nudges, no one-time tips, no hopping. Celebrations still show as a bubble at the dock.
+- **Quiet mode** (toggle, `aria-pressed`, added with the tips in PR 3): no idle nudges, no one-time tips, no hopping. Celebrations still show as a bubble at the dock.
 - **Hide robot**: the robot collapses to a small 🤖 tab at the dock edge. Clicking the tab brings it back. While hidden, the robot says nothing.
 
 ### Customize dialog
@@ -70,7 +70,7 @@ A `<dialog>` (same pattern as the existing project-name and replace dialogs) wit
 - **Antenna**: bulb, spring, heart.
 - **Eyes**: round, happy, visor.
 - **Accessory**: none, bow, cap.
-- **Badge unlocks**: one extra item per badge. Locked items show 🔒 and "Earn the *Badge name* badge". They are focusable but can't be selected.
+- **Badge unlocks**: one extra item per badge. Locked items show 🔒 and the badge's icon (as on the Badges tab), with "Earn the *Badge name*" as a tooltip and as screen-reader text; they are disabled radio buttons. One hint line under the pickers explains the icons while anything is locked.
 
 | Badge (SPEC §6) | Unlocks |
 | --- | --- |
@@ -115,7 +115,7 @@ Finishing or skipping saves `toured: true`. **Replay tour** in the robot menu re
 - One-time tips are recorded in `seen`, so they don't repeat after a reload.
 
 ### Teacher & Parent
-A "🤖 Robot buddy: On / Off" switch for classrooms. Off sets `hidden` and `quiet`.
+A "Show the robot buddy" checkbox for classrooms. Unchecked sets `off`, which removes the robot and its 🤖 tab (Hide robot keeps the tab). Checking it again also clears `hidden`.
 
 ### Strings (en / ar)
 | Key | en | ar |
@@ -183,7 +183,7 @@ Final wording may be polished in each PR. Every key keeps `en`/`ar` parity (`che
   - PR 3: `buddyEvent(name, data)`, called from the run settle path in `run()` (success or error, only for the current `runToken`), `complete(i)` (compares `badgeData()` before and after to find new badges), `loadLesson()` (first visit to a level), and an idle timer reset on `input` / `keydown` / `pointerdown` and paused while `buddyBusy()`.
   - Dragging: `pointerdown` / `pointermove` / `pointerup` on `#buddy` with `setPointerCapture` and `touch-action: none`, a 6 px click threshold, `buddyPlace(pos)` (fraction to clamped pixels), `buddyMoveMode()` for the keyboard, and a `resize` listener that re-clamps. Saving happens on drop, not on every move.
   - `bind()`: robot, tab, menu items, dialog Save/Cancel, Esc. `applyLang()`: all labels, plus a re-render of an open bubble or dialog. `init()`: `loadBuddy()`, render, and schedule the tour once `pyState`/lesson is ready (PR 2).
-- **Storage**: new key `tl.buddy.v1`, JSON `{name, color, antenna, eyes, accessory, quiet, hidden, toured, seen, pos}`. It is new, so there is no migration. Invalid fields fall back one by one, so a single bad field never resets the rest. If storage is blocked, the robot uses the defaults and the tour may reappear each visit, which is acceptable.
+- **Storage**: new key `tl.buddy.v1`, JSON `{name, color, antenna, eyes, accessory, quiet, hidden, off, toured, seen, pos}`. It is new, so there is no migration. Invalid fields fall back one by one, so a single bad field never resets the rest. If storage is blocked, the robot uses the defaults and the tour may reappear each visit, which is acceptable.
 - **Run/step impact**: none on program semantics. The robot only observes run results and never touches `runToken`, `setRun()`, timers or handlers. Its idle timer is its own and is cleared on page hide.
 - **Dependencies**: none. No assets, so the offline bundle needs only the regenerated `offline/app.html`.
 
