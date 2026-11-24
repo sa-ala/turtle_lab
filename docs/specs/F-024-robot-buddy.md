@@ -31,7 +31,7 @@ A first-time learner opens `app.html` and sees the full workspace at once: cours
 
 ### The robot and its dock
 - A ~72 px robot (~56 px below 860 px) sits in a fixed dock at the **bottom-right** (LTR) or **bottom-left** (RTL), above the footer and below the toast. It never shifts the page layout.
-- Default look: round head, two round eyes, a bulb antenna and a teal body. Default name **Robi / روبي**.
+- Default look: round head, two round eyes, a bulb antenna and a teal body. Default name **Robo / روبو**.
 - Idle animation: a slow bob, a blink every few seconds and a soft antenna glow. Moods: *wave* (hello, tour start), *happy bounce* (celebrations), *head tilt* (error or thinking).
 - **Reduced motion** (`prefers-reduced-motion: reduce`): no bob, no bounce and no flying. The robot fades out and back in at its new position, and blinking stays.
 - **High contrast**: solid dark outline, the bubble uses the high-contrast palette, no reliance on color alone.
@@ -77,7 +77,7 @@ It starts after the lesson loads on a visit where the tour has never been finish
 
 | # | Robot hops to | Says (en) |
 | --- | --- | --- |
-| 1 | Dock (wave) | Hi! I'm Robi, your robot buddy. Want to give me a name? *(inline name field, "Next" keeps the default)* |
+| 1 | Dock (wave) | Hi! I'm Robo, your robot buddy. Want to give me a name? *(inline name field, "Next" keeps the default)* |
 | 2 | Lesson card | This card shows your goal and today's challenge. |
 | 3 | Editor | This is your Python code. You can change anything here. |
 | 4 | Run button | Press Run (or Ctrl+Enter) to make the turtle follow your code. |
@@ -108,7 +108,7 @@ A "🤖 Robot buddy: On / Off" switch for classrooms. Off sets `hidden` and `qui
 ### Strings (en / ar)
 | Key | en | ar |
 | --- | --- | --- |
-| `buddyDefaultName` | Robi | روبي |
+| `buddyDefaultName` | Robo | روبو |
 | `buddyButton(name)` | *name*, your robot buddy. Open menu | *name*، صديقك الروبوت. افتح القائمة |
 | `buddyCustomize` | Customize… | تخصيص… |
 | `buddyReplay` | Replay tour | أعِد الجولة |
@@ -173,7 +173,7 @@ Final wording may be polished in each PR. Every key keeps `en`/`ar` parity (`che
 ## Acceptance criteria
 1. On a clean profile the robot appears in the dock (bottom-right in English, bottom-left in Arabic) without changing the layout. The F-019 layout tests stay green at 1440 and 1280 px.
 2. Clicking the robot or pressing Enter on it opens the menu, and every menu item works with the mouse and the keyboard. Esc closes the menu and the bubble.
-3. Customize: changes show in the preview right away. Save persists them across a reload and Cancel discards them. A name such as `<b>Hi</b>` is shown literally. An empty name shows "Robi" or "روبي" depending on the language.
+3. Customize: changes show in the preview right away. Save persists them across a reload and Cancel discards them. A name such as `<b>Hi</b>` is shown literally. An empty name shows "Robo" or "روبو" depending on the language.
 4. Locked items show the badge they need and can't be chosen. Completing a lesson that earns a badge unlocks its item. After Reset progress, the robot is drawn with defaults but the stored choice is kept, and it comes back when the badge is earned again.
 5. Malformed `tl.buddy.v1` (bad JSON, wrong types, unknown ids, a 500-character name) never throws. Each bad field falls back to its default.
 6. (PR 2) A first visit shows the 8-step tour in the current language. Back, Next and Skip work. Finishing or skipping persists, and the tour doesn't return after a reload. Replay restarts it. A deep link still opens its target, and the tour starts afterwards. The tour works at 800 px width.
@@ -206,7 +206,7 @@ Final wording may be polished in each PR. Every key keeps `en`/`ar` parity (`che
 Each PR is based on `main`. Each runs `node tools/build-offline.mjs`, `node tools/check.mjs` and `npm test`, and updates SPEC.md for what it ships.
 
 ## Open questions
-1. Default name **Robi / روبي**? (Recommended: yes. It is short, easy to say in both languages and gender-neutral.)
+1. ~~Default name~~ **Decided** (maintainer, 2026-11-24): **Robo / روبو**.
 2. Teacher & Parent "Robot buddy On/Off" switch? (Recommended: yes, in PR 1.)
 3. Should the robot ever show on the landing page? (Recommended: no, out of scope here.)
 4. Idle nudge timing of 3 min idle and at most once per 5 min? (Recommended as written.)
