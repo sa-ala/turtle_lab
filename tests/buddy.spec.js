@@ -50,6 +50,8 @@ test("AC2: the menu works with the mouse and the keyboard", async ({ page }) => 
   await expect(page.locator("#buddyCustomize")).toBeFocused();
   await expect(page.locator("#buddyCorner")).toBeHidden(); // only after the robot was moved
   await page.keyboard.press("ArrowDown");
+  await expect(page.locator("#buddyReplay")).toBeFocused();
+  await page.keyboard.press("ArrowDown");
   await expect(page.locator("#buddyMove")).toBeFocused();
   await page.keyboard.press("ArrowDown");
   await expect(page.locator("#buddyHide")).toBeFocused();
@@ -306,3 +308,149 @@ for (const lang of ["en", "ar"]) {
     expect(await seriousViolations(page), "high contrast").toEqual([]);
   });
 }
+
+// ---------- Welcome tour (F-024 PR 2) ----------
+const TARGETS = [null, "#lessonCard", ".editwrap", "#runBtn", "#stage", "#lessonCardDone", ".learn nav.tabs", null];
+const tourText = (page) => page.locator("#buddyText");
+const next = (page) => page.locator('#buddyActions [data-tour="next"]');
+const inBubble = (page) => page.evaluate(() => document.getElementById("buddyBubble").contains(document.activeElement));
+
+test("AC6: Replay tour from the menu restarts at step 1 and moves focus to Next", async ({ page }) => {
+  await openApp(page); // the fixture seeds a finished tour
+  await page.waitForTimeout(1000);
+  await expect(page.locator("#buddyBubble")).toBeHidden();
+  await page.click("#buddy");
+  await page.click("#buddyReplay");
+  await expect(tourText(page)).toHaveText(/Robo/);
+  await expect(next(page)).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(tourText(page)).toHaveText(await t(page, "tour2"));
+  await expect(next(page)).toBeFocused(); // focus stays in the bubble from step to step
+});
+
+test.describe("first visit", () => {
+  test.use({ buddy: null });
+
+  test("AC6: the 8-step tour hops to each area; Back, Next and the name field work; finishing persists", async ({ page }) => {
+    await openApp(page);
+    await expect(page.locator("#buddyActions")).toBeVisible();
+    const hello = await page.evaluate(() => T("tour1")(iso(buddyName())));
+    await expect(tourText(page)).toHaveText(hello);
+    await expect(page.locator("#buddyLive")).toHaveText(hello);
+    expect(await inBubble(page), "focus is not moved on first load").toBe(false);
+    await expect(page.locator(".tourCount")).toHaveText("1 / 8");
+    await expect(page.locator('#buddyActions [data-tour="back"]')).toHaveCount(0);
+
+    await page.fill("#buddyTourName", "Bolt");
+    await page.press("#buddyTourName", "Enter");
+    await expect(tourText(page)).toHaveText(await t(page, "tour2"));
+    await expect(page.locator("#buddy")).toHaveAttribute("aria-label", /Bolt/);
+    expect((await stored(page)).name).toBe("Bolt");
+    await page.click('#buddyActions [data-tour="back"]');
+    await expect(page.locator("#buddyTourName")).toHaveValue("Bolt");
+    await expect(tourText(page)).toHaveText(/Bolt/);
+
+    for (let i = 1; i < 8; i++) {
+      await next(page).click();
+      await expect(tourText(page)).toHaveText(await t(page, `tour${i + 1}`));
+      await expect(page.locator(".tourCount")).toHaveText(`${i + 1} / 8`);
+      await expect(page.locator("#buddyDock")).toBeInViewport({ ratio: 1 });
+      await expect(page.locator("#buddyBubble")).toBeInViewport({ ratio: 1 });
+      if (TARGETS[i]) {
+        await expect(page.locator(TARGETS[i]).first()).toBeInViewport();
+        // the robot lands next to (or inside) the control it talks about
+        const [r, b] = await Promise.all([page.evaluate(() => buddyAt), page.locator(TARGETS[i]).first().boundingBox()]);
+        expect(r, `step ${i + 1} hopped`).not.toBeNull();
+        const gapX = Math.max(0, b.x - r.right, r.left - (b.x + b.width)), gapY = Math.max(0, b.y - r.bottom, r.top - (b.y + b.height));
+        expect(Math.max(gapX, gapY), `step ${i + 1} distance`).toBeLessThan(20);
+      } else expect(await page.evaluate(() => buddyAt)).toBeNull();
+    }
+    await expect(next(page)).toHaveText(await t(page, "tourDone"));
+    await expect(page.locator('#buddyActions [data-tour="skip"]')).toHaveCount(0);
+    await next(page).click();
+    await expect(page.locator("#buddyBubble")).toBeHidden();
+    expect((await stored(page)).toured).toBe(true);
+    expect(await page.evaluate(() => [buddyAt, document.getElementById("buddyDock").style.transform])).toEqual([null, ""]);
+
+    await reopen(page);
+    await page.waitForTimeout(1500);
+    await expect(page.locator("#buddyBubble")).toBeHidden();
+  });
+
+  test("AC6: Skip tour, the close button and Esc end the tour; Esc in the editor does not", async ({ page }) => {
+    await openApp(page);
+    await expect(page.locator("#buddyActions")).toBeVisible();
+    await next(page).click();
+    await next(page).click();
+    await page.focus("#code");
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#buddyActions")).toBeVisible();
+    await page.click('#buddyActions [data-tour="skip"]');
+    await expect(page.locator("#buddyBubble")).toBeHidden();
+    expect((await stored(page)).toured).toBe(true);
+
+    for (const how of ["close", "escape"]) {
+      await page.click("#buddy");
+      await page.click("#buddyReplay");
+      await next(page).click();
+      if (how === "close") await page.click("#buddyBubbleClose");
+      else { await next(page).focus(); await page.keyboard.press("Escape"); }
+      await expect(page.locator("#buddyBubble")).toBeHidden();
+      expect(await page.evaluate(() => [tourIdx, buddyAt])).toEqual([-1, null]);
+    }
+  });
+
+  test("AC6: during the tour the robot can't be dragged and clicking it focuses Next", async ({ page }) => {
+    await openApp(page);
+    await expect(page.locator("#buddyActions")).toBeVisible();
+    const b = await dockBox(page);
+    await page.mouse.move(b.x + 30, b.y + 30);
+    await page.mouse.down();
+    await page.mouse.move(400, 300, { steps: 8 });
+    await page.mouse.up();
+    expect(await page.evaluate(() => buddy.pos)).toBeNull();
+    await page.click("#buddy");
+    await expect(page.locator("#buddyMenu")).toBeHidden();
+    await expect(next(page)).toBeFocused();
+  });
+
+  test("AC6: a deep link opens its lesson and the tour starts afterwards", async ({ page }) => {
+    await openApp(page, "/app.html#lesson=l3-draw-a-square-step-by-step");
+    await expect(page.locator("#lessonSelect")).toHaveValue("2");
+    await expect(page.locator("#buddyActions")).toBeVisible();
+  });
+
+  test("AC6: Arabic at 800 px: translated steps, every robot spot and bubble on screen", async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 900 });
+    await openApp(page, "/app.html#lang=ar");
+    await expect(page.locator("#buddyActions")).toBeVisible();
+    await expect(tourText(page)).toHaveText(/روبو/);
+    await expect(page.locator(".tourCount")).toHaveText("1 من 8");
+    for (let i = 1; i < 8; i++) {
+      await next(page).click();
+      await expect(tourText(page)).toHaveText(await t(page, `tour${i + 1}`));
+      await expect(page.locator("#buddyDock")).toBeInViewport({ ratio: 1 });
+      await expect(page.locator("#buddyBubble")).toBeInViewport({ ratio: 1 });
+      if (TARGETS[i]) await expect(page.locator(TARGETS[i]).first()).toBeInViewport();
+    }
+    await expect(next(page)).toHaveText("هيا بنا!");
+  });
+
+  test("AC6: the tour does not start while the robot is turned off", async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem("tl.buddy.v1", JSON.stringify({ off: true })));
+    await openApp(page);
+    await page.waitForTimeout(1500);
+    await expect(page.locator("#buddyBubble")).toBeHidden();
+    expect(await page.evaluate(() => tourIdx)).toBe(-1);
+  });
+
+  for (const lang of ["en", "ar"]) {
+    test(`AC10: axe (${lang}) with a tour step open`, async ({ page }) => {
+      await openApp(page, lang === "ar" ? "/app.html#lang=ar" : "/app.html");
+      await expect(page.locator("#buddyActions")).toBeVisible();
+      expect(await seriousViolations(page), "step 1 with the name field").toEqual([]);
+      await next(page).click();
+      expect(await seriousViolations(page), "step 2").toEqual([]);
+    });
+  }
+});

@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | In progress (PR 1 done) |
+| Status | In progress (PR 1–2 done) |
 | Priority | P2 |
 | Size | L epic (3 PRs) |
 | Depends on | F-013 (a11y baseline), F-014 (localization), F-019 / F-020 (lesson-first layout, card and editor header bar) |
@@ -57,7 +57,7 @@ A first-time learner opens `app.html` and sees the full workspace at once: cours
 ### Robot menu
 Clicking the robot (or pressing Enter or Space when it has focus) opens a small menu:
 - **Customize…**: opens the Customize dialog.
-- **Replay tour** (added with the tour in PR 2)
+- **Replay tour**
 - **Move robot**: keyboard move mode (see above).
 - **Return to corner**: shown only when the learner has moved the robot.
 - **Quiet mode** (toggle, `aria-pressed`, added with the tips in PR 3): no idle nudges, no one-time tips, no hopping. Celebrations still show as a bubble at the dock.
@@ -98,7 +98,7 @@ It starts after the lesson loads on a visit where the tour has never been finish
 | 7 | Badges tab | Lessons, help and badges live down here. Collect them all! |
 | 8 | Dock (happy) | Click me anytime to change my look. Have fun coding! |
 
-Finishing or skipping saves `toured: true`. **Replay tour** in the robot menu restarts it from step 1. On first load, focus is not moved (it would interrupt screen-reader users). The bubble is announced and is the next Tab stop after the robot. On Replay, focus moves to the bubble.
+Finishing, skipping or closing it (✕, or Esc while focus is in the bubble or on the robot; Esc elsewhere, for example in the editor, does nothing) saves `toured: true`. During the tour the robot can't be dragged, and clicking it moves focus to Next. In Arabic the step counter reads "2 من 8". **Replay tour** in the robot menu restarts it from step 1. On first load, focus is not moved (it would interrupt screen-reader users). The bubble is announced and is the next Tab stop after the robot. On Replay, focus moves to the bubble.
 
 ### Event tips (PR 3)
 | Event | Once? | Hop to | Says (en) |
