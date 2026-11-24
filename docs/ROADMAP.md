@@ -34,6 +34,7 @@ Forward-looking specs for agents and contributors. `SPEC.md` describes what exis
 | F-021 | Gallery of inspiring pieces | P2 | L | F-007, F-008, F-017 | — | Done |
 | F-022 | Canvas helper tools: pointer coordinates and turtle state | P2 | M | F-010, F-013 | 15 | Done |
 | F-023 | Interactive programs: `input()`, keys, clicks, timers, games level | P2 | L epic | F-005, F-010, F-017, F-018, F-021 | 04, 05, 08 | Done |
+| F-024 | Robot Buddy: animated, customizable guide and welcome tour | P2 | L epic | F-013, F-014, F-019, F-020 | — | Proposed |
 
 Suggested order: F-003, F-004, F-006 (independent quick wins) → F-001 → F-002 → F-005 → then P2 by maintainer preference.
 
@@ -364,3 +365,11 @@ A "Pointer" toggle shows the turtle coordinates `(x, y)` under the mouse or fing
 **Status: Done.** PR 3 (Level 13 "Make It Interactive": lessons 48-51, the Game Maker badge, Gallery pieces Sketch Pad and Firefly Night, and handlers now run one at a time) done, tests in `tests/interactive-content.spec.js`. PR 1 (inline `input()`) done, tests in `tests/input.spec.js`. PR 2 (listening state for key, click and timer programs) done, tests in `tests/events.spec.js`. Open questions settled (2026-10-29): handlers run at normal speed in Step mode with a tip; the level awards a "Game Maker" badge; no idle auto-stop. Full spec: [docs/specs/F-023-interactive-programs.md](specs/F-023-interactive-programs.md). Three PRs: (1) non-blocking inline `input()`, which unblocks the `input()` lesson deferred by F-018; (2) a "listening" run state for `onkey` / `onscreenclick` / `ontimer` programs, with every handler and timer removed on Stop or any context change; (3) Level 13 "Make it interactive" (4 lessons) and 1–2 Gallery game pieces.
 
 All of these APIs exist in the vendored Skulpt 1.2.0 (`textinput`/`numinput` do not). **Acceptance criteria.** `window.prompt` is never used; handlers from a stopped or earlier run never fire (GAP-04); keys reach the program only while the stage has focus; new starters and pieces run in both modes and offline; a11y and localization tests stay green. Open questions: handlers in Step mode, a badge for the level, idle auto-stop.
+
+---
+
+## F-024 Robot Buddy
+
+**Status: Proposed.** Full spec: [docs/specs/F-024-robot-buddy.md](specs/F-024-robot-buddy.md). Decided with the maintainer (2026-11-24): inline SVG + CSS art; the robot is docked in a corner and hops next to the control it talks about; customizable name, body color and parts, with one extra part unlocked per badge; speaks on milestones plus gentle idle nudges, with Quiet mode, Hide and Replay tour. Three PRs: (1) the character, dock, menu, Customize dialog, badge unlocks and storage; (2) the 8-step welcome tour; (3) event tips (first run, first error, lesson done, badge earned, new level, idle nudges).
+
+A baby robot (default name Robi / روبي) welcomes first-time learners with a short, skippable tour, then celebrates and gives tips at real learning moments. **Acceptance criteria.** Bilingual and RTL (dock on the left in Arabic); keyboard and screen reader usable; reduced motion and high contrast respected; never hops during a run, Step pause, `input()` wait or listening program; choices persist in `tl.buddy.v1` with per-field validation; locked choices are kept (not wiped) after Reset progress; no network requests; works offline; a11y and localization tests stay green. Open questions: default name, a Teacher & Parent on/off switch, idle timing.
