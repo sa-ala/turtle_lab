@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | In progress (PR 1–2 done) |
+| Status | Done |
 | Priority | P2 |
 | Size | L epic (3 PRs) |
 | Depends on | F-013 (a11y baseline), F-014 (localization), F-019 / F-020 (lesson-first layout, card and editor header bar) |
@@ -60,7 +60,7 @@ Clicking the robot (or pressing Enter or Space when it has focus) opens a small 
 - **Replay tour**
 - **Move robot**: keyboard move mode (see above).
 - **Return to corner**: shown only when the learner has moved the robot.
-- **Quiet mode** (toggle, `aria-pressed`, added with the tips in PR 3): no idle nudges, no one-time tips, no hopping. Celebrations still show as a bubble at the dock.
+- **Quiet mode** (`menuitemcheckbox` with `aria-checked`): no idle nudges, no one-time tips, no hopping. Celebrations still show as a bubble at the dock.
 - **Hide robot**: the robot collapses to a small 🤖 tab at the dock edge. Clicking the tab brings it back. While hidden, the robot says nothing.
 
 ### Customize dialog
@@ -106,7 +106,7 @@ Finishing, skipping or closing it (✕, or Esc while focus is in the bubble or o
 | First successful run | once | Drawing | Nice! Your turtle moved. Try changing a number and run again. |
 | First error | once | Error line | Oops, a bug! Read the red line and the message under your code. |
 | Lesson marked done | every time | — (dock) | You did it! ⭐ |
-| Badge earned | every badge | Badges tab | New badge! You unlocked *part* for me. *(Customize button)* |
+| Badge earned | every badge | Badges tab | New badge: *badge*! You unlocked a new look for me: *parts*. *(Try it on button)* |
 | First lesson of a new level | once per level | Lesson card | Welcome to *level name*! |
 | Idle nudge | repeats, capped | — (dock) | one random tip from the idle list |
 

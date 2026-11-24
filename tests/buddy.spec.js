@@ -1,6 +1,7 @@
-// Robot buddy: dock, menu, Customize dialog, badge unlocks, dragging and keyboard move, Hide, Teacher switch (ROADMAP F-024 PR 1, SPEC.md §3.3, §9).
+// Robot buddy: dock, menu, Customize dialog, badge unlocks, dragging and keyboard move, Hide, Teacher switch (PR 1), welcome tour (PR 2),
+// event tips, idle nudges and Quiet mode (PR 3). ROADMAP F-024, SPEC.md §3.3, §4.1, §6, §9.
 import AxeBuilder from "@axe-core/playwright";
-import { test, expect, openApp, t } from "./fixtures.js";
+import { test, expect, openApp, t, runAndWait, selectLesson } from "./fixtures.js";
 
 const KEY = "tl.buddy.v1";
 const stored = (page) => page.evaluate((k) => JSON.parse(localStorage.getItem(k)), KEY);
@@ -51,6 +52,9 @@ test("AC2: the menu works with the mouse and the keyboard", async ({ page }) => 
   await expect(page.locator("#buddyCorner")).toBeHidden(); // only after the robot was moved
   await page.keyboard.press("ArrowDown");
   await expect(page.locator("#buddyReplay")).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.locator("#buddyQuiet")).toBeFocused();
+  await expect(page.locator("#buddyQuiet")).toHaveAttribute("role", "menuitemcheckbox");
   await page.keyboard.press("ArrowDown");
   await expect(page.locator("#buddyMove")).toBeFocused();
   await page.keyboard.press("ArrowDown");
@@ -293,6 +297,7 @@ test("AC9: the robot is not printed", async ({ page }) => {
 
 for (const lang of ["en", "ar"]) {
   test(`AC10: axe (${lang}) with the robot, its menu and the Customize dialog`, async ({ page }) => {
+    test.slow(); // four axe passes; like tests/a11y.spec.js, these can pass 60 s when the suite loads the machine
     await openApp(page);
     if (lang === "ar") await page.selectOption("#langSelect", "ar");
     await page.click("#buddy");
@@ -453,4 +458,135 @@ test.describe("first visit", () => {
       expect(await seriousViolations(page), "step 2").toEqual([]);
     });
   }
+});
+
+// ---------- Event tips, idle nudges, Quiet mode (F-024 PR 3) ----------
+const BROKEN = "import turtle\nt = turtle.Turtle()\nfor i in range(4)\n    t.forward(50)\n";
+const bubble = (page) => page.locator("#buddyBubble");
+// Distance in px between the robot's spot and an element (0 when they touch or overlap).
+const gap = async (page, sel) => {
+  const [r, b] = await Promise.all([page.evaluate(() => buddyAt), page.locator(sel).first().boundingBox()]);
+  expect(r, `hopped to ${sel}`).not.toBeNull();
+  return Math.max(0, b.x - r.right, r.left - (b.x + b.width), b.y - r.bottom, r.top - (b.y + b.height));
+};
+const markDone = (page) => page.click("#lessonCardDone");
+
+test.describe("tips (not quiet)", () => {
+  test.use({ buddy: { toured: true } });
+
+  test("AC7: the first successful run gets a tip beside the drawing, once", async ({ page }) => {
+    await openApp(page);
+    await runAndWait(page);
+    await expect(tourText(page)).toHaveText(await t(page, "tipFirstRun"));
+    expect(await gap(page, "#stage")).toBeLessThan(20);
+    await expect(page.locator("#buddyLive")).toHaveText(await t(page, "tipFirstRun"));
+    expect((await stored(page)).seen).toContain("first-run");
+    await page.click("#buddyBubbleClose");
+    await runAndWait(page);
+    await page.waitForTimeout(600);
+    await expect(bubble(page)).toBeHidden();
+    await reopen(page);
+    await runAndWait(page);
+    await page.waitForTimeout(600);
+    await expect(bubble(page)).toBeHidden();
+  });
+
+  test("AC7: the first error points at the red line, once", async ({ page }) => {
+    await openApp(page);
+    await page.fill("#code", BROKEN);
+    await runAndWait(page);
+    await expect(tourText(page)).toHaveText(await t(page, "tipFirstError"));
+    await expect(page.locator(".codeLineHL.error")).toHaveCount(1);
+    expect(await gap(page, ".codeLineHL.error")).toBeLessThan(20);
+    await page.click("#buddyBubbleClose");
+    await runAndWait(page);
+    await page.waitForTimeout(600);
+    await expect(bubble(page)).toBeHidden();
+  });
+
+  test("AC7: no tip while a Step-mode run is going; it waits until the run ends", async ({ page }) => {
+    await openApp(page);
+    await page.selectOption("#runMode", "step");
+    await page.selectOption("#stepSpeed", "200");
+    await page.evaluate(() => { window.__run = run(); });
+    await expect(page.locator("#stopTop")).toBeEnabled();
+    await page.waitForTimeout(400);
+    await expect(bubble(page)).toBeHidden();
+    expect(await page.evaluate(() => buddyAt)).toBeNull();
+    await page.evaluate(() => window.__run);
+    await expect(tourText(page)).toHaveText(await t(page, "tipFirstRun"));
+  });
+
+  test("AC7: completing a lesson celebrates; a new badge names its part and Try it on opens Customize", async ({ page }) => {
+    await openApp(page);
+    await markDone(page); // lesson 1: First Line Badge
+    await expect(tourText(page)).toHaveText("New badge: First Line Badge! You unlocked a new look for me: Star sticker.");
+    await page.click('#buddyActions [data-tip="customize"]');
+    await expect(page.locator("#buddyDialog")).toBeVisible();
+    await expect(page.locator("#bp-accessory-star")).toBeEnabled();
+    await page.click("#buddyCancel");
+    await selectLesson(page, 1);
+    await markDone(page); // no new badge
+    await expect(tourText(page)).toHaveText(await t(page, "tipDone"));
+    await page.selectOption("#langSelect", "ar");
+    await expect(tourText(page)).toHaveText(await t(page, "tipDone")); // re-rendered in Arabic
+  });
+
+  test("AC7: the first lesson of a new level is welcomed once; the menu opens at home while the robot is away", async ({ page }) => {
+    await openApp(page);
+    await selectLesson(page, 3); // Level 2
+    const level2 = await page.evaluate(() => lessonData(current).level);
+    await expect(tourText(page)).toHaveText(await page.evaluate((l) => T("tipLevel")(l), level2));
+    expect(await gap(page, "#lessonCard")).toBeLessThan(20);
+    await page.click("#buddy"); // closes the tip and opens the menu next to the robot's home
+    const [menu, vp] = await Promise.all([page.locator("#buddyMenu").boundingBox(), viewport(page)]);
+    expect(menu.y + menu.height).toBeGreaterThan(vp.h - 140);
+    await page.keyboard.press("Escape");
+    await selectLesson(page, 4); // same level
+    await selectLesson(page, 0);
+    await selectLesson(page, 3); // seen already
+    await page.waitForTimeout(600);
+    await expect(bubble(page)).toBeHidden();
+    expect((await stored(page)).seen).toContain("level-2");
+  });
+
+  test("AC8: Quiet mode drops tips and hopping but keeps celebrations, and persists", async ({ page }) => {
+    await openApp(page);
+    await page.click("#buddy");
+    await page.click("#buddyQuiet");
+    await expect(page.locator("#toast")).toHaveText(await t(page, "quietOn"));
+    await page.click("#buddy");
+    await expect(page.locator("#buddyQuiet")).toHaveAttribute("aria-checked", "true");
+    await page.keyboard.press("Escape");
+    await runAndWait(page);
+    await page.fill("#code", BROKEN);
+    await runAndWait(page);
+    await selectLesson(page, 3);
+    await page.waitForTimeout(600);
+    await expect(bubble(page)).toBeHidden();
+    await markDone(page);
+    await expect(tourText(page)).toHaveText(await t(page, "tipDone"));
+    expect(await page.evaluate(() => buddyAt)).toBeNull();
+    expect((await stored(page)).seen).toEqual([]);
+    await reopen(page);
+    expect((await stored(page)).quiet).toBe(true);
+  });
+
+  test("AC7: the idle nudge comes after 3 minutes idle, at most once every 5 minutes", async ({ page }) => {
+    await page.clock.install();
+    await openApp(page);
+    await page.clock.fastForward("02:00");
+    await page.keyboard.press("Shift"); // activity resets the idle time
+    await page.clock.fastForward("02:30");
+    await expect(bubble(page)).toBeHidden();
+    await page.clock.fastForward("01:00");
+    await expect(bubble(page)).toBeVisible();
+    const tips = await t(page, "idleTips");
+    expect(tips).toContain(await tourText(page).textContent());
+    await page.click("#buddyBubbleClose");
+    await page.clock.fastForward("03:30"); // idle again, but within 5 minutes of the last nudge
+    await expect(bubble(page)).toBeHidden();
+    await page.clock.fastForward("02:00");
+    await expect(bubble(page)).toBeVisible();
+  });
 });
