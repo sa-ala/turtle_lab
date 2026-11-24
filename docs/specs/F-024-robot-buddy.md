@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Proposed |
+| Status | Approved |
 | Priority | P2 |
 | Size | L epic (3 PRs) |
 | Depends on | F-013 (a11y baseline), F-014 (localization), F-019 / F-020 (lesson-first layout, card and editor header bar) |
@@ -227,5 +227,5 @@ Each PR is based on `main`. Each runs `node tools/build-offline.mjs`, `node tool
 1. ~~Default name~~ **Decided** (maintainer, 2026-11-24): **Robo / روبو**.
 2. ~~Teacher & Parent switch~~ **Decided** (maintainer, 2026-11-24): yes, a "Robot buddy On/Off" switch, in PR 1.
 3. Should the robot ever show on the landing page? (Recommended: no, out of scope here.)
-4. Idle nudge timing of 3 min idle and at most once per 5 min? (Recommended as written.)
+4. ~~Idle timing~~ **Decided** (maintainer, 2026-11-24): 3 min idle, at most once per 5 min.
 5. ~~Manual positioning~~ **Decided** (maintainer, 2026-11-24): kids can drag the robot anywhere (keyboard alternative included), and the spot is remembered.
