@@ -27,6 +27,8 @@ Children can learn concepts such as:
 * Interactive programs and small games (keyboard, mouse clicks, timers, and questions with `input()`)
 * Creative coding projects
 
+**Meet Robo, your robot buddy.** A friendly animated robot welcomes new learners with a short tour of the app, cheers when they finish a lesson or earn a badge, and gives a tip now and then. Kids can name it, change its color and parts (badges unlock extra ones), drag it anywhere on the screen, put it in Quiet mode, or hide it. Its look and name are saved in the browser, like learning progress.
+
 ---
 
 ## 🌍 Bilingual Support
@@ -281,6 +283,8 @@ turtle.done()
 ## 👨‍🏫 For Parents and Teachers
 
 **Link straight to a lesson.** In the app, open **Teacher & Parent → Share this lesson → Copy link to this lesson** and send the link to students. You can also build links yourself, for example `app.html#lesson=l12-a-better-square-with-loops`, `app.html#example=spiral` or `app.html#lang=ar`, and combine them with `&`. Links never contain anyone's code.
+
+**Robot buddy.** The robot guide can be turned off for everyone using the browser in **Teacher & Parent → Robot buddy**. Learners can also hide it or put it in Quiet mode from its own menu.
 
 Turtle Lab is designed to make programming visual, playful, and less intimidating.
 

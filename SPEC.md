@@ -10,7 +10,7 @@ approved roadmap or a guarantee of browser compatibility.
 | Attribute | Baseline |
 | --- | --- |
 | Review date | 2026-11-24 |
-| Source revision | `cf2351c` plus F-024 PR 2 (robot buddy welcome tour) |
+| Source revision | `18f14df` plus F-024 PR 3 (robot buddy event tips, idle nudges, Quiet mode) |
 | Primary sources | [index.html](index.html), [app.html](app.html) |
 | Supporting sources | [README.md](README.md), [LICENSE](LICENSE) |
 | Product | Turtle Lab |
@@ -156,7 +156,7 @@ they do not execute Python.
 | Learning area | Lesson, Syntax Help, Challenges, Gallery (F-021), Teacher & Parent, Badges, My Projects (F-012) | `[data-tab]`; `lesson`, `syntax`, `challenge`, `gallery`, `teacher`, `badges`, `projects`; `galleryTip` |
 | Print-only area | Syntax Cheat Sheet title and all reference commands/explanations | `printDocs` |
 | Notifications | Transient status messages | `toast` |
-| Robot buddy (F-024) | Animated SVG robot (default name Robo / روبو) in a fixed dock at the bottom-right (bottom-left in RTL), or wherever the learner dragged it. Clicking it opens a menu: Customize… (dialog with live preview, name, body color, antenna, eyes, accessory; 7 parts unlock with badges, see §6), Replay tour, Move robot (arrow keys), Return to corner (only after a move), Hide robot (leaves a 🤖 tab that brings it back). A speech bubble (`buddySay`) confirms a saved look, shows the move help and runs the welcome tour (§4.1); `#buddyLive` announces it. When the robot talks about a control it hops next to it (`buddyHop`), or into the top corner of a big one, and returns to its home when the bubble closes; it never hops while a program runs, waits for `input()` or listens, or while a dialog is open (`buddyBusy`). Teacher & Parent has a "Show the robot buddy" checkbox that removes the robot and the tab. Hidden when printing | `buddyDock`, `buddy`, `buddyMenu`, `buddyCustomize`, `buddyReplay`, `buddyMove`, `buddyCorner`, `buddyHide`, `buddyTab`, `buddyBubble`, `buddyText`, `buddyActions`, `buddyTourName`, `buddyBubbleClose`, `buddyLive`, `buddyDialog`, `buddyForm`, `buddyPreview`, `buddyPreviewName`, `buddyNameInput`, `buddyPick-<kind>`, `buddyLockedHint`, `buddySave`, `buddyCancel`, `buddyTeacherOn` |
+| Robot buddy (F-024) | Animated SVG robot (default name Robo / روبو) in a fixed dock at the bottom-right (bottom-left in RTL), or wherever the learner dragged it. Clicking it opens a menu: Customize… (dialog with live preview, name, body color, antenna, eyes, accessory; 7 parts unlock with badges, see §6), Replay tour, Quiet mode (`menuitemcheckbox`), Move robot (arrow keys), Return to corner (only after a move), Hide robot (leaves a 🤖 tab that brings it back). A speech bubble (`buddySay`) confirms a saved look, shows the move help, runs the welcome tour (§4.1) and gives event tips (§4.2); `#buddyLive` announces it. When the robot talks about a control it hops next to it (`buddyHop`), or into the top corner of a big one, and returns to its home when the bubble closes; it never hops while a program runs, waits for `input()` or listens, or while a dialog is open (`buddyBusy`). Teacher & Parent has a "Show the robot buddy" checkbox that removes the robot and the tab. Hidden when printing | `buddyDock`, `buddy`, `buddyMenu`, `buddyCustomize`, `buddyReplay`, `buddyQuiet`, `buddyMove`, `buddyCorner`, `buddyHide`, `buddyTab`, `buddyBubble`, `buddyText`, `buddyActions`, `buddyTourName`, `buddyBubbleClose`, `buddyLive`, `buddyDialog`, `buddyForm`, `buddyPreview`, `buddyPreviewName`, `buddyNameInput`, `buddyPick-<kind>`, `buddyLockedHint`, `buddySave`, `buddyCancel`, `buddyTeacherOn` |
 
 The initial active tabs are Lesson and Output. Tab selection is not persisted.
 The source includes handlers/translation strings for `saveTop` and
@@ -208,6 +208,22 @@ suggestion, badge tip, and completion button.
 Clicking **I did it!** adds the selected index to a `Set`, persists it,
 refreshes lesson checkmarks/progress/badges, preserves the draft, and shows a
 completion toast. It does not advance to the next lesson.
+
+The robot buddy (F-024) reacts to these moments (`buddyEvent` → `buddyTip`). Events
+wait while a run, `input()`, a listening program, a dialog, the tour, a drag or the
+robot menu is active, and only the latest is shown:
+
+| Event | Shown | Robot hops to |
+| --- | --- | --- |
+| First successful run | once (`seen: first-run`) | the drawing |
+| First friendly error | once (`seen: first-error`) | the red error line |
+| Lesson completed | every time: "You did it! ⭐", or for a new badge "New badge: … You unlocked a new look for me: …" with a **Try it on** button that opens Customize (15 s) | the Badges tab (badge only) |
+| First lesson of a new level (from Level 2, after start-up) | once per level (`seen: level-N`) | the lesson card |
+| Idle nudge | after 3 min without typing, clicking or running, at most once per 5 min; one of four tips | none |
+
+Tips close after 8 s. The robot only hops to a control that is on screen; tips
+never scroll the page. **Quiet mode** drops one-time tips and idle nudges and turns
+off hopping; completions still get a bubble at the dock.
 
 ### 4.3 Replace or recover code
 
@@ -909,7 +925,7 @@ browser-dependent.
 | `tl.coords.v1` | `1` on / `0` off | Off unless exactly `1` |
 | `tl.pointer.v1` | `1` on / `0` off (F-022) | Off unless exactly `1` |
 | `tl.lessonCard.v1` | `open` / `closed` (F-019) | `open`; any other value falls back to open |
-| `tl.buddy.v1` | JSON object `{ name, color, antenna, eyes, accessory, quiet, hidden, off, toured, seen, pos }` (F-024) | Defaults: empty name (the localized default Robo / روبو is shown), teal, bulb, round, none, all flags `false`, `seen` `[]`, `pos` `null` (default corner). `sanitizeBuddy()` checks each field on its own: names lose control and bidi characters and are cut to 20 characters; part ids must be known; flags must be booleans; `seen` keeps unique `[a-z0-9-]` strings; `pos` is `{x, y}` with finite numbers clamped to 0–1, else `null`. `toured` is set when the welcome tour is finished, skipped or closed. `quiet` and `seen` are stored for the tips (F-024 PR 3) and have no effect yet |
+| `tl.buddy.v1` | JSON object `{ name, color, antenna, eyes, accessory, quiet, hidden, off, toured, seen, pos }` (F-024) | Defaults: empty name (the localized default Robo / روبو is shown), teal, bulb, round, none, all flags `false`, `seen` `[]`, `pos` `null` (default corner). `sanitizeBuddy()` checks each field on its own: names lose control and bidi characters and are cut to 20 characters; part ids must be known; flags must be booleans; `seen` keeps unique `[a-z0-9-]` strings; `pos` is `{x, y}` with finite numbers clamped to 0–1, else `null`. `toured` is set when the welcome tour is finished, skipped or closed. `quiet` is Quiet mode; `seen` lists one-time tips already shown (`first-run`, `first-error`, `level-N`) |
 
 All app reads and writes go through `store.get(key, fallback, validate)` and
 `store.set(key, value)` (F-004). Both catch storage exceptions, including a
@@ -1118,7 +1134,7 @@ Function/constant names are better long-term search anchors.
 | Saving/progression/badges | `save`, `cursor`, `progressUI`, `complete`, `badges`, `resetProgress`, lines 1316-1322; ids and migration: `V2_LESSON_IDS`, `lessonIndex`, `lessonId`, `migrateV2` |
 | Drawing/zoom/coordinates | `resetCanvas`, `clampZoom`, `applyZoom`, `drawCoordinateOverlay`, `applyCoordinates`, `clearDrawing`, `stageToTurtle`, `applyPointer`, `togglePointer`, `renderTurtles`, `clearTurtles` (F-022), lines 1323-1332 |
 | Python lifecycle and errors | `output`, `builtinRead`, `nextFrame`, `run`, `friendly`, `stop`, `setRun`, lines 1333-1341 |
-| Robot buddy (F-024) | `BUDDY_SVG`, `BUDDY_PARTS`, `BUDDY_DEFAULT`, `sanitizeBuddy`, `loadBuddy`, `saveBuddy`, `effectiveBuddy`, `renderBuddy`, `buddyUI`, `buddySay`, `buddyHush`, `buddyClose`, `buddyBusy`, `buddySpot`, `buddyHop`, `buddyHome`, `buddyFollow`, `TOUR`, `tourStep`, `tourAction`, `startTour`, `endTour`, `maybeStartTour`, `buddyMenu`, `buddyApplyPos`, `buddySetPx`, `buddyDown`/`buddyDragMove`/`buddyUp` (drag), `buddyMoveStart`/`buddyMoveEnd`/`buddyKey` (keyboard move), `buddyCustomize`, `buddyDialogDone`, `buddyTeacher`, `buddyBind`, `buddyInit` (just before `init`) |
+| Robot buddy (F-024) | `BUDDY_SVG`, `BUDDY_PARTS`, `BUDDY_DEFAULT`, `sanitizeBuddy`, `loadBuddy`, `saveBuddy`, `effectiveBuddy`, `renderBuddy`, `buddyUI`, `buddySay`, `buddyHush`, `buddyClose`, `buddyBusy`, `buddySpot`, `buddyHop`, `buddyHome`, `buddyHomeRect`, `buddyFollow`, `buddyEvent`, `buddyDrain`, `buddyTip`, `buddyTipHop`, `buddySeen`, `buddyIdleWatch`, `buddyQuietToggle`, `TOUR`, `tourStep`, `tourAction`, `startTour`, `endTour`, `maybeStartTour`, `buddyMenu`, `buddyApplyPos`, `buddySetPx`, `buddyDown`/`buddyDragMove`/`buddyUp` (drag), `buddyMoveStart`/`buddyMoveEnd`/`buddyKey` (keyboard move), `buddyCustomize`, `buddyDialogDone`, `buddyTeacher`, `buddyBind`, `buddyInit` (just before `init`) |
 | Export/integration/startup | `copyCode`, `py`, `imgFromSvg`, `png`, `bind`, `init`, lines 1342-1348 |
 | Offline bundle generation | `tools/build-offline.mjs` (`LIBS`, `offlineHtml`); output in `offline/` |
 
@@ -1273,7 +1289,7 @@ for the limitations above.
 | Localization | LTR code/output in RTL layout, right gutter, translated lesson panels and controls, preserved draft, independent landing/app preferences, known untranslated strings |
 | Responsive layout | Widths around 640/860/1040/1180 boundaries, collapsed/expanded sidebar, narrow screens, long code/content, orientation changes, print-only sheet |
 | Accessibility | Keyboard/focus traversal, Tab escape behavior, ARIA state correctness, screen-reader labels/status, zoom announcement, contrast, reduced motion, print readability |
-| Robot buddy (F-024) | Dock side per language, menu by mouse and keyboard, Customize preview/Save/Cancel, plain-text names and default per language, badge unlocks and reset behavior, malformed `tl.buddy.v1`, drag with click threshold and persistence, clamping on resize, keyboard move, Return to corner, Hide and the Teacher switch, print, axe with menu/dialog/bubble in both languages; welcome tour steps, hops beside each target, name field, Back/Next/Skip/✕/Esc, persistence, Replay, deep link, Arabic at 800 px, no drag during the tour, axe on tour steps (covered by `tests/buddy.spec.js`) |
+| Robot buddy (F-024) | Dock side per language, menu by mouse and keyboard, Customize preview/Save/Cancel, plain-text names and default per language, badge unlocks and reset behavior, malformed `tl.buddy.v1`, drag with click threshold and persistence, clamping on resize, keyboard move, Return to corner, Hide and the Teacher switch, print, axe with menu/dialog/bubble in both languages; welcome tour steps, hops beside each target, name field, Back/Next/Skip/✕/Esc, persistence, Replay, deep link, Arabic at 800 px, no drag during the tour, axe on tour steps; first-run and first-error tips beside their targets and only once, no tip during a Step run, completion and badge messages with Try it on, level welcome once, menu placement while away, Quiet mode, idle nudge timing with a fake clock (covered by `tests/buddy.spec.js`) |
 | Persistence resilience | Malformed JSON, non-array progress, duplicate/invalid indexes, fractional selection, invalid mode/speed/zoom, empty draft, storage denial/quota, multiple tabs |
 
 Use isolated storage contexts for independent scenarios and named fixtures for
