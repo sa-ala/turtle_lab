@@ -9,8 +9,8 @@ approved roadmap or a guarantee of browser compatibility.
 
 | Attribute | Baseline |
 | --- | --- |
-| Review date | 2026-10-29 |
-| Source revision | `c83587c` plus source/offline footer synchronization |
+| Review date | 2026-11-24 |
+| Source revision | `903ac9e` plus F-024 PR 1 (robot buddy: character, menu, Customize, badge unlocks, dragging) |
 | Primary sources | [index.html](index.html), [app.html](app.html) |
 | Supporting sources | [README.md](README.md), [LICENSE](LICENSE) |
 | Product | Turtle Lab |
@@ -156,6 +156,7 @@ they do not execute Python.
 | Learning area | Lesson, Syntax Help, Challenges, Gallery (F-021), Teacher & Parent, Badges, My Projects (F-012) | `[data-tab]`; `lesson`, `syntax`, `challenge`, `gallery`, `teacher`, `badges`, `projects`; `galleryTip` |
 | Print-only area | Syntax Cheat Sheet title and all reference commands/explanations | `printDocs` |
 | Notifications | Transient status messages | `toast` |
+| Robot buddy (F-024) | Animated SVG robot (default name Robo / روبو) in a fixed dock at the bottom-right (bottom-left in RTL), or wherever the learner dragged it. Clicking it opens a menu: Customize… (dialog with live preview, name, body color, antenna, eyes, accessory; 7 parts unlock with badges, see §6), Move robot (arrow keys), Return to corner (only after a move), Hide robot (leaves a 🤖 tab that brings it back). A speech bubble (`buddySay`) confirms a saved look and shows the move help; `#buddyLive` announces it. Teacher & Parent has a "Show the robot buddy" checkbox that removes the robot and the tab. Hidden when printing | `buddyDock`, `buddy`, `buddyMenu`, `buddyCustomize`, `buddyMove`, `buddyCorner`, `buddyHide`, `buddyTab`, `buddyBubble`, `buddyText`, `buddyBubbleClose`, `buddyLive`, `buddyDialog`, `buddyForm`, `buddyPreview`, `buddyPreviewName`, `buddyNameInput`, `buddyPick-<kind>`, `buddyLockedHint`, `buddySave`, `buddyCancel`, `buddyTeacherOn` |
 
 The initial active tabs are Lesson and Output. Tab selection is not persisted.
 The source includes handlers/translation strings for `saveTop` and
@@ -181,7 +182,7 @@ features.
 
 On a clean storage context, defaults are lesson 1, English app UI, expanded
 sidebar, normal contrast, Normal run mode, Medium step speed, 100% zoom,
-coordinates off, lesson card open, only Level 1 expanded in the sidebar, zero completions, and all badges locked.
+coordinates off, lesson card open, only Level 1 expanded in the sidebar, zero completions, all badges locked, and the robot buddy (F-024) shown in its default look and corner.
 
 ### 4.2 Learn, experiment, and complete
 
@@ -531,6 +532,15 @@ those ids had when they were introduced.
 Earned badges use an `earned` class, a checkmark, and localized unlocked text.
 Locked badges show a generic completion prompt. Completing all valid lessons
 produces 51 stars and 100%; a run alone produces neither.
+
+`badges()` renders the grid and returns its `[icon, name, earned]` rows. The robot
+buddy (F-024) uses them to unlock one part per badge, with no separate storage:
+First Line → star sticker, Shape Builder → square eyes, Loop Hero → spiral antenna,
+Color Artist → gold and rainbow colors, Function Master → headphones, Turtle Creator
+→ crown, Game Maker → gamer headset. In the Customize dialog a locked part shows 🔒
+and the badge's icon, with the full requirement as a tooltip and for screen readers.
+A reset that locks an equipped part keeps the stored choice and draws the default
+part until the badge is earned again (`effectiveBuddy()`).
 
 ## 7. Execution architecture
 
@@ -889,6 +899,7 @@ browser-dependent.
 | `tl.coords.v1` | `1` on / `0` off | Off unless exactly `1` |
 | `tl.pointer.v1` | `1` on / `0` off (F-022) | Off unless exactly `1` |
 | `tl.lessonCard.v1` | `open` / `closed` (F-019) | `open`; any other value falls back to open |
+| `tl.buddy.v1` | JSON object `{ name, color, antenna, eyes, accessory, quiet, hidden, off, toured, seen, pos }` (F-024) | Defaults: empty name (the localized default Robo / روبو is shown), teal, bulb, round, none, all flags `false`, `seen` `[]`, `pos` `null` (default corner). `sanitizeBuddy()` checks each field on its own: names lose control and bidi characters and are cut to 20 characters; part ids must be known; flags must be booleans; `seen` keeps unique `[a-z0-9-]` strings; `pos` is `{x, y}` with finite numbers clamped to 0–1, else `null`. `quiet`, `toured` and `seen` are stored for the tour and tips (later F-024 PRs) and have no effect yet |
 
 All app reads and writes go through `store.get(key, fallback, validate)` and
 `store.set(key, value)` (F-004). Both catch storage exceptions, including a
@@ -996,6 +1007,17 @@ Since F-013:
   5.6:1); in high contrast, tags (`.pill`) are white on black.
 - Step execution doesn't move focus into the editor (F-010). Tab indents inside
   the editor, and Esc then Tab leaves it (F-009).
+- **Robot buddy (F-024):** the robot is a `<button>` with a localized name
+  ("Robo, your robot buddy. Open menu"), `aria-haspopup="menu"` and
+  `aria-expanded`. Its menu is `role="menu"` with ArrowUp/ArrowDown (wrapping),
+  Home/End and Esc (focus returns to the robot). Move robot is the keyboard
+  alternative to dragging (WCAG 2.5.7): arrows move 16 px, Shift 64 px, Enter or
+  Esc finish and `#buddyLive` announces "Robot moved". The Customize pickers are
+  native radio groups; locked parts are disabled radios whose label carries the
+  requirement. Names are rendered as text and wrapped in Unicode isolates inside
+  sentences. Idle moves (blink, a small bob) are short and timer-driven, never an
+  always-running animation; reduced motion turns off the bob, wave, bounce and
+  dangle.
 
 `tests/a11y.spec.js` runs **axe-core** (`@axe-core/playwright`, dev-only) on
 the landing page (all three views) and the app in English and Arabic across
@@ -1047,8 +1069,16 @@ The drawing stage is `clamp(420px,58dvh,640px)` with a 420px minimum above
 panels have a 112px minimum and 230px maximum height, reduced to a 190px
 maximum on smaller screens. Learning panels scroll at a 430px maximum.
 
+The robot buddy (F-024) is `position: fixed` (z-index 40, the toast 50, dialogs
+in the top layer): 76×84 px, 58×64 px at 860 px and below, 16 px (10 px) from
+the bottom and the right edge, or the left edge in RTL. A dragged position is
+stored as a fraction of the space the robot can move in, so it stays fully
+inside the window after a resize. The footer reserves `padding-inline-end` so
+its links are not under the dock. At 1280 px the dock covers the drawing stage's
+bottom-right corner; learners can drag or hide it.
+
 Print styles hide header, grid workspace, footer, tabs, and learning heading, then
-show the separate syntax sheet. Interactive screen and print layouts are
+show the separate syntax sheet. The robot buddy, its menu and bubble are hidden too. Interactive screen and print layouts are
 different deliverables.
 
 ## 12. Technical organization and operating constraints
@@ -1074,6 +1104,7 @@ Function/constant names are better long-term search anchors.
 | Saving/progression/badges | `save`, `cursor`, `progressUI`, `complete`, `badges`, `resetProgress`, lines 1316-1322; ids and migration: `V2_LESSON_IDS`, `lessonIndex`, `lessonId`, `migrateV2` |
 | Drawing/zoom/coordinates | `resetCanvas`, `clampZoom`, `applyZoom`, `drawCoordinateOverlay`, `applyCoordinates`, `clearDrawing`, `stageToTurtle`, `applyPointer`, `togglePointer`, `renderTurtles`, `clearTurtles` (F-022), lines 1323-1332 |
 | Python lifecycle and errors | `output`, `builtinRead`, `nextFrame`, `run`, `friendly`, `stop`, `setRun`, lines 1333-1341 |
+| Robot buddy (F-024) | `BUDDY_SVG`, `BUDDY_PARTS`, `BUDDY_DEFAULT`, `sanitizeBuddy`, `loadBuddy`, `saveBuddy`, `effectiveBuddy`, `renderBuddy`, `buddyUI`, `buddySay`, `buddyHush`, `buddyMenu`, `buddyApplyPos`, `buddySetPx`, `buddyDown`/`buddyDragMove`/`buddyUp` (drag), `buddyMoveStart`/`buddyMoveEnd`/`buddyKey` (keyboard move), `buddyCustomize`, `buddyDialogDone`, `buddyTeacher`, `buddyBind`, `buddyInit` (just before `init`) |
 | Export/integration/startup | `copyCode`, `py`, `imgFromSvg`, `png`, `bind`, `init`, lines 1342-1348 |
 | Offline bundle generation | `tools/build-offline.mjs` (`LIBS`, `offlineHtml`); output in `offline/` |
 
@@ -1228,6 +1259,7 @@ for the limitations above.
 | Localization | LTR code/output in RTL layout, right gutter, translated lesson panels and controls, preserved draft, independent landing/app preferences, known untranslated strings |
 | Responsive layout | Widths around 640/860/1040/1180 boundaries, collapsed/expanded sidebar, narrow screens, long code/content, orientation changes, print-only sheet |
 | Accessibility | Keyboard/focus traversal, Tab escape behavior, ARIA state correctness, screen-reader labels/status, zoom announcement, contrast, reduced motion, print readability |
+| Robot buddy (F-024) | Dock side per language, menu by mouse and keyboard, Customize preview/Save/Cancel, plain-text names and default per language, badge unlocks and reset behavior, malformed `tl.buddy.v1`, drag with click threshold and persistence, clamping on resize, keyboard move, Return to corner, Hide and the Teacher switch, print, axe with menu/dialog/bubble in both languages (covered by `tests/buddy.spec.js`) |
 | Persistence resilience | Malformed JSON, non-array progress, duplicate/invalid indexes, fractional selection, invalid mode/speed/zoom, empty draft, storage denial/quota, multiple tabs |
 
 Use isolated storage contexts for independent scenarios and named fixtures for
